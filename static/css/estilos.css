@@ -1,0 +1,448 @@
+
+/* =========================================
+   CONTIGO - PALETA DE COLORES
+========================================= */
+
+:root {
+    --lila-principal: #9B7EDE;
+    --lavanda-suave: #D8C9F0;
+    --lila-claro: #EADCFB;
+    --rosa-empolvado: #E9C6D8;
+    --verde-salvia: #B8D8C0;
+    --azul-lavanda: #B9C7E8;
+    --morado-profundo: #51406F;
+
+    /* Fondo crema similar al del zorrito */
+    --fondo-crema: #F8F4EA;
+
+    --blanco: #FFFFFF;
+}
+
+/* =========================================
+   CONFIGURACION GENERAL
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    font-family: Arial, sans-serif;
+
+    background-color: var(--fondo-crema);
+
+    color: var(--morado-profundo);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px 16px;
+}
+
+/* =========================================
+   CONTENEDOR DE INICIO DE SESION
+========================================= */
+
+.contenedor-login {
+    width: 100%;
+    max-width: 440px;
+
+    background-color: var(--fondo-crema);
+
+    padding: 30px 35px;
+
+    border-radius: 25px;
+
+    text-align: center;
+
+    box-shadow:
+        0 12px 35px rgba(81, 64, 111, 0.08);
+
+    border: 1px solid rgba(216, 201, 240, 0.45);
+}
+
+/* =========================================
+   LOGO OFICIAL DE CONTIGO
+========================================= */
+
+.logo-contigo {
+    display: block;
+
+    width: 180px;
+    max-width: 100%;
+    height: auto;
+
+    object-fit: contain;
+
+    margin: 0 auto 15px;
+}
+
+/* =========================================
+   TITULO PRINCIPAL
+========================================= */
+
+h1 {
+    font-family: Arial, sans-serif;
+
+    font-size: 38px;
+    font-weight: 700;
+
+    color: var(--lila-principal);
+
+    margin-bottom: 15px;
+
+    letter-spacing: normal;
+}
+
+/* =========================================
+   MENSAJE DE BIENVENIDA
+========================================= */
+
+.descripcion {
+    font-size: 15px;
+
+    color: var(--morado-profundo);
+
+    line-height: 1.6;
+
+    margin-bottom: 28px;
+}
+
+/* =========================================
+   TITULO INICIAR SESION
+========================================= */
+
+h2 {
+    font-family: Arial, sans-serif;
+
+    font-size: 26px;
+    font-weight: 700;
+
+    color: var(--morado-profundo);
+
+    margin-bottom: 25px;
+}
+
+/* =========================================
+   FORMULARIO
+========================================= */
+
+#form-login {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    text-align: left;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+
+    color: var(--morado-profundo);
+
+    margin-top: 5px;
+}
+
+/* =========================================
+   CAMPOS DE TEXTO
+========================================= */
+
+input {
+    width: 100%;
+
+    padding: 14px 15px;
+
+    border: 1.5px solid var(--lavanda-suave);
+
+    border-radius: 12px;
+
+    background-color: #FFFCFA;
+
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+
+    color: var(--morado-profundo);
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+input::placeholder {
+    color: #9F94B0;
+}
+
+input:focus {
+    border-color: var(--lila-principal);
+
+    box-shadow:
+        0 0 0 3px rgba(155, 126, 222, 0.15);
+}
+
+/* =========================================
+   OLVIDASTE TU CONTRASEÑA
+========================================= */
+
+.olvidar-contrasena {
+    display: block;
+
+    text-align: right;
+
+    font-size: 13px;
+
+    color: #7554B6;
+
+    text-decoration: none;
+
+    margin-top: 3px;
+    margin-bottom: 10px;
+}
+
+.olvidar-contrasena:hover {
+    text-decoration: underline;
+}
+
+/* =========================================
+   BOTON INICIAR SESION
+========================================= */
+
+button[type="submit"] {
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+    border-radius: 12px;
+
+    background-color: var(--lila-principal);
+
+    color: var(--blanco);
+
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    margin-top: 8px;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #805EC5;
+
+    transform: translateY(-2px);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+button[type="submit"]:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--morado-profundo);
+    outline-offset: 3px;
+}
+
+/* =========================================
+   REGISTRO DE USUARIO
+========================================= */
+
+.registro {
+    font-size: 14px;
+
+    color: var(--morado-profundo);
+
+    margin-top: 25px;
+
+    line-height: 1.7;
+}
+
+.registro a {
+    color: #7554B6;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.registro a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================
+   DISEÑO RESPONSIVE
+   COMPUTADORES GRANDES
+========================================= */
+
+@media (min-width: 1200px) {
+
+    .contenedor-login {
+        max-width: 460px;
+        padding: 38px 42px;
+    }
+
+    .logo-contigo {
+        width: 195px;
+    }
+
+    h1 {
+        font-size: 42px;
+    }
+}
+
+/* =========================================
+   TABLETS
+========================================= */
+
+@media (min-width: 600px) and (max-width: 1199px) {
+
+    .contenedor-login {
+        max-width: 430px;
+        padding: 32px;
+    }
+
+    .logo-contigo {
+        width: 175px;
+    }
+
+    h1 {
+        font-size: 37px;
+    }
+}
+
+/* =========================================
+   CELULARES
+========================================= */
+
+@media (max-width: 599px) {
+
+    body {
+        padding: 18px 12px;
+    }
+
+    .contenedor-login {
+        max-width: 100%;
+
+        padding: 25px 22px;
+
+        border-radius: 20px;
+    }
+
+    .logo-contigo {
+        width: 150px;
+        margin-bottom: 12px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
+    h2 {
+        font-size: 23px;
+        margin-bottom: 20px;
+    }
+
+    .descripcion {
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    input {
+        font-size: 16px;
+        padding: 13px;
+    }
+
+    button[type="submit"] {
+        font-size: 16px;
+        padding: 14px;
+    }
+}
+
+/* =========================================
+   CELULARES MUY PEQUEÑOS
+========================================= */
+
+@media (max-width: 360px) {
+
+    .contenedor-login {
+        padding: 20px 16px;
+    }
+
+    .logo-contigo {
+        width: 125px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h2 {
+        font-size: 21px;
+    }
+
+    .descripcion {
+        font-size: 13px;
+    }
+}
+
+/* =========================================
+   PANTALLAS CON POCA ALTURA
+========================================= */
+
+@media (max-height: 650px) {
+
+    body {
+        align-items: flex-start;
+    }
+
+    .contenedor-login {
+        margin: auto 0;
+    }
+
+    .logo-contigo {
+        width: 125px;
+    }
+
+    .descripcion {
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        margin-bottom: 15px;
+    }
+}
+
+/* =========================================
+   ACCESIBILIDAD: REDUCIR ANIMACIONES
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    input,
+    button[type="submit"] {
+        transition: none;
+    }
+
+    button[type="submit"]:hover {
+        transform: none;
+    }
+}
+
