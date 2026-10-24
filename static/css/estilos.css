@@ -446,3 +446,34 @@ a:focus-visible {
     }
 }
 
+
+/* FORMULARIO DE REGISTRO */
+
+#form-registro {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+#form-registro input {
+    width: 100%;
+}
+
+.mensaje-registro {
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.mensaje-registro:empty {
+    display: none;
+}
+
+/* ADAPTACION A DISPOSITIVOS */
+
+@media (max-width: 599px) {
+    #form-registro {
+        gap: 10px;
+    }
+}
