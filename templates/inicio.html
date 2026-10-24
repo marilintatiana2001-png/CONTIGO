@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONTIGO | Inicio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body class="pagina-inicio">
+
+    <main class="contenedor-inicio">
+
+        <!-- Encabezado -->
+        <header class="encabezado-inicio">
+            <h2>☀️ Hola, <span id="nombre-usuario">{{ nombre }}</span></h2>
+
+            <div class="acciones-encabezado">
+                <a href="/notificaciones" aria-label="Notificaciones">🔔</a>
+                <a href="/configuracion" aria-label="Configuración">⚙️</a>
+            </div>
+        </header>
+
+        <!-- Bienvenida -->
+        <section class="bienvenida-inicio">
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito oficial de CONTIGO"
+                class="mascota-inicio"
+            >
+
+            <div class="texto-bienvenida">
+                <h1>CONTIGO</h1>
+                <h2>Hola, {{ nombre }}</h2>
+                <p>Bienvenido a CONTIGO</p>
+                <p>¿Cómo te sientes hoy?</p>
+            </div>
+        </section>
+
+        <!-- Emociones -->
+        <section class="seccion-emociones">
+            <h2>Tu estado actual:</h2>
+
+            <div class="lista-emociones" id="lista-emociones">
+                <button type="button" data-emocion="Ansiedad">😟 Ansiedad</button>
+                <button type="button" data-emocion="Tristeza">😢 Tristeza</button>
+                <button type="button" data-emocion="Miedo">😨 Miedo</button>
+                <button type="button" data-emocion="Soledad">🥺 Soledad</button>
+                <button type="button" data-emocion="Enojo">😠 Enojo</button>
+                <button type="button" data-emocion="Frustración">😣 Frustración</button>
+                <button type="button" data-emocion="Culpa">😔 Culpa</button>
+                <button type="button" data-emocion="Vergüenza">😳 Vergüenza</button>
+                <button type="button" data-emocion="Estrés">😫 Estrés</button>
+                <button type="button" data-emocion="Angustia">😰 Angustia</button>
+                <button type="button" data-emocion="Desesperanza">😞 Desesperanza</button>
+                <button type="button" data-emocion="Vacío emocional">😶 Vacío emocional</button>
+                <button type="button" data-emocion="Inseguridad">😕 Inseguridad</button>
+                <button type="button" data-emocion="Agobio">😩 Agobio</button>
+            </div>
+
+            <p class="ayuda-emociones">Selecciona tu emoción</p>
+        </section>
+
+        <!-- Compañero emocional -->
+        <section class="tarjeta-inicio tarjeta-ian">
+            <div>
+                <h2>🤖 Compañero emocional IAN</h2>
+                <p>Habla con IAN cuando necesites apoyo emocional.</p>
+                <a href="/ian" class="boton-tarjeta">Hablar ahora →</a>
+            </div>
+        </section>
+
+        <!-- Constelación -->
+        <section class="tarjeta-inicio tarjeta-cielo">
+            <div>
+                <h2>✨ Constelación de Bienestar</h2>
+                <p>Ingresa a tus actividades y enciende nuevas estrellas.</p>
+                <a href="/constelacion" class="boton-tarjeta">
+                    Ver constelación →
+                </a>
+            </div>
+        </section>
+
+        <!-- Navegación -->
+        <nav class="navegacion-inferior" aria-label="Navegación principal">
+            <a href="/inicio" class="activo">🏠 <span>Inicio</span></a>
+            <a href="/diario">📓 <span>Mi Diario</span></a>
+            <a href="/red-apoyo">👥 <span>Red Apoyo</span></a>
+            <a href="/perfil">👤 <span>Perfil</span></a>
+        </nav>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
+</body>
+</html>
