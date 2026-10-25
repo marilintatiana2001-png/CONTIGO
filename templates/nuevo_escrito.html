@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CONTIGO | Nuevo escrito</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/diario.css') }}">
+</head>
+
+<body class="pagina-diario">
+
+    <main class="contenedor-diario">
+
+        <!-- ENCABEZADO -->
+        <header class="encabezado-diario">
+
+            <h2>
+                ☀️ Hola,
+                <span>{{ nombre }}</span>
+            </h2>
+
+            <div class="acciones-encabezado">
+                <a href="/notificaciones">🔔</a>
+                <a href="/configuracion">⚙️</a>
+            </div>
+
+        </header>
+
+        <!-- TÍTULO -->
+        <section class="encabezado-nuevo-escrito">
+            <h1>Nuevo escrito ♡</h1>
+            <p>Un espacio para expresarte 💗</p>
+        </section>
+
+        <!-- FORMULARIO -->
+        <section class="tarjeta-nuevo-escrito">
+
+            <form id="form-escrito">
+
+                <label for="titulo">Título de tu escrito</label>
+
+                <input
+                    type="text"
+                    id="titulo"
+                    name="titulo"
+                    maxlength="150"
+                    placeholder="Título del escrito..."
+                    required
+                >
+
+                <label for="contenido">
+                    ¿Qué quieres contar hoy?
+                </label>
+
+                <textarea
+                    id="contenido"
+                    name="contenido"
+                    placeholder="Escribe aquí tus pensamientos, emociones y momentos especiales..."
+                    required
+                ></textarea>
+
+                <div class="decoracion-zorrito">
+                    <img
+                        src="{{ url_for('static', filename='img/zorrito-diario.png') }}"
+                        alt="Zorrito de CONTIGO"
+                    >
+                </div>
+
+                <p id="mensaje-escrito"
+                   role="status"
+                   aria-live="polite"></p>
+
+                <button type="submit" class="boton-guardar-escrito">
+                    Guardar escrito 💗
+                </button>
+
+            </form>
+
+        </section>
+
+        <a href="/diario" class="volver-diario">
+            ← Volver a Mi Diario
+        </a>
+
+    </main>
+
+    <!-- MENÚ INFERIOR ORIGINAL -->
+    <nav class="navegacion-inferior"
+         aria-label="Navegación principal">
+
+        <a href="/inicio">
+            <span class="icono-menu">🏠</span>
+            <span>Inicio</span>
+        </a>
+
+        <a href="/diario" class="activo">
+            <span class="icono-menu">📓</span>
+            <span>Diario</span>
+        </a>
+
+        <a href="/red-apoyo">
+            <span class="icono-menu">👥</span>
+            <span>Red Apoyo</span>
+        </a>
+
+        <a href="/perfil">
+            <span class="icono-menu">👤</span>
+            <span>Perfil</span>
+        </a>
+
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/nuevo_escrito.js') }}"></script>
+
+</body>
+</html>

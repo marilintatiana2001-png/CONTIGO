@@ -1,39 +1,63 @@
 
-const formulario = document.getElementById("form-login");
+const formularioLogin = document.getElementById("form-login");
 
-formulario.addEventListener("submit", async function (evento) {
-    evento.preventDefault();
+if (formularioLogin) {
 
-    const correo = document.getElementById("correo").value.trim();
-    const contrasena = document.getElementById("contrasena").value;
+    formularioLogin.addEventListener("submit", async function (evento) {
 
-    const boton = formulario.querySelector('button[type="submit"]');
+        evento.preventDefault();
 
-    boton.disabled = true;
+        const correo = document.getElementById("correo").value.trim();
 
-    try {
-        const respuesta = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                correo: correo,
-                contrasena: contrasena
-            })
-        });
+        const contrasena = document.getElementById("contrasena").value;
 
-        const resultado = await respuesta.json();
+        const boton = formularioLogin.querySelector(
+            'button[type="submit"]'
+        );
 
-        if (respuesta.ok) {
-            window.location.href = "/inicio";
-        } else {
-            alert(resultado.mensaje || "No se pudo iniciar sesión.");
+        boton.disabled = true;
+
+        try {
+
+            const respuesta = await fetch("/api/login", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                credentials: "same-origin",
+
+                body: JSON.stringify({
+                    correo: correo,
+                    contrasena: contrasena
+                })
+
+            });
+
+            const resultado = await respuesta.json();
+
+            if (respuesta.ok) {
+
+                window.location.href = resultado.redirigir;
+
+            } else {
+
+                alert(resultado.mensaje);
+
+            }
+
+        } catch (error) {
+
+            alert("No pudimos conectar con el servidor.");
+
+        } finally {
+
+            boton.disabled = false;
+
         }
 
-    } catch (error) {
-        alert("No pudimos conectar con el servidor.");
-    } finally {
-        boton.disabled = false;
-    }
-});
+    });
+
+}

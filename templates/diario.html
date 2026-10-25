@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONTIGO | Mi Diario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/diario.css') }}">
+</head>
+
+<body class="pagina-diario">
+    <main class="contenedor-diario">
+
+        <header class="encabezado-diario">
+            <h2>☀️ Hola, <span>{{ nombre }}</span></h2>
+            <div class="acciones-encabezado">
+                <a href="/notificaciones" title="Notificaciones">🔔</a>
+                <a href="/configuracion" title="Configuración">⚙️</a>
+            </div>
+        </header>
+
+        <section class="titulo-diario">
+            <h1>🌿 Mi Diario ♡</h1>
+        </section>
+
+        <a href="/diario/nuevo" class="boton-nuevo">
+            ＋ Nuevo escrito
+        </a>
+
+        <section class="lista-escritos">
+
+            {% if escritos %}
+
+                {% for escrito in escritos %}
+                <article class="tarjeta-escrito"
+                         data-id="{{ escrito.id_entrada }}">
+
+                    <div class="informacion-escrito">
+                        <p class="fecha-escrito">
+                            {{ escrito.fecha_hora.strftime('%d/%m/%Y') }}
+                        </p>
+
+                        <h3 class="titulo-escrito">
+                            {{ escrito.titulo }}
+                        </h3>
+
+                        <p class="resumen-escrito">
+                            {{ escrito.contenido }}
+                        </p>
+
+                        <div class="acciones-escrito">
+                            <button type="button" class="boton-editar">
+                                ✏️ Editar
+                            </button>
+
+                            <button type="button" class="boton-eliminar">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+
+                    <img
+                        src="{{ url_for('static', filename='img/zorrito-diario.png') }}"
+                        alt="Zorrito de CONTIGO"
+                        class="zorrito-tarjeta"
+                    >
+                </article>
+                {% endfor %}
+
+            {% else %}
+
+                <div class="diario-vacio">
+                    <img
+                        src="{{ url_for('static', filename='img/zorrito-diario.png') }}"
+                        alt="Zorrito de CONTIGO"
+                        class="zorrito-vacio"
+                    >
+
+                    <h2>Aún no has escrito nada</h2>
+
+                    <p>
+                        Tu diario está listo para guardar tus
+                        pensamientos, emociones y momentos especiales.
+                    </p>
+
+                    <a href="/diario/nuevo" class="boton-primer-escrito">
+                        💗 Empieza tu primer escrito
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <!-- Ventana para editar -->
+        <section id="panel-edicion" class="panel-edicion" hidden>
+            <div class="contenido-edicion">
+                <h2>✏️ Editar mi escrito</h2>
+
+                <form id="form-edicion">
+                    <input type="hidden" id="editar-id">
+
+                    <label for="editar-titulo">Título</label>
+                    <input
+                        type="text"
+                        id="editar-titulo"
+                        maxlength="150"
+                        required
+                    >
+
+                    <label for="editar-contenido">Mi escrito</label>
+                    <textarea
+                        id="editar-contenido"
+                        rows="8"
+                        required
+                    ></textarea>
+
+                    <p id="mensaje-edicion" role="status"></p>
+
+                    <div class="botones-edicion">
+                        <button type="button" id="cancelar-edicion">
+                            Cancelar
+                        </button>
+
+                        <button type="submit">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Menú inferior -->
+    <nav class="navegacion-inferior" aria-label="Navegación principal">
+        <a href="/inicio">
+            <span class="icono-menu">🏠</span>
+            <span>Inicio</span>
+        </a>
+
+        <a href="/diario" class="activo">
+            <span class="icono-menu">📓</span>
+            <span>Diario</span>
+        </a>
+
+        <a href="/red-apoyo">
+            <span class="icono-menu">👥</span>
+            <span>Red Apoyo</span>
+        </a>
+
+        <a href="/perfil">
+            <span class="icono-menu">👤</span>
+            <span>Perfil</span>
+        </a>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/diario.js') }}"></script>
+</body>
+</html>
+
