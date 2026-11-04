@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CONTIGO | Mi actividad</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/actividades.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/interactivas.css') }}">
+</head>
+
+<body class="pagina-actividades"
+      data-emocion="{{ actividad.emocion }}"
+      data-csrf="{{ csrf_contigo }}">
+
+    <main class="contenedor-actividades">
+
+        <!-- ENCABEZADO -->
+        <header class="encabezado-actividades">
+
+            <h2>
+                ☀️ Hola,
+                <span>{{ nombre }}</span>
+            </h2>
+
+            <div class="acciones-encabezado">
+
+                <a href="/notificaciones"
+                   aria-label="Notificaciones">
+                    🔔
+                </a>
+
+                <a href="/configuracion"
+                   aria-label="Configuración">
+                    ⚙️
+                </a>
+
+            </div>
+
+        </header>
+
+        <!-- REGRESAR -->
+        <a
+            href="{{ url_for('mostrar_actividades', emocion=actividad.emocion) }}"
+            class="volver-inicio"
+        >
+            ← Volver a las actividades
+        </a>
+
+        <!-- PORTADA -->
+        <section class="portada-actividades">
+
+            <div class="decoracion-portada">
+                ✨ 💜
+            </div>
+
+            <h1>{{ actividad.nombre }}</h1>
+
+            <div class="emocion-seleccionada">
+                {{ actividad.emocion }}
+            </div>
+
+        </section>
+
+        <!-- INFORMACIÓN -->
+        <section class="detalle-actividad">
+
+            <div class="datos-actividad">
+
+                <span>
+                    💗 {{ actividad.categoria }}
+                </span>
+
+                <span>
+                    ⏱️ {{ actividad.duracion }}
+                    minutos sugeridos
+                </span>
+
+            </div>
+
+            <h2>¿En qué consiste?</h2>
+
+            <p>{{ actividad.descripcion }}</p>
+
+            <!-- EXPERIENCIA INTERACTIVA -->
+            <div class="experiencia-actividad">
+
+                <!-- INICIO -->
+                <section
+                    id="actividad-intro"
+                    class="actividad-intro"
+                >
+
+                    <div class="adorno-experiencia">
+                        🌸 ✨ 🌿
+                    </div>
+
+                    <h2>Este momento es para ti</h2>
+
+                    <p>
+                        Realiza esta actividad a tu ritmo.
+                        No necesitas hacerlo perfectamente.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="comenzar-actividad"
+                        class="boton-experiencia"
+                    >
+                        Comenzar actividad 💜
+                    </button>
+
+                </section>
+
+                <!-- EJERCICIO -->
+                <section
+                    id="actividad-zona"
+                    class="actividad-zona"
+                    data-id="{{ actividad.id_actividad }}"
+                    aria-label="Ejercicio interactivo"
+                    hidden
+                >
+                </section>
+
+                <!-- FINALIZACIÓN -->
+                <section
+                    id="actividad-final"
+                    class="actividad-final"
+                    hidden
+                >
+
+                    <div class="adorno-experiencia">
+                        🌟 💗 🌟
+                    </div>
+
+                    <h2>
+                        Gracias por dedicarte este momento
+                    </h2>
+
+                    <!-- FRASE DE APOYO -->
+                    <p
+                        id="frase-final"
+                        class="frase-final"
+                        aria-live="polite"
+                    ></p>
+
+                    <!-- PREGUNTA DE REFLEXIÓN -->
+                    <p
+                        id="pregunta-reflexion"
+                        class="pregunta-reflexion"
+                    ></p>
+
+                    <!-- ESTRELLA GANADA -->
+                    <p
+                        id="aviso-estrella"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                    <a
+                        href="{{ url_for('constelacion') }}"
+                        class="enlace-otras-actividades"
+                    >
+                        🌟 Ver mi Cielo de Bienestar
+                    </a>
+
+                    <p class="firma-contigo">
+                        Con cariño, CONTIGO 🦊
+                    </p>
+
+                    <button
+                        type="button"
+                        id="repetir-actividad"
+                        class="boton-experiencia"
+                    >
+                        Repetir actividad
+                    </button>
+
+                    <a
+                        href="{{ url_for('mostrar_actividades', emocion=actividad.emocion) }}"
+                        class="enlace-otras-actividades"
+                    >
+                        Explorar otras actividades →
+                    </a>
+
+                </section>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MENÚ INFERIOR ORIGINAL -->
+    <nav class="navegacion-inferior"
+         aria-label="Navegación principal">
+
+        <a href="/inicio" class="activo">
+            <span class="icono-menu">🏠</span>
+            <span>Inicio</span>
+        </a>
+
+        <a href="/diario">
+            <span class="icono-menu">📓</span>
+            <span>Diario</span>
+        </a>
+
+        <a href="/red-apoyo">
+            <span class="icono-menu">👥</span>
+            <span>Red Apoyo</span>
+        </a>
+
+        <a href="/perfil">
+            <span class="icono-menu">👤</span>
+            <span>Perfil</span>
+        </a>
+
+    </nav>
+
+    <!-- FRASES Y REFLEXIONES -->
+    <script
+        src="{{ url_for('static', filename='js/actividad.js') }}">
+    </script>
+
+    <!-- MOTOR INTERACTIVO -->
+    <script
+        src="{{ url_for('static', filename='js/motor_actividades.js') }}">
+    </script>
+
+</body>
+</html>

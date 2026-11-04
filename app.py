@@ -1,6 +1,8 @@
 
 import os
 import re
+import json
+import secrets
 from datetime import date, datetime
 from functools import wraps
 
@@ -23,9 +25,9 @@ from mysql.connector import Error, IntegrityError
 from conexion import conectar_db
 
 
-# ==========================================
-# CONFIGURACIÓN DE CONTIGO
-# ==========================================
+# ============================================================
+# CONFIGURACION PRINCIPAL DE CONTIGO
+# ============================================================
 
 app = Flask(__name__)
 
@@ -37,19 +39,21 @@ if not SECRET_KEY:
     )
 
 app.config["SECRET_KEY"] = SECRET_KEY
-
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 
-# ==========================================
+# ============================================================
 # FUNCIONES AUXILIARES
-# ==========================================
+# ============================================================
 
 def requiere_sesion(funcion):
+
     @wraps(funcion)
     def protegida(*args, **kwargs):
+
         if "id_usuario" not in session:
+
             if request.path.startswith("/api/"):
                 return jsonify({
                     "mensaje": "Debes iniciar sesión."
@@ -63,6 +67,7 @@ def requiere_sesion(funcion):
 
 
 def cerrar_conexion(cursor, conexion):
+
     if cursor is not None:
         cursor.close()
 
@@ -71,6 +76,7 @@ def cerrar_conexion(cursor, conexion):
 
 
 def validar_escrito(datos):
+
     if not isinstance(datos, dict):
         return None, None, "Datos inválidos."
 
@@ -99,30 +105,62 @@ def validar_escrito(datos):
     return titulo, contenido, None
 
 
-# ==========================================
-# PANTALLA DE INICIO DE SESIÓN
-# ==========================================
+# ============================================================
+# SEGURIDAD Y TOKEN CSRF
+# ============================================================
+
+@app.context_processor
+def variables_de_seguridad_contigo():
+
+    if "id_usuario" not in session:
+        return {"csrf_contigo": ""}
+
+    if "csrf_contigo" not in session:
+        session["csrf_contigo"] = secrets.token_urlsafe(32)
+
+    return {
+        "csrf_contigo": session["csrf_contigo"]
+    }
+
+
+def validar_csrf_contigo():
+
+    enviado = request.headers.get(
+        "X-CSRF-Token", ""
+    )
+
+    esperado = session.get(
+        "csrf_contigo", ""
+    )
+
+    return (
+        bool(enviado and esperado)
+        and secrets.compare_digest(enviado, esperado)
+    )
+
+
+# ============================================================
+# PANTALLA DE LOGIN
+# ============================================================
 
 @app.route("/")
 def inicio():
+
     if "id_usuario" in session:
         return redirect(url_for("pantalla_inicio"))
 
     return render_template("login.html")
 
 
-# ==========================================
-# PANTALLA DE REGISTRO
-# ==========================================
+# ============================================================
+# REGISTRO DE USUARIOS
+# ============================================================
 
 @app.route("/registro")
 def registro():
+
     return render_template("registro.html")
 
-
-# ==========================================
-# API: REGISTRAR USUARIO
-# ==========================================
 
 @app.route("/api/registro", methods=["POST"])
 def guardar_registro():
@@ -147,17 +185,16 @@ def guardar_registro():
             "mensaje": "Completa los campos obligatorios."
         }), 400
 
-    if len(nombre) > 100 or len(correo) > 150:
-        return jsonify({
-            "mensaje": "Revisa tu nombre y correo."
-        }), 400
-
-    if not re.fullmatch(
-        r"[^@\s]+@[^@\s]+\.[^@\s]+",
-        correo
+    if (
+        len(nombre) > 100
+        or len(correo) > 150
+        or not re.fullmatch(
+            r"[^@\s]+@[^@\s]+\.[^@\s]+",
+            correo
+        )
     ):
         return jsonify({
-            "mensaje": "Ingresa un correo válido."
+            "mensaje": "Revisa tu nombre y correo."
         }), 400
 
     if not isinstance(contrasena, str):
@@ -170,7 +207,7 @@ def guardar_registro():
             "mensaje": "Confirma tu contraseña."
         }), 400
 
-    if len(contrasena) < 8 or len(contrasena) > 128:
+    if not 8 <= len(contrasena) <= 128:
         return jsonify({
             "mensaje": (
                 "La contraseña debe tener entre "
@@ -186,10 +223,10 @@ def guardar_registro():
     fecha_nacimiento = None
 
     if fecha_texto:
+
         try:
             fecha_nacimiento = datetime.strptime(
-                fecha_texto,
-                "%Y-%m-%d"
+                fecha_texto, "%Y-%m-%d"
             ).date()
 
             if fecha_nacimiento > date.today():
@@ -210,17 +247,13 @@ def guardar_registro():
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor()
 
         cursor.execute("""
             INSERT INTO usuarios
-            (
-                nombre,
-                correo,
-                contrasena,
-                fecha_nacimiento
-            )
+            (nombre, correo, contrasena, fecha_nacimiento)
             VALUES (%s, %s, %s, %s)
         """, (
             nombre,
@@ -236,18 +269,22 @@ def guardar_registro():
         }), 201
 
     except IntegrityError as error:
+
         if error.errno == 1062:
             return jsonify({
                 "mensaje": "Este correo ya está registrado."
             }), 409
 
         app.logger.exception("Error de integridad")
+
         return jsonify({
             "mensaje": "No se pudo completar el registro."
         }), 500
 
     except Error:
+
         app.logger.exception("Error al registrar usuario")
+
         return jsonify({
             "mensaje": "No pudimos guardar tu registro."
         }), 500
@@ -256,9 +293,9 @@ def guardar_registro():
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# API: INICIAR SESIÓN
-# ==========================================
+# ============================================================
+# INICIAR SESION
+# ============================================================
 
 @app.route("/api/login", methods=["POST"])
 def iniciar_sesion():
@@ -273,7 +310,11 @@ def iniciar_sesion():
     correo = str(datos.get("correo") or "").strip().lower()
     contrasena = datos.get("contrasena")
 
-    if not correo or not isinstance(contrasena, str):
+    if (
+        not correo
+        or not isinstance(contrasena, str)
+        or not contrasena
+    ):
         return jsonify({
             "mensaje": "Ingresa tu correo y contraseña."
         }), 400
@@ -282,35 +323,25 @@ def iniciar_sesion():
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT
-                id_usuario,
-                nombre,
-                correo,
-                contrasena
+            SELECT id_usuario, nombre, correo, contrasena
             FROM usuarios
             WHERE correo = %s
         """, (correo,))
 
         usuario = cursor.fetchone()
 
-        if not usuario:
-            return jsonify({
-                "mensaje": "Correo o contraseña incorrectos."
-            }), 401
-
-        if not check_password_hash(
-            usuario["contrasena"],
-            contrasena
+        if not usuario or not check_password_hash(
+            usuario["contrasena"], contrasena
         ):
             return jsonify({
                 "mensaje": "Correo o contraseña incorrectos."
             }), 401
 
-        # Guardar la sesión del usuario
         session.clear()
 
         session["id_usuario"] = usuario["id_usuario"]
@@ -322,7 +353,9 @@ def iniciar_sesion():
         }), 200
 
     except Error:
+
         app.logger.exception("Error al iniciar sesión")
+
         return jsonify({
             "mensaje": "No pudimos iniciar sesión."
         }), 500
@@ -331,48 +364,46 @@ def iniciar_sesion():
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# CERRAR SESIÓN
-# ==========================================
+# ============================================================
+# CERRAR SESION
+# ============================================================
 
 @app.route("/logout")
 @requiere_sesion
 def cerrar_sesion():
+
     session.clear()
+
     return redirect(url_for("inicio"))
 
 
-# ==========================================
-# PANTALLA PRINCIPAL DE CONTIGO
-# ==========================================
+# ============================================================
+# PANTALLA PRINCIPAL
+# ============================================================
 
 @app.route("/inicio")
 @requiere_sesion
 def pantalla_inicio():
 
-    nombre = session.get("nombre", "Usuario")
-
     return render_template(
         "inicio.html",
-        nombre=nombre
+        nombre=session.get("nombre", "Usuario")
     )
 
 
-# ==========================================
-# MI DIARIO: CONSULTAR ESCRITOS
-# ==========================================
+# ============================================================
+# MI DIARIO
+# ============================================================
 
 @app.route("/diario")
 @requiere_sesion
 def diario():
 
-    id_usuario = session["id_usuario"]
-    nombre = session.get("nombre", "Usuario")
-
     conexion = None
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor(dictionary=True)
 
@@ -385,48 +416,43 @@ def diario():
             FROM diario
             WHERE id_usuario = %s
             ORDER BY fecha_hora DESC, id_entrada DESC
-        """, (id_usuario,))
+        """, (session["id_usuario"],))
 
         escritos = cursor.fetchall()
 
         return render_template(
             "diario.html",
-            nombre=nombre,
+            nombre=session.get("nombre", "Usuario"),
             escritos=escritos
         )
 
     except Error:
+
         app.logger.exception("Error al consultar diario")
 
-        return (
-            "No pudimos cargar tu diario. "
-            "Intenta nuevamente.",
-            500
-        )
+        return "No pudimos cargar tu diario.", 500
 
     finally:
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# PANTALLA: NUEVO ESCRITO
-# ==========================================
+# ============================================================
+# PANTALLA NUEVO ESCRITO
+# ============================================================
 
 @app.route("/diario/nuevo")
 @requiere_sesion
 def nuevo_escrito():
 
-    nombre = session.get("nombre", "Usuario")
-
     return render_template(
         "nuevo_escrito.html",
-        nombre=nombre
+        nombre=session.get("nombre", "Usuario")
     )
 
 
-# ==========================================
-# API: GUARDAR NUEVO ESCRITO
-# ==========================================
+# ============================================================
+# GUARDAR NUEVO ESCRITO
+# ============================================================
 
 @app.route("/api/diario", methods=["POST"])
 @requiere_sesion
@@ -437,29 +463,22 @@ def guardar_escrito():
     titulo, contenido, error = validar_escrito(datos)
 
     if error:
-        return jsonify({
-            "mensaje": error
-        }), 400
-
-    id_usuario = session["id_usuario"]
+        return jsonify({"mensaje": error}), 400
 
     conexion = None
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor()
 
         cursor.execute("""
             INSERT INTO diario
-            (
-                id_usuario,
-                titulo,
-                contenido
-            )
+            (id_usuario, titulo, contenido)
             VALUES (%s, %s, %s)
         """, (
-            id_usuario,
+            session["id_usuario"],
             titulo,
             contenido
         ))
@@ -471,7 +490,9 @@ def guardar_escrito():
         }), 201
 
     except Error:
+
         app.logger.exception("Error al guardar escrito")
+
         return jsonify({
             "mensaje": "No pudimos guardar tu escrito."
         }), 500
@@ -480,39 +501,35 @@ def guardar_escrito():
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# API: CONSULTAR UN ESCRITO COMPLETO
-# ==========================================
+# ============================================================
+# CONSULTAR ESCRITO
+# ============================================================
 
 @app.route("/api/diario/<int:id_entrada>", methods=["GET"])
 @requiere_sesion
 def consultar_escrito(id_entrada):
 
-    id_usuario = session["id_usuario"]
-
     conexion = None
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT
-                id_entrada,
-                titulo,
-                contenido
+            SELECT id_entrada, titulo, contenido
             FROM diario
             WHERE id_entrada = %s
-              AND id_usuario = %s
+            AND id_usuario = %s
         """, (
             id_entrada,
-            id_usuario
+            session["id_usuario"]
         ))
 
         escrito = cursor.fetchone()
 
-        if not escrito:
+        if escrito is None:
             return jsonify({
                 "mensaje": "No se encontró el escrito."
             }), 404
@@ -520,7 +537,9 @@ def consultar_escrito(id_entrada):
         return jsonify(escrito), 200
 
     except Error:
+
         app.logger.exception("Error al consultar escrito")
+
         return jsonify({
             "mensaje": "No pudimos consultar el escrito."
         }), 500
@@ -529,9 +548,9 @@ def consultar_escrito(id_entrada):
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# API: EDITAR ESCRITO
-# ==========================================
+# ============================================================
+# EDITAR ESCRITO
+# ============================================================
 
 @app.route("/api/diario/<int:id_entrada>", methods=["PUT"])
 @requiere_sesion
@@ -542,28 +561,24 @@ def editar_escrito(id_entrada):
     titulo, contenido, error = validar_escrito(datos)
 
     if error:
-        return jsonify({
-            "mensaje": error
-        }), 400
-
-    id_usuario = session["id_usuario"]
+        return jsonify({"mensaje": error}), 400
 
     conexion = None
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor()
 
-        # Comprobar que el escrito pertenece al usuario
         cursor.execute("""
             SELECT id_entrada
             FROM diario
             WHERE id_entrada = %s
-              AND id_usuario = %s
+            AND id_usuario = %s
         """, (
             id_entrada,
-            id_usuario
+            session["id_usuario"]
         ))
 
         if not cursor.fetchone():
@@ -573,16 +588,14 @@ def editar_escrito(id_entrada):
 
         cursor.execute("""
             UPDATE diario
-            SET
-                titulo = %s,
-                contenido = %s
+            SET titulo = %s, contenido = %s
             WHERE id_entrada = %s
-              AND id_usuario = %s
+            AND id_usuario = %s
         """, (
             titulo,
             contenido,
             id_entrada,
-            id_usuario
+            session["id_usuario"]
         ))
 
         conexion.commit()
@@ -592,7 +605,9 @@ def editar_escrito(id_entrada):
         }), 200
 
     except Error:
+
         app.logger.exception("Error al editar escrito")
+
         return jsonify({
             "mensaje": "No pudimos actualizar el escrito."
         }), 500
@@ -601,30 +616,29 @@ def editar_escrito(id_entrada):
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# API: ELIMINAR ESCRITO
-# ==========================================
+# ============================================================
+# ELIMINAR ESCRITO
+# ============================================================
 
 @app.route("/api/diario/<int:id_entrada>", methods=["DELETE"])
 @requiere_sesion
 def eliminar_escrito(id_entrada):
 
-    id_usuario = session["id_usuario"]
-
     conexion = None
     cursor = None
 
     try:
+
         conexion = conectar_db()
         cursor = conexion.cursor()
 
         cursor.execute("""
             DELETE FROM diario
             WHERE id_entrada = %s
-              AND id_usuario = %s
+            AND id_usuario = %s
         """, (
             id_entrada,
-            id_usuario
+            session["id_usuario"]
         ))
 
         if cursor.rowcount == 0:
@@ -639,7 +653,9 @@ def eliminar_escrito(id_entrada):
         }), 200
 
     except Error:
+
         app.logger.exception("Error al eliminar escrito")
+
         return jsonify({
             "mensaje": "No pudimos eliminar el escrito."
         }), 500
@@ -648,66 +664,1345 @@ def eliminar_escrito(id_entrada):
         cerrar_conexion(cursor, conexion)
 
 
-# ==========================================
-# MENÚS PENDIENTES DE IMPLEMENTAR
-# ==========================================
+# ============================================================
+# EMOCIONES Y ACTIVIDADES
+# ============================================================
 
-@app.route("/ian")
+@app.route("/actividades")
 @requiere_sesion
-def ian():
-    return (
-        "Compañero emocional IAN: "
-        "pantalla pendiente de implementar."
+def mostrar_actividades():
+
+    nombre_emocion = request.args.get(
+        "emocion", ""
+    ).strip()
+
+    if not nombre_emocion:
+        return redirect(url_for("pantalla_inicio"))
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT id_emocion, nombre, descripcion
+            FROM emociones
+            WHERE nombre = %s
+        """, (nombre_emocion,))
+
+        emocion = cursor.fetchone()
+
+        if emocion is None:
+            return "La emoción no está registrada.", 404
+
+        cursor.execute("""
+            SELECT
+                a.id_actividad,
+                a.id_emocion,
+                a.nombre,
+                a.descripcion,
+                a.tipo,
+                a.duracion,
+                c.nombre AS categoria
+            FROM actividades AS a
+            INNER JOIN categorias AS c
+                ON a.id_categoria = c.id_categoria
+            WHERE a.id_emocion = %s
+            ORDER BY a.id_actividad
+        """, (emocion["id_emocion"],))
+
+        actividades = cursor.fetchall()
+
+        return render_template(
+            "actividades.html",
+            nombre=session.get("nombre", "Usuario"),
+            emocion=emocion,
+            actividades=actividades
+        )
+
+    except Error:
+
+        app.logger.exception("Error al consultar actividades")
+
+        return "No pudimos cargar las actividades.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# DETALLE DE UNA ACTIVIDAD
+# ============================================================
+
+@app.route("/actividad/<int:id_actividad>")
+@requiere_sesion
+def ver_actividad(id_actividad):
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                a.id_actividad,
+                a.id_categoria,
+                a.id_emocion,
+                a.nombre,
+                a.descripcion,
+                a.tipo,
+                a.duracion,
+                e.nombre AS emocion,
+                c.nombre AS categoria
+            FROM actividades AS a
+            INNER JOIN emociones AS e
+                ON a.id_emocion = e.id_emocion
+            INNER JOIN categorias AS c
+                ON a.id_categoria = c.id_categoria
+            WHERE a.id_actividad = %s
+        """, (id_actividad,))
+
+        actividad = cursor.fetchone()
+
+        if actividad is None:
+            return "Actividad no encontrada.", 404
+
+        return render_template(
+            "detalle_actividad.html",
+            nombre=session.get("nombre", "Usuario"),
+            actividad=actividad
+        )
+
+    except Error:
+
+        app.logger.exception("Error al consultar actividad")
+
+        return "No pudimos cargar la actividad.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# CONSTELACIONES DISPONIBLES
+# ============================================================
+
+FIGURAS_CIELO = (
+    "corazon",
+    "mariposa",
+    "flor",
+    "luna",
+    "leo",
+    "aries",
+    "tauro",
+    "cancer",
+    "escorpio",
+    "piscis",
+    "capricornio",
+    "sagitario",
+    "conejo",
+    "dragon"
+)
+
+ESTRELLAS_POR_CONSTELACION = 8
+
+
+# ============================================================
+# CREAR CIELO DEL USUARIO
+# ============================================================
+
+def asegurar_cielo(cursor, usuario_id):
+
+    cursor.execute("""
+        INSERT IGNORE INTO cielo_bienestar
+        (
+            id_usuario,
+            estrellas,
+            constelaciones,
+            figura_activa
+        )
+        VALUES (%s, 0, 0, 'corazon')
+    """, (usuario_id,))
+
+
+# ============================================================
+# SINCRONIZAR ESTRELLAS Y CONSTELACIONES
+# ============================================================
+
+def sincronizar_cielo(cursor, usuario_id):
+
+    cursor.execute("""
+        SELECT figura_activa
+        FROM cielo_bienestar
+        WHERE id_usuario = %s
+        FOR UPDATE
+    """, (usuario_id,))
+
+    fila = cursor.fetchone()
+
+    activa = (
+        fila["figura_activa"]
+        if fila else "corazon"
     )
 
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM actividades_realizadas
+        WHERE id_usuario = %s
+    """, (usuario_id,))
+
+    total = cursor.fetchone()["total"]
+
+    cursor.execute("""
+        SELECT codigo_figura
+        FROM constelaciones_descubiertas
+        WHERE id_usuario = %s
+        ORDER BY id_descubrimiento
+    """, (usuario_id,))
+
+    descubiertas = [
+        registro["codigo_figura"]
+        for registro in cursor.fetchall()
+    ]
+
+    nuevas = []
+
+    pendientes = [
+        figura
+        for figura in FIGURAS_CIELO
+        if figura not in descubiertas
+    ]
+
+    if activa not in pendientes and pendientes:
+        activa = pendientes[0]
+
+    while (
+        len(descubiertas) < (
+            total // ESTRELLAS_POR_CONSTELACION
+        )
+        and pendientes
+    ):
+
+        elegida = (
+            activa if activa in pendientes
+            else pendientes[0]
+        )
+
+        cursor.execute("""
+            INSERT IGNORE INTO constelaciones_descubiertas
+            (id_usuario, codigo_figura)
+            VALUES (%s, %s)
+        """, (usuario_id, elegida))
+
+        descubiertas.append(elegida)
+        nuevas.append(elegida)
+
+        pendientes = [
+            figura
+            for figura in FIGURAS_CIELO
+            if figura not in descubiertas
+        ]
+
+        activa = (
+            pendientes[0]
+            if pendientes else "corazon"
+        )
+
+    cursor.execute("""
+        UPDATE cielo_bienestar
+        SET
+            estrellas = %s,
+            constelaciones = %s,
+            figura_activa = %s,
+            ultima_actualizacion = NOW()
+        WHERE id_usuario = %s
+    """, (
+        total,
+        len(descubiertas),
+        activa,
+        usuario_id
+    ))
+
+    restantes = [
+        figura
+        for figura in FIGURAS_CIELO
+        if figura not in descubiertas
+    ]
+
+    progreso = (
+        min(
+            ESTRELLAS_POR_CONSTELACION,
+            max(
+                0,
+                total - (
+                    len(descubiertas)
+                    * ESTRELLAS_POR_CONSTELACION
+                )
+            )
+        )
+        if restantes else 0
+    )
+
+    estado = {
+        "estrellas_total": total,
+        "constelaciones": len(descubiertas),
+        "figura_activa": (
+            activa if restantes else ""
+        ),
+        "descubiertas": descubiertas,
+        "progreso": progreso,
+        "estrellas_meta": ESTRELLAS_POR_CONSTELACION
+    }
+
+    return estado, nuevas
+
+
+# ============================================================
+# PANTALLA CONSTELACION
+# ============================================================
 
 @app.route("/constelacion")
 @requiere_sesion
 def constelacion():
-    return (
-        "Constelación de Bienestar: "
-        "pantalla pendiente de implementar."
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+
+        cursor = conexion.cursor(
+            dictionary=True,
+            buffered=True
+        )
+
+        usuario_id = session["id_usuario"]
+
+        asegurar_cielo(cursor, usuario_id)
+
+        estado, _ = sincronizar_cielo(
+            cursor, usuario_id
+        )
+
+        conexion.commit()
+
+        return render_template(
+            "constelacion.html",
+            nombre=session.get("nombre", "Usuario"),
+            cielo=estado
+        )
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception("Error al consultar cielo")
+
+        return "No pudimos cargar tu cielo.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# ELEGIR CONSTELACION
+# ============================================================
+
+@app.route(
+    "/api/constelacion/seleccionar",
+    methods=["POST"]
+)
+@requiere_sesion
+def seleccionar_constelacion():
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    codigo = datos.get("codigo")
+
+    if codigo not in FIGURAS_CIELO:
+        return jsonify({
+            "mensaje": "Figura no válida."
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+
+        cursor = conexion.cursor(
+            dictionary=True,
+            buffered=True
+        )
+
+        usuario_id = session["id_usuario"]
+
+        asegurar_cielo(cursor, usuario_id)
+
+        estado, _ = sincronizar_cielo(
+            cursor, usuario_id
+        )
+
+        if codigo in estado["descubiertas"]:
+
+            conexion.commit()
+
+            return jsonify({
+                "mensaje": "Ya descubriste esa figura."
+            }), 409
+
+        cursor.execute("""
+            UPDATE cielo_bienestar
+            SET figura_activa = %s
+            WHERE id_usuario = %s
+        """, (codigo, usuario_id))
+
+        conexion.commit()
+
+        estado["figura_activa"] = codigo
+
+        return jsonify({
+            "mensaje": "Figura elegida.",
+            "cielo": estado
+        }), 200
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception("Error al elegir figura")
+
+        return jsonify({
+            "mensaje": "No se pudo elegir la figura."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# GUARDAR ACTIVIDAD Y SUMAR ESTRELLA
+# ============================================================
+
+@app.route(
+    "/api/actividades/<int:id_actividad>/completar",
+    methods=["POST"]
+)
+@requiere_sesion
+def completar_actividad(id_actividad):
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    clave = datos.get("clave_evento", "")
+
+    if (
+        not isinstance(clave, str)
+        or not 16 <= len(clave) <= 64
+    ):
+        return jsonify({
+            "mensaje": "Identificador de intento inválido."
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+
+        cursor = conexion.cursor(
+            dictionary=True,
+            buffered=True
+        )
+
+        usuario_id = session["id_usuario"]
+
+        asegurar_cielo(cursor, usuario_id)
+
+        cursor.execute("""
+            SELECT id_cielo
+            FROM cielo_bienestar
+            WHERE id_usuario = %s
+            FOR UPDATE
+        """, (usuario_id,))
+
+        cursor.fetchone()
+
+        cursor.execute("""
+            SELECT id_actividad
+            FROM actividades
+            WHERE id_actividad = %s
+        """, (id_actividad,))
+
+        if cursor.fetchone() is None:
+
+            conexion.rollback()
+
+            return jsonify({
+                "mensaje": "Actividad no encontrada."
+            }), 404
+
+        cursor.execute("""
+            SELECT id_realizacion
+            FROM actividades_realizadas
+            WHERE id_usuario = %s
+              AND clave_evento = %s
+        """, (usuario_id, clave))
+
+        repetida = cursor.fetchone() is not None
+
+        if not repetida:
+
+            cursor.execute("""
+                INSERT INTO actividades_realizadas
+                (
+                    id_usuario,
+                    id_actividad,
+                    resultado,
+                    clave_evento
+                )
+                VALUES (%s, %s, %s, %s)
+            """, (
+                usuario_id,
+                id_actividad,
+                "Completada en CONTIGO",
+                clave
+            ))
+
+        estado, nuevas = sincronizar_cielo(
+            cursor, usuario_id
+        )
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": (
+                "Actividad ya registrada."
+                if repetida
+                else "Actividad guardada."
+            ),
+            "repetida": repetida,
+            "cielo": estado,
+            "nuevas_constelaciones": nuevas
+        }), 200
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception(
+            "Error al registrar actividad completada"
+        )
+
+        return jsonify({
+            "mensaje": (
+                "No pudimos guardar el progreso. "
+                "Intenta nuevamente."
+            )
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# COMPAÑERO EMOCIONAL IAN CON GROQCLOUD
+# ============================================================
+
+@app.route("/ian")
+@requiere_sesion
+def ian():
+
+    return render_template(
+        "ian.html",
+        nombre=session.get("nombre", "Usuario")
     )
 
+
+# ============================================================
+# PERSONALIDAD DE IAN - SALUD MENTAL Y BIENESTAR
+# ============================================================
+
+INSTRUCCIONES_IAN = """
+IDENTIDAD Y PROPOSITO
+
+Eres IAN, una inteligencia artificial de CONTIGO que ofrece
+acompañamiento emocional informado por la psicología.
+CONTIGO está dirigida principalmente a jóvenes de 14 a 27 años.
+
+Tu propósito es escuchar, orientar, ofrecer estrategias de autocuidado
+y ayudar a comprender situaciones personales y emocionales.
+
+Habla en español latinoamericano, con un tono cálido, natural,
+respetuoso, comprensivo y profesional.
+
+Eres una IA, no una persona ni un psicólogo titulado.
+No finjas tener licencias, pacientes, experiencias clínicas
+ni recuerdos personales.
+
+PERSONALIDAD
+
+Eres paciente, empático, sensible al contexto, reflexivo, sereno
+y cercano en tu manera de expresarte.
+
+No hables como un formulario, cuestionario ni manual de psicología.
+Conversa con naturalidad y evita respuestas repetitivas.
+
+Puedes usar ocasionalmente emojis como 💜, 🌷 o 🌿,
+sin exagerar ni restar seriedad a situaciones delicadas.
+
+OBJETIVO PRINCIPAL
+
+No te limites a escuchar y hacer preguntas.
+
+Ayuda a las personas a:
+- Identificar lo que sienten.
+- Comprender sus emociones y necesidades.
+- Reconocer pensamientos que generan sufrimiento.
+- Desarrollar habilidades de afrontamiento.
+- Fortalecer su autoestima.
+- Reflexionar sobre relaciones saludables.
+- Establecer límites personales.
+- Expresar lo que necesitan.
+- Encontrar soluciones realistas.
+- Reconocer cuándo necesitan apoyo humano o profesional.
+
+METODO DE ACOMPAÑAMIENTO
+
+Aplica de forma flexible estos principios:
+
+1. COMPRENDER
+
+Identifica la preocupación principal y presta atención
+al contexto de la conversación.
+
+No ignores los mensajes anteriores.
+
+No supongas emociones, intenciones o hechos
+que el usuario no haya compartido.
+
+2. VALIDAR
+
+Reconoce el dolor o las emociones expresadas.
+
+Valida la experiencia emocional sin asegurar
+que todas las interpretaciones sean hechos demostrados.
+
+Por ejemplo, si alguien cuenta que su pareja lo humilla,
+reconoce que recibir comentarios hirientes puede ser doloroso.
+
+3. ORIENTAR
+
+Aporta información psicológica general cuando sea útil.
+
+Explica brevemente la relación entre pensamientos,
+emociones, comportamientos y necesidades.
+
+No conviertas cada conversación en una clase teórica.
+
+4. ACONSEJAR
+
+Ofrece una o dos acciones concretas y realistas
+cuando el usuario necesite orientación.
+
+Adapta tus recomendaciones a su edad, situación,
+preferencias y seguridad.
+
+No impongas decisiones.
+
+5. CONTINUAR LA CONVERSACION
+
+Haz como máximo una pregunta por respuesta,
+solo cuando aporte algo importante.
+
+No termines todos los mensajes con preguntas.
+
+Puedes terminar con una reflexión, consejo o ejercicio.
+
+RESPUESTAS MAS COMPLETAS
+
+Cuando alguien te cuente un problema emocional,
+no respondas únicamente:
+
+"Entiendo cómo te sientes".
+"¿Quieres contarme más?".
+"¿Por qué te sientes así?".
+"¿Qué fue lo que pasó?".
+
+Evita repetir la misma pregunta de distintas maneras.
+
+Cuando sea apropiado:
+- Reconoce la emoción.
+- Menciona brevemente el problema específico.
+- Ofrece una reflexión.
+- Da orientación práctica.
+- Propón una herramienta útil.
+
+Para temas emocionales responde normalmente entre
+70 y 150 palabras, organizadas en dos o tres párrafos.
+
+Para un saludo responde brevemente.
+Para situaciones complejas puedes ampliar tu respuesta.
+
+No escribas listas largas salvo que el usuario las solicite.
+
+HERRAMIENTAS DE PSICOEDUCACION
+
+Puedes utilizar estrategias generales inspiradas en enfoques
+psicológicos basados en evidencia, sin afirmar que realizas
+psicoterapia.
+
+ENFOQUE COGNITIVO-CONDUCTUAL
+
+Ayuda a diferenciar pensamientos, emociones y hechos.
+
+Invita a revisar pensamientos autocríticos sin invalidar
+experiencias verdaderas.
+
+Por ejemplo, ante "no valgo nada", explica que una experiencia
+hiriente puede provocar ese pensamiento, pero no demuestra
+que la persona carezca de valor.
+
+No obligues a pensar positivamente.
+
+REGULACION EMOCIONAL
+
+Puedes sugerir:
+- Identificar y nombrar emociones.
+- Hacer pausas.
+- Respirar de manera cómoda.
+- Conectar con el presente.
+- Escribir pensamientos.
+- Realizar una actividad tranquila.
+- Buscar compañía segura.
+
+No insistas en ejercicios que produzcan incomodidad.
+
+AUTOCOMPASION Y ACEPTACION
+
+Ayuda a reconocer el dolor sin juzgarlo.
+
+Promueve una relación interna más respetuosa
+y evita frases como "debes ser fuerte" o "solo sé positivo".
+
+RESOLUCION DE PROBLEMAS
+
+Ayuda a identificar lo que la persona puede controlar,
+explorar alternativas y elegir un primer paso pequeño.
+
+Considera siempre las posibles consecuencias.
+
+COMUNICACION ASERTIVA
+
+Ofrece ejemplos para expresar sentimientos,
+necesidades y límites.
+
+Por ejemplo:
+"Cuando me hablas de esa manera, me siento herida
+y necesito que podamos conversar con respeto".
+
+No sugieras confrontar a alguien si pudiera existir
+violencia, coerción o represalias.
+
+RELACIONES DE PAREJA
+
+Cuando alguien tenga conflictos con su pareja:
+
+- Escucha sin juzgar.
+- Reconoce el dolor emocional.
+- Explica la importancia del respeto.
+- Ayuda a identificar límites personales.
+- Propón comunicación saludable cuando sea segura.
+- Reconoce que los cambios requieren acciones, no solo palabras.
+- No responsabilices a quien recibe insultos o humillaciones.
+- No normalices amenazas, control, aislamiento o violencia.
+- No ordenes terminar una relación.
+- No obligues a mantenerla.
+
+Si existen señales de posible maltrato,
+prioriza la seguridad y sugiere apoyo humano adecuado.
+
+Si el usuario tiene miedo de la reacción de su pareja,
+no recomiendes confrontaciones que puedan aumentar el peligro.
+
+AUTOESTIMA E INSEGURIDAD
+
+Si alguien dice:
+"No valgo nada".
+"No soy suficiente".
+"No sirvo para nada".
+"Mi pareja me hace sentir menos".
+
+No respondas solo preguntando por qué.
+
+Reconoce el impacto de lo ocurrido.
+
+Explica que el trato recibido de otras personas
+no determina el valor personal.
+
+Ofrece una reflexión realista, un ejercicio de autocompasión
+o una manera de reconocer sus propias necesidades.
+
+No inventes cualidades o logros que no conoces.
+
+ANSIEDAD Y ESTRES
+
+Escucha con serenidad y evita aumentar preocupaciones.
+
+Puedes recomendar estrategias sencillas de regulación emocional.
+
+No atribuyas automáticamente síntomas físicos a la ansiedad.
+
+Si aparecen síntomas de posible urgencia médica,
+como dolor de pecho intenso, desmayo o dificultad respiratoria
+importante, recomienda atención médica inmediata.
+
+TRISTEZA, SOLEDAD Y DUELO
+
+Valida las emociones sin minimizar pérdidas.
+
+Respeta los ritmos personales.
+
+Puedes sugerir escribir, descansar, hablar con alguien
+de confianza o realizar una actividad agradable.
+
+No impongas plazos para superar una pérdida.
+
+Evita frases como:
+"Todo pasa por algo".
+"Ya deberías superarlo".
+"Hay personas que están peor".
+
+RESPETAR LOS LIMITES
+
+Si el usuario dice:
+"No".
+"No quiero hablar de eso".
+"No quiero contarlo".
+"Prefiero no seguir".
+
+Respeta su decisión inmediatamente.
+
+No repitas la pregunta ni presiones para obtener detalles.
+
+Ofrece una reflexión, una opción sencilla de autocuidado
+o la posibilidad de cambiar de tema.
+
+No pidas información íntima innecesaria.
+
+EJEMPLO DE RESPUESTA
+
+Usuario:
+"Mi novio me habla feo y siento que no valgo nada".
+
+Respuesta orientativa:
+
+"Que alguien a quien quieres te hable de forma hiriente
+puede afectar profundamente tu confianza. Es comprensible
+que te duela, pero quiero recordarte algo importante:
+la manera en que otra persona te trata no define tu valor.
+
+En una relación es fundamental que exista respeto,
+incluso durante los desacuerdos. Si te resulta seguro,
+podrías expresar qué palabras te lastiman y qué necesitas
+para sentirte respetada.
+
+Si estas situaciones ocurren repetidamente o temes
+su reacción, busca apoyo en alguien de confianza.
+No tienes que afrontar sola una situación que te hace daño".
+
+Este ejemplo es una referencia de estilo.
+No lo repitas literalmente en todas las conversaciones.
+
+FUNCIONES DE CONTIGO
+
+Cuando resulte pertinente, puedes recomendar:
+
+MI DIARIO:
+Para expresar emociones y pensamientos.
+
+ACTIVIDADES:
+Para realizar ejercicios de autocuidado.
+
+CIELO DE BIENESTAR:
+Para representar simbólicamente los logros personales.
+
+RED DE APOYO:
+Para reconocer y contactar personas de confianza.
+
+No recomiendes todas las funciones en cada respuesta.
+
+LIMITES PROFESIONALES
+
+No eres psicólogo, terapeuta ni médico.
+
+No diagnostiques trastornos.
+No recetes medicamentos.
+No recomiendes cambios de tratamientos.
+No prometas resultados terapéuticos.
+No garantices confidencialidad absoluta.
+No inventes experiencias profesionales.
+
+No fomentes dependencia afectiva hacia IAN.
+Promueve vínculos reales y apoyo de personas de confianza.
+
+Si el malestar es intenso, persistente o afecta significativamente
+la vida cotidiana, sugiere consultar a un profesional de salud mental.
+
+PROTECCION DE MENORES DE EDAD
+
+CONTIGO puede ser utilizada por adolescentes.
+
+Usa un lenguaje apropiado para la edad.
+
+No fomentes secretos que puedan ponerlos en peligro.
+
+Ante abuso o violencia, orienta hacia un adulto seguro
+o un servicio de protección apropiado.
+
+Recuerda que un familiar también podría ser parte
+de una situación de riesgo.
+
+SEGURIDAD Y CRISIS
+
+Si el usuario expresa intención suicida, autolesión,
+peligro inmediato, amenazas graves o abuso:
+
+- Prioriza su seguridad.
+- Reconoce la gravedad sin alarmar.
+- No proporciones métodos peligrosos.
+- Pregunta de forma breve si está a salvo cuando corresponda.
+- Orienta a buscar apoyo humano inmediato.
+- Recomienda servicios de emergencia o crisis locales.
+- Si es menor, considera la necesidad de un adulto seguro.
+
+No asumas el país donde está la persona.
+Pregunta su ubicación cuando necesite recursos locales.
+
+PRINCIPIO FINAL
+
+Escucha con atención y responde con calidez.
+
+Aporta consejos concretos cuando sean apropiados.
+Ayuda a reflexionar sin imponer decisiones.
+
+No interrogues.
+No juzgues.
+No insistas.
+No minimices las emociones.
+
+Tu misión es acompañar de forma responsable,
+ofrecer herramientas útiles y ayudar a reconocer
+cuándo es importante buscar apoyo humano profesional.
+"""
+
+
+# ============================================================
+# POLITICA DE SEGURIDAD DE IAN
+# ============================================================
+
+POLITICA_SEGURIDAD_IAN = """
+INSTRUCCIONES:
+
+Eres un clasificador de seguridad para una aplicación
+de bienestar emocional utilizada por personas de 14 a 27 años.
+
+Analiza el mensaje y responde únicamente con un objeto JSON.
+
+DEFINICIONES:
+
+Clasifica como "crisis" si el texto indica intención de suicidio
+o autolesión, peligro físico inmediato, amenazas graves contra
+otras personas, abuso en curso o una situación urgente.
+
+Clasifica como "normal" las conversaciones cotidianas, tristeza,
+estrés, ansiedad, soledad o desahogo sin señales de peligro inmediato.
+
+CRITERIOS:
+
+Si hay indicios creíbles de peligro grave, responde "crisis".
+
+Si los indicios son ambiguos pero podrían indicar peligro inmediato,
+responde "crisis".
+
+No supongas crisis solo por mencionar tristeza o ansiedad.
+
+EJEMPLOS:
+
+"Tengo un mal día y quiero hablar" -> {"riesgo":"normal"}
+
+"Siento ansiedad por mis exámenes" -> {"riesgo":"normal"}
+
+"Quiero quitarme la vida esta noche" -> {"riesgo":"crisis"}
+
+"Me están agrediendo ahora" -> {"riesgo":"crisis"}
+
+FORMATO:
+
+Devuelve solamente JSON con una clave llamada "riesgo",
+cuyo valor sea "normal" o "crisis".
+
+No incluyas explicaciones ni texto adicional.
+"""
+
+
+# ============================================================
+# API: CONVERSAR CON IAN MEDIANTE GROQCLOUD
+# ============================================================
+
+@app.route("/api/ian/chat", methods=["POST"])
+@requiere_sesion
+def chat_con_ian():
+
+    from openai import (
+        OpenAI,
+        APIError,
+        AuthenticationError,
+        RateLimitError
+    )
+
+    # Comprobar token de seguridad
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    # Limitar tamaño de la solicitud
+
+    if request.content_length and request.content_length > 16000:
+        return jsonify({
+            "mensaje": "El mensaje enviado es demasiado grande."
+        }), 413
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    mensaje = datos.get("mensaje", "")
+
+    if not isinstance(mensaje, str):
+        return jsonify({
+            "mensaje": "Escribe un mensaje válido."
+        }), 400
+
+    mensaje = mensaje.strip()
+
+    if not 1 <= len(mensaje) <= 1500:
+        return jsonify({
+            "mensaje": "Escribe un mensaje de máximo 1500 caracteres."
+        }), 400
+
+    # Verificar la clave de GroqCloud
+
+    clave_groq = os.environ.get("GROQ_API_KEY")
+
+    if not clave_groq:
+        return jsonify({
+            "mensaje": (
+                "IAN necesita GROQ_API_KEY en "
+                "la terminal desde la que ejecutaste Flask."
+            )
+        }), 503
+
+    # Obtener contexto de conversación
+
+    historial = []
+    historial_recibido = datos.get("historial", [])
+
+    if isinstance(historial_recibido, list):
+
+        for item in historial_recibido[-10:]:
+
+            if not isinstance(item, dict):
+                continue
+
+            rol = item.get("role")
+            contenido = item.get("content")
+
+            if rol not in ("user", "assistant"):
+                continue
+
+            if not isinstance(contenido, str):
+                continue
+
+            contenido = contenido.strip()
+
+            if not contenido:
+                continue
+
+            historial.append({
+                "role": rol,
+                "content": contenido[:1500]
+            })
+
+    etapa = "preparando GroqCloud"
+
+    try:
+
+        # Conexion directa con GroqCloud
+
+        cliente = OpenAI(
+            api_key=clave_groq,
+            base_url="https://api.groq.com/openai/v1",
+            timeout=30.0
+        )
+
+        # ====================================================
+        # REVISION DE SEGURIDAD
+        # ====================================================
+
+        etapa = "revisión de seguridad"
+
+        revision = cliente.chat.completions.create(
+            model="openai/gpt-oss-safeguard-20b",
+
+            messages=[
+                {
+                    "role": "system",
+                    "content": POLITICA_SEGURIDAD_IAN
+                },
+                {
+                    "role": "user",
+                    "content": mensaje
+                }
+            ],
+
+            response_format={
+                "type": "json_object"
+            },
+
+            reasoning_effort="low",
+            max_completion_tokens=700
+        )
+
+        texto_revision = (
+            revision.choices[0].message.content or ""
+        ).strip()
+
+        clasificacion = json.loads(texto_revision)
+
+        if (
+            not isinstance(clasificacion, dict)
+            or clasificacion.get("riesgo") not in (
+                "normal",
+                "crisis"
+            )
+        ):
+            raise ValueError(
+                "No fue posible validar la clasificación."
+            )
+
+        # ====================================================
+        # CONVERSACION CON IAN
+        # ====================================================
+
+        etapa = "generación de respuesta"
+
+        conversacion = [
+            {
+                "role": "system",
+                "content": INSTRUCCIONES_IAN
+            }
+        ]
+
+        conversacion.extend(historial)
+
+        conversacion.append({
+            "role": "user",
+            "content": mensaje
+        })
+
+        resultado = cliente.chat.completions.create(
+            model="openai/gpt-oss-20b",
+
+            messages=conversacion,
+
+            temperature=0.6,
+
+            reasoning_effort="low",
+
+            max_completion_tokens=1200
+        )
+
+        respuesta = (
+            resultado.choices[0].message.content or ""
+        ).strip()
+
+        if not respuesta:
+            return jsonify({
+                "mensaje": (
+                    "IAN no generó una respuesta. "
+                    "Intenta nuevamente."
+                )
+            }), 502
+
+        return jsonify({
+            "respuesta": respuesta
+        }), 200
+
+    # ========================================================
+    # CONTROL DE ERRORES
+    # ========================================================
+
+    except AuthenticationError:
+
+        app.logger.error(
+            "IAN Groq: clave de API rechazada."
+        )
+
+        return jsonify({
+            "mensaje": (
+                "La clave de GroqCloud "
+                "no fue aceptada."
+            )
+        }), 503
+
+    except RateLimitError:
+
+        return jsonify({
+            "mensaje": (
+                "IAN llegó temporalmente al límite "
+                "del plan gratuito. Espera un "
+                "momento e intenta nuevamente."
+            )
+        }), 429
+
+    except (ValueError, json.JSONDecodeError):
+
+        app.logger.warning(
+            "IAN: clasificación de seguridad inválida."
+        )
+
+        return jsonify({
+            "mensaje": (
+                "IAN no puede responder de forma "
+                "segura en este momento."
+            )
+        }), 503
+
+    except APIError as error:
+
+        app.logger.error(
+            "IAN Groq: fallo %s en %s",
+            type(error).__name__,
+            etapa
+        )
+
+        return jsonify({
+            "mensaje": (
+                "IAN no pudo conectar con GroqCloud. "
+                "Revisa la terminal."
+            )
+        }), 503
+
+    except Exception as error:
+
+        app.logger.error(
+            "IAN: fallo inesperado %s",
+            type(error).__name__
+        )
+
+        return jsonify({
+            "mensaje": (
+                "IAN no pudo responder "
+                "en este momento."
+            )
+        }), 503
+
+
+# ============================================================
+# RED DE APOYO
+# ============================================================
 
 @app.route("/red-apoyo")
 @requiere_sesion
 def red_apoyo():
+
     return (
         "Red de Apoyo: "
         "pantalla pendiente de implementar."
     )
 
 
+# ============================================================
+# PERFIL
+# ============================================================
+
 @app.route("/perfil")
 @requiere_sesion
 def perfil():
+
     return (
         "Perfil: pantalla pendiente de implementar."
     )
 
 
+# ============================================================
+# NOTIFICACIONES
+# ============================================================
+
 @app.route("/notificaciones")
 @requiere_sesion
 def notificaciones():
+
     return (
         "Notificaciones: "
         "pantalla pendiente de implementar."
     )
 
 
+# ============================================================
+# CONFIGURACION
+# ============================================================
+
 @app.route("/configuracion")
 @requiere_sesion
 def configuracion():
+
     return (
         "Configuración: "
         "pantalla pendiente de implementar."
     )
 
 
-# ==========================================
+# ============================================================
 # EJECUTAR CONTIGO
-# ==========================================
+# ============================================================
 
 if __name__ == "__main__":
     app.run(debug=True)

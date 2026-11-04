@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CONTIGO | Actividades</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/actividades.css') }}">
+</head>
+
+<body class="pagina-actividades">
+
+    <main class="contenedor-actividades">
+
+        <!-- ENCABEZADO -->
+        <header class="encabezado-actividades">
+
+            <h2>
+                ☀️ Hola,
+                <span>{{ nombre }}</span>
+            </h2>
+
+            <div class="acciones-encabezado">
+                <a href="/notificaciones"
+                   aria-label="Notificaciones">🔔</a>
+
+                <a href="/configuracion"
+                   aria-label="Configuración">⚙️</a>
+            </div>
+
+        </header>
+
+        <!-- VOLVER A INICIO -->
+        <a href="/inicio" class="volver-inicio">
+            ← Volver a mis emociones
+        </a>
+
+        <!-- PRESENTACIÓN -->
+        <section class="portada-actividades">
+
+            <div class="decoracion-portada">💜 ✨</div>
+
+            <h1>Estamos CONTIGO</h1>
+
+            <p>
+                Hoy elegiste compartir cómo te sientes.
+            </p>
+
+            <div class="emocion-seleccionada">
+                {{ emocion.nombre }}
+            </div>
+
+            <p class="mensaje-acompanamiento">
+                Cada emoción merece ser escuchada.
+                Explora estas actividades a tu ritmo.
+            </p>
+
+        </section>
+
+        <!-- ACTIVIDADES -->
+        <section class="seccion-actividades">
+
+            <h2>Actividades para ti ✨</h2>
+
+            <p class="descripcion-seccion">
+                Elige la actividad que te gustaría explorar.
+            </p>
+
+            {% if actividades %}
+
+            <div class="lista-actividades">
+
+                {% for actividad in actividades %}
+
+                <article class="tarjeta-actividad">
+
+                    <div class="icono-actividad">
+                        {% if actividad.categoria == 'Respiración' %}
+                            🌬️
+                        {% elif actividad.categoria == 'Mandalas' %}
+                            🎨
+                        {% elif actividad.categoria == 'Movimiento' %}
+                            🌿
+                        {% elif actividad.categoria == 'Relajación' %}
+                            ☁️
+                        {% elif actividad.categoria == 'Creatividad' %}
+                            🌈
+                        {% else %}
+                            💗
+                        {% endif %}
+                    </div>
+
+                    <div class="contenido-actividad">
+
+                        <span class="categoria-actividad">
+                            {{ actividad.categoria }}
+                        </span>
+
+                        <h3>{{ actividad.nombre }}</h3>
+
+                        <p>{{ actividad.descripcion }}</p>
+
+                        <span class="duracion-actividad">
+                            ⏱️ {{ actividad.duracion or 0 }} minutos
+                        </span>
+
+                        <a
+                            href="{{ url_for('ver_actividad', id_actividad=actividad.id_actividad) }}"
+                            class="boton-actividad"
+                        >
+                            Ver actividad →
+                        </a>
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="sin-actividades">
+                <h3>Pronto habrá actividades para ti 💜</h3>
+                <p>
+                    Todavía no encontramos actividades
+                    asociadas con esta emoción.
+                </p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <!-- MENÚ INFERIOR ORIGINAL -->
+    <nav class="navegacion-inferior"
+         aria-label="Navegación principal">
+
+        <a href="/inicio" class="activo">
+            <span class="icono-menu">🏠</span>
+            <span>Inicio</span>
+        </a>
+
+        <a href="/diario">
+            <span class="icono-menu">📓</span>
+            <span>Diario</span>
+        </a>
+
+        <a href="/red-apoyo">
+            <span class="icono-menu">👥</span>
+            <span>Red Apoyo</span>
+        </a>
+
+        <a href="/perfil">
+            <span class="icono-menu">👤</span>
+            <span>Perfil</span>
+        </a>
+
+    </nav>
+
+</body>
+</html>

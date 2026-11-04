@@ -1,0 +1,871 @@
+
+/* ==========================================
+   CONTIGO - CONSTELACIÓN DE BIENESTAR
+   Diseño pastel, cielo y estrellas
+========================================== */
+
+/* CONFIGURACIÓN GENERAL */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body.pagina-cielo {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #32176e;
+
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            #ded4fa 0%,
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 90% 70%,
+            #d6f4ed 0%,
+            transparent 40%
+        ),
+        linear-gradient(
+            135deg,
+            #f5edff 0%,
+            #fff7f4 55%,
+            #e6f6ef 100%
+        );
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+.contenedor-cielo {
+    width: min(calc(100% - 24px), 620px);
+    min-height: 100vh;
+
+    margin: 0 auto;
+    padding: 16px 0 125px;
+}
+
+/* ==========================================
+   ENCABEZADO
+========================================== */
+
+.encabezado-cielo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    background: #fffaf8;
+    border: 1px solid #ffffff;
+    border-radius: 23px;
+
+    box-shadow: 0 6px 20px #66548a20;
+}
+
+.encabezado-cielo h2 {
+    margin: 0;
+
+    color: #342076;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.encabezado-cielo h2 span {
+    color: #9568dd;
+}
+
+.acciones-encabezado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.acciones-encabezado a {
+    display: grid;
+    place-items: center;
+
+    width: 38px;
+    height: 38px;
+
+    background: #f3edfb;
+    border-radius: 50%;
+
+    font-size: 19px;
+    text-decoration: none;
+
+    transition: transform 0.2s,
+                background 0.2s;
+}
+
+.acciones-encabezado a:hover {
+    background: #e8dcfa;
+    transform: translateY(-2px);
+}
+
+/* VOLVER A INICIO */
+
+.volver-inicio {
+    display: inline-block;
+
+    margin: 20px 6px 13px;
+
+    color: #8157c3;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.volver-inicio:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   BIENVENIDA
+========================================== */
+
+.bienvenida-cielo {
+    position: relative;
+    overflow: hidden;
+
+    padding: 29px 22px;
+
+    text-align: center;
+
+    border: 2px solid #ffffff;
+    border-radius: 30px;
+
+    background: linear-gradient(
+        135deg,
+        #e9dfff 0%,
+        #fff4f8 52%,
+        #def6f0 100%
+    );
+
+    box-shadow: 0 8px 22px #63488920;
+}
+
+.bienvenida-cielo::before {
+    content: "✦";
+    position: absolute;
+
+    left: 8%;
+    top: 18%;
+
+    color: #ffcb75;
+    font-size: 30px;
+    opacity: 0.8;
+}
+
+.bienvenida-cielo::after {
+    content: "✧";
+    position: absolute;
+
+    right: 10%;
+    bottom: 15%;
+
+    color: #ec97c1;
+    font-size: 34px;
+    opacity: 0.8;
+}
+
+.adorno-cielo {
+    margin-bottom: 10px;
+
+    font-size: 33px;
+    letter-spacing: 7px;
+}
+
+.bienvenida-cielo h1 {
+    margin: 7px 0 14px;
+
+    color: #402085;
+
+    font-size: clamp(28px, 6vw, 39px);
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.bienvenida-cielo p {
+    max-width: 430px;
+
+    margin: 0 auto;
+
+    color: #776596;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+/* ==========================================
+   CONTADORES
+========================================== */
+
+.resumen-cielo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 13px;
+    margin: 19px 0;
+}
+
+.resumen-cielo > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 19px 12px;
+
+    background: linear-gradient(
+        145deg,
+        #ffffff,
+        #fbf5ff
+    );
+
+    border: 1px solid white;
+    border-radius: 23px;
+
+    box-shadow: 0 5px 17px #654c891c;
+}
+
+.resumen-cielo strong {
+    color: #8659cd;
+
+    font-size: 34px;
+    font-weight: 900;
+}
+
+.resumen-cielo span {
+    color: #81729d;
+
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ==========================================
+   TARJETA PRINCIPAL
+========================================== */
+
+.tarjeta-cielo {
+    padding: 19px;
+
+    border: 2px solid #ffffff;
+    border-radius: 29px;
+
+    background: linear-gradient(
+        155deg,
+        #fffdfc,
+        #f9f0ff
+    );
+
+    box-shadow: 0 9px 25px #58417a26;
+}
+
+/* TÍTULO */
+
+.titulo-zona-cielo {
+    padding: 5px 8px 18px;
+    text-align: center;
+}
+
+.titulo-zona-cielo h2 {
+    margin: 0 0 10px;
+
+    color: #3d2084;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.titulo-zona-cielo p {
+    margin: 0;
+
+    color: #8472a6;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   CIELO NOCTURNO
+========================================== */
+
+.escenario-cielo {
+    position: relative;
+    overflow: hidden;
+
+    width: 100%;
+    min-height: 270px;
+
+    border: 2px solid #d7c5f6;
+    border-radius: 28px;
+
+    background:
+        radial-gradient(
+            circle at 20% 25%,
+            #a899e566,
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at 78% 70%,
+            #e5a0d15c,
+            transparent 40%
+        ),
+
+        radial-gradient(
+            circle at 55% 15%,
+            #c6b4fc44,
+            transparent 40%
+        ),
+
+        linear-gradient(
+            170deg,
+            #504b95 0%,
+            #6553a7 42%,
+            #8c76c6 78%,
+            #ad91d6 100%
+        );
+
+    box-shadow:
+        inset 0 0 30px #ffffff20,
+        0 6px 16px #715b9b30;
+}
+
+/* NUBES INFERIORES */
+
+.escenario-cielo::after {
+    content: "";
+
+    position: absolute;
+
+    bottom: -28px;
+    left: -8%;
+    right: -8%;
+
+    height: 84px;
+
+    border-radius: 60% 60% 0 0;
+
+    background: linear-gradient(
+        90deg,
+        #c6b9f2b0,
+        #f6c6e7c9,
+        #f8dfedcf,
+        #c7dffaaf
+    );
+
+    filter: blur(11px);
+    pointer-events: none;
+}
+
+/* SVG DE LA CONSTELACIÓN */
+
+#mapa-estrellas {
+    position: relative;
+    z-index: 2;
+
+    display: block;
+
+    width: 100%;
+    height: auto;
+    min-height: 270px;
+}
+
+/* ==========================================
+   LÍNEAS DE CONSTELACIÓN
+========================================== */
+
+/* LÍNEAS TODAVÍA NO ENCENDIDAS */
+
+.linea-guia {
+    stroke: #e7d8ff;
+    stroke-width: 2;
+
+    stroke-dasharray: 4 8;
+    opacity: 0.36;
+}
+
+/* LÍNEAS DE ESTRELLAS GANADAS */
+
+.linea-encendida {
+    stroke: #fff0b9;
+    stroke-width: 3.5;
+
+    stroke-linecap: round;
+
+    filter: drop-shadow(
+        0 0 5px #ffe8a0
+    );
+}
+
+/* ==========================================
+   ESTRELLAS
+========================================== */
+
+.estrella-apagada {
+    fill: #e9e1f5;
+    stroke: #fff2ff;
+    stroke-width: 1.2;
+
+    opacity: 0.35;
+}
+
+.estrella-vista-previa {
+    fill: #ddd4f7;
+    stroke: #f7ecff;
+    stroke-width: 1.5;
+
+    opacity: 0.70;
+}
+
+.estrella-encendida {
+    fill: #fff3ad;
+
+    stroke: #fffbe5;
+    stroke-width: 2;
+
+    filter: drop-shadow(
+        0 0 7px #ffecad
+    );
+
+    animation: brillo-estrella 2.5s
+        ease-in-out infinite alternate;
+}
+
+@keyframes brillo-estrella {
+
+    from {
+        opacity: 0.78;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ==========================================
+   PROGRESO DE CONSTELACIÓN
+========================================== */
+
+.progreso-cielo {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#texto-progreso {
+    display: block;
+
+    color: #7050af;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+/* BARRA DE PROGRESO */
+
+.barra-estrellas {
+    width: 100%;
+    height: 13px;
+
+    margin: 14px 0;
+
+    overflow: hidden;
+    border-radius: 30px;
+
+    background: #e9def8;
+}
+
+#relleno-estrellas {
+    width: 0%;
+    height: 100%;
+
+    border-radius: 30px;
+
+    background: linear-gradient(
+        90deg,
+        #a486ed 0%,
+        #c294ec 45%,
+        #f3a0c5 100%
+    );
+
+    transition: width 0.5s ease;
+}
+
+#estado-figura {
+    margin: 15px 0;
+
+    color: #8372a2;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   BOTÓN ELEGIR CONSTELACIÓN
+========================================== */
+
+.boton-elegir {
+    display: block;
+
+    width: 100%;
+    padding: 16px 20px;
+
+    border: none;
+    border-radius: 21px;
+
+    background: linear-gradient(
+        135deg,
+        #aa87e9,
+        #8052ce
+    );
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow: 0 5px 16px #956ad34d;
+
+    transition: transform 0.2s,
+                filter 0.2s;
+}
+
+.boton-elegir:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+}
+
+.boton-elegir:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.boton-elegir[hidden] {
+    display: none;
+}
+
+#mensaje-cielo {
+    min-height: 18px;
+    margin: 14px 0 0;
+
+    color: #7954af;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ==========================================
+   GALERÍA DE CONSTELACIONES
+========================================== */
+
+.coleccion-cielo {
+    margin: 28px 0 20px;
+}
+
+.coleccion-cielo h2 {
+    margin: 0 0 11px;
+
+    color: #3d2084;
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.coleccion-cielo > p {
+    margin: 0 0 19px;
+
+    color: #81739d;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* CUADRÍCULA DE FIGURAS */
+
+.galeria-figuras {
+    display: grid;
+
+    grid-template-columns: repeat(
+        2,
+        minmax(0, 1fr)
+    );
+
+    gap: 13px;
+}
+
+/* TARJETAS */
+
+.tarjeta-figura {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: 15px 12px;
+
+    border: 2px solid #ffffff;
+    border-radius: 21px;
+
+    background: linear-gradient(
+        135deg,
+        #fffdfd,
+        #f9f3ff
+    );
+
+    color: #412682;
+
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    box-shadow: 0 4px 15px #624b831a;
+
+    transition: transform 0.2s,
+                border-color 0.2s,
+                background 0.2s;
+}
+
+.tarjeta-figura:hover {
+    transform: translateY(-3px);
+
+    background: #f4eaff;
+    border-color: #d1b9f7;
+}
+
+/* FIGURA SELECCIONADA */
+
+.tarjeta-figura.seleccionada {
+    border-color: #9f7adf;
+
+    background: linear-gradient(
+        135deg,
+        #eee3ff,
+        #fff0f9
+    );
+}
+
+/* EMOJI DEL ANIMALITO */
+
+.figura-emoji {
+    display: grid;
+    place-items: center;
+
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border-radius: 15px;
+    background: #f0e8ff;
+
+    font-size: 29px;
+}
+
+/* TEXTO DE LA TARJETA */
+
+.tarjeta-figura strong {
+    display: block;
+
+    color: #43238b;
+
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.tarjeta-figura small {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #8472a3;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* MENSAJE INFORMATIVO */
+
+.nota-cielo {
+    margin: 23px 8px 10px;
+
+    color: #897aa3;
+
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* ==========================================
+   MENÚ INFERIOR ORIGINAL DE CONTIGO
+========================================== */
+
+.navegacion-inferior {
+    position: fixed;
+
+    bottom: 10px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 100;
+
+    width: min(
+        calc(100% - 24px),
+        520px
+    );
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 5px;
+    padding: 10px;
+
+    border-radius: 25px;
+
+    background: #fffaf6;
+
+    box-shadow: 0 4px 25px #5941812b;
+}
+
+.navegacion-inferior a {
+    display: flex;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    min-height: 60px;
+
+    border-radius: 14px;
+
+    text-decoration: none;
+
+    color: #82769f;
+    font-size: 12px;
+}
+
+.icono-menu {
+    font-size: 23px;
+}
+
+.navegacion-inferior a.activo {
+    color: #6534c2;
+
+    background: #eee4ff;
+    font-weight: bold;
+}
+
+/* ==========================================
+   ACCESIBILIDAD
+========================================== */
+
+.boton-elegir:focus-visible,
+.tarjeta-figura:focus-visible,
+.navegacion-inferior a:focus-visible,
+.encabezado-cielo a:focus-visible {
+    outline: 3px solid #926add;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   ADAPTACIÓN A CELULARES
+========================================== */
+
+@media (max-width: 480px) {
+
+    .contenedor-cielo {
+        width: calc(100% - 16px);
+        padding-top: 10px;
+    }
+
+    .encabezado-cielo {
+        padding: 12px;
+    }
+
+    .encabezado-cielo h2 {
+        font-size: 15px;
+    }
+
+    .bienvenida-cielo {
+        padding: 25px 15px;
+    }
+
+    .bienvenida-cielo p {
+        font-size: 14px;
+    }
+
+    .tarjeta-cielo {
+        padding: 13px;
+        border-radius: 25px;
+    }
+
+    .titulo-zona-cielo h2 {
+        font-size: 22px;
+    }
+
+    .coleccion-cielo h2 {
+        font-size: 22px;
+    }
+
+    .galeria-figuras {
+        gap: 9px;
+    }
+
+    .tarjeta-figura {
+        gap: 8px;
+        padding: 11px 9px;
+    }
+
+    .figura-emoji {
+        width: 40px;
+        height: 40px;
+        font-size: 25px;
+    }
+
+    .tarjeta-figura strong {
+        font-size: 12px;
+    }
+
+    .tarjeta-figura small {
+        font-size: 10px;
+    }
+}
+
+/* PANTALLAS MUY PEQUEÑAS */
+
+@media (max-width: 350px) {
+
+    .galeria-figuras {
+        grid-template-columns: 1fr;
+    }
+
+    .encabezado-cielo h2 {
+        font-size: 13px;
+    }
+}
+
+/* REDUCIR ANIMACIONES SI EL USUARIO LO PREFIERE */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .estrella-encendida {
+        animation: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto;
+        transition-duration: 0.01ms;
+    }
+}

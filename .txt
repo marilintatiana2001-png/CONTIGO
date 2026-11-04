@@ -1,0 +1,1557 @@
+
+import os
+import re
+import secrets
+from datetime import date, datetime
+from functools import wraps
+
+from flask import (
+    Flask, render_template, request, jsonify,
+    redirect, url_for, session
+)
+
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
+from mysql.connector import Error, IntegrityError
+from conexion import conectar_db
+
+
+# ==========================================
+# CONFIGURACIÓN PRINCIPAL
+# ==========================================
+
+app = Flask(__name__)
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError(
+        "Configura SECRET_KEY antes de iniciar CONTIGO."
+    )
+
+app.config["SECRET_KEY"] = SECRET_KEY
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+
+# ==========================================
+# FUNCIONES AUXILIARES
+# ==========================================
+
+def requiere_sesion(funcion):
+
+    @wraps(funcion)
+    def protegida(*args, **kwargs):
+
+        if "id_usuario" not in session:
+
+            if request.path.startswith("/api/"):
+                return jsonify({
+                    "mensaje": "Debes iniciar sesión."
+                }), 401
+
+            return redirect(url_for("inicio"))
+
+        return funcion(*args, **kwargs)
+
+    return protegida
+
+
+def cerrar_conexion(cursor, conexion):
+
+    if cursor is not None:
+        cursor.close()
+
+    if conexion is not None:
+        conexion.close()
+
+
+def validar_escrito(datos):
+
+    if not isinstance(datos, dict):
+        return None, None, "Datos inválidos."
+
+    titulo = datos.get("titulo")
+    contenido = datos.get("contenido")
+
+    if not isinstance(titulo, str):
+        return None, None, "El título no es válido."
+
+    if not isinstance(contenido, str):
+        return None, None, "El contenido no es válido."
+
+    titulo = titulo.strip()
+    contenido = contenido.strip()
+
+    if not titulo or not contenido:
+        return None, None, (
+            "Debes escribir un título y un contenido."
+        )
+
+    if len(titulo) > 150:
+        return None, None, (
+            "El título no puede superar 150 caracteres."
+        )
+
+    return titulo, contenido, None
+
+
+# ==========================================
+# SEGURIDAD Y TOKEN CSRF
+# ==========================================
+
+@app.context_processor
+def variables_de_seguridad_contigo():
+
+    if "id_usuario" not in session:
+        return {"csrf_contigo": ""}
+
+    if "csrf_contigo" not in session:
+        session["csrf_contigo"] = secrets.token_urlsafe(32)
+
+    return {
+        "csrf_contigo": session["csrf_contigo"]
+    }
+
+
+def validar_csrf_contigo():
+
+    enviado = request.headers.get(
+        "X-CSRF-Token", ""
+    )
+
+    esperado = session.get(
+        "csrf_contigo", ""
+    )
+
+    return (
+        bool(enviado and esperado)
+        and secrets.compare_digest(enviado, esperado)
+    )
+
+
+# ==========================================
+# PANTALLA DE LOGIN
+# ==========================================
+
+@app.route("/")
+def inicio():
+
+    if "id_usuario" in session:
+        return redirect(url_for("pantalla_inicio"))
+
+    return render_template("login.html")
+
+
+# ==========================================
+# REGISTRO DE USUARIOS
+# ==========================================
+
+@app.route("/registro")
+def registro():
+
+    return render_template("registro.html")
+
+
+@app.route("/api/registro", methods=["POST"])
+def guardar_registro():
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Los datos enviados no son válidos."
+        }), 400
+
+    nombre = str(datos.get("nombre") or "").strip()
+    correo = str(datos.get("correo") or "").strip().lower()
+
+    contrasena = datos.get("contrasena")
+    confirmar = datos.get("confirmar_contrasena")
+
+    fecha_texto = datos.get("fecha_nacimiento") or None
+
+    if not nombre or not correo:
+        return jsonify({
+            "mensaje": "Completa los campos obligatorios."
+        }), 400
+
+    if (
+        len(nombre) > 100
+        or len(correo) > 150
+        or not re.fullmatch(
+            r"[^@\s]+@[^@\s]+\.[^@\s]+",
+            correo
+        )
+    ):
+        return jsonify({
+            "mensaje": "Revisa tu nombre y correo."
+        }), 400
+
+    if not isinstance(contrasena, str):
+        return jsonify({
+            "mensaje": "Ingresa una contraseña válida."
+        }), 400
+
+    if not isinstance(confirmar, str):
+        return jsonify({
+            "mensaje": "Confirma tu contraseña."
+        }), 400
+
+    if not 8 <= len(contrasena) <= 128:
+        return jsonify({
+            "mensaje": (
+                "La contraseña debe tener entre "
+                "8 y 128 caracteres."
+            )
+        }), 400
+
+    if contrasena != confirmar:
+        return jsonify({
+            "mensaje": "Las contraseñas no coinciden."
+        }), 400
+
+    fecha_nacimiento = None
+
+    if fecha_texto:
+
+        try:
+            fecha_nacimiento = datetime.strptime(
+                fecha_texto, "%Y-%m-%d"
+            ).date()
+
+            if fecha_nacimiento > date.today():
+                return jsonify({
+                    "mensaje": "La fecha no puede ser futura."
+                }), 400
+
+        except (ValueError, TypeError):
+            return jsonify({
+                "mensaje": "Fecha de nacimiento inválida."
+            }), 400
+
+    contrasena_segura = generate_password_hash(
+        contrasena
+    )
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            INSERT INTO usuarios
+            (nombre, correo, contrasena, fecha_nacimiento)
+            VALUES (%s, %s, %s, %s)
+        """, (
+            nombre,
+            correo,
+            contrasena_segura,
+            fecha_nacimiento
+        ))
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": "¡Tu cuenta fue creada correctamente!"
+        }), 201
+
+    except IntegrityError as error:
+
+        if error.errno == 1062:
+            return jsonify({
+                "mensaje": "Este correo ya está registrado."
+            }), 409
+
+        app.logger.exception("Error de integridad")
+
+        return jsonify({
+            "mensaje": "No se pudo completar el registro."
+        }), 500
+
+    except Error:
+
+        app.logger.exception("Error al registrar usuario")
+
+        return jsonify({
+            "mensaje": "No pudimos guardar tu registro."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# INICIAR SESIÓN
+# ==========================================
+
+@app.route("/api/login", methods=["POST"])
+def iniciar_sesion():
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    correo = str(datos.get("correo") or "").strip().lower()
+    contrasena = datos.get("contrasena")
+
+    if (
+        not correo
+        or not isinstance(contrasena, str)
+        or not contrasena
+    ):
+        return jsonify({
+            "mensaje": "Ingresa tu correo y contraseña."
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT id_usuario, nombre, correo, contrasena
+            FROM usuarios
+            WHERE correo = %s
+        """, (correo,))
+
+        usuario = cursor.fetchone()
+
+        if not usuario or not check_password_hash(
+            usuario["contrasena"], contrasena
+        ):
+            return jsonify({
+                "mensaje": "Correo o contraseña incorrectos."
+            }), 401
+
+        session.clear()
+
+        session["id_usuario"] = usuario["id_usuario"]
+        session["nombre"] = usuario["nombre"]
+
+        return jsonify({
+            "mensaje": "¡Bienvenido a CONTIGO!",
+            "redirigir": url_for("pantalla_inicio")
+        }), 200
+
+    except Error:
+
+        app.logger.exception("Error al iniciar sesión")
+
+        return jsonify({
+            "mensaje": "No pudimos iniciar sesión."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# CERRAR SESIÓN
+# ==========================================
+
+@app.route("/logout")
+@requiere_sesion
+def cerrar_sesion():
+
+    session.clear()
+
+    return redirect(url_for("inicio"))
+
+
+# ==========================================
+# PANTALLA PRINCIPAL
+# ==========================================
+
+@app.route("/inicio")
+@requiere_sesion
+def pantalla_inicio():
+
+    return render_template(
+        "inicio.html",
+        nombre=session.get("nombre", "Usuario")
+    )
+
+
+# ==========================================
+# MI DIARIO
+# ==========================================
+
+@app.route("/diario")
+@requiere_sesion
+def diario():
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                id_entrada,
+                titulo,
+                contenido,
+                fecha_hora
+            FROM diario
+            WHERE id_usuario = %s
+            ORDER BY fecha_hora DESC, id_entrada DESC
+        """, (session["id_usuario"],))
+
+        escritos = cursor.fetchall()
+
+        return render_template(
+            "diario.html",
+            nombre=session.get("nombre", "Usuario"),
+            escritos=escritos
+        )
+
+    except Error:
+
+        app.logger.exception("Error al consultar diario")
+
+        return "No pudimos cargar tu diario.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# PANTALLA NUEVO ESCRITO
+# ==========================================
+
+@app.route("/diario/nuevo")
+@requiere_sesion
+def nuevo_escrito():
+
+    return render_template(
+        "nuevo_escrito.html",
+        nombre=session.get("nombre", "Usuario")
+    )
+
+
+# ==========================================
+# GUARDAR NUEVO ESCRITO
+# ==========================================
+
+@app.route("/api/diario", methods=["POST"])
+@requiere_sesion
+def guardar_escrito():
+
+    datos = request.get_json(silent=True)
+
+    titulo, contenido, error = validar_escrito(datos)
+
+    if error:
+        return jsonify({"mensaje": error}), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            INSERT INTO diario
+            (id_usuario, titulo, contenido)
+            VALUES (%s, %s, %s)
+        """, (
+            session["id_usuario"],
+            titulo,
+            contenido
+        ))
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": "¡Tu escrito se guardó correctamente!"
+        }), 201
+
+    except Error:
+
+        app.logger.exception("Error al guardar escrito")
+
+        return jsonify({
+            "mensaje": "No pudimos guardar tu escrito."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# CONSULTAR ESCRITO
+# ==========================================
+
+@app.route("/api/diario/<int:id_entrada>", methods=["GET"])
+@requiere_sesion
+def consultar_escrito(id_entrada):
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT id_entrada, titulo, contenido
+            FROM diario
+            WHERE id_entrada = %s
+            AND id_usuario = %s
+        """, (
+            id_entrada,
+            session["id_usuario"]
+        ))
+
+        escrito = cursor.fetchone()
+
+        if escrito is None:
+            return jsonify({
+                "mensaje": "No se encontró el escrito."
+            }), 404
+
+        return jsonify(escrito), 200
+
+    except Error:
+
+        app.logger.exception("Error al consultar escrito")
+
+        return jsonify({
+            "mensaje": "No pudimos consultar el escrito."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# EDITAR ESCRITO
+# ==========================================
+
+@app.route("/api/diario/<int:id_entrada>", methods=["PUT"])
+@requiere_sesion
+def editar_escrito(id_entrada):
+
+    datos = request.get_json(silent=True)
+
+    titulo, contenido, error = validar_escrito(datos)
+
+    if error:
+        return jsonify({"mensaje": error}), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            SELECT id_entrada
+            FROM diario
+            WHERE id_entrada = %s
+            AND id_usuario = %s
+        """, (
+            id_entrada,
+            session["id_usuario"]
+        ))
+
+        if not cursor.fetchone():
+            return jsonify({
+                "mensaje": "No se encontró el escrito."
+            }), 404
+
+        cursor.execute("""
+            UPDATE diario
+            SET titulo = %s, contenido = %s
+            WHERE id_entrada = %s
+            AND id_usuario = %s
+        """, (
+            titulo,
+            contenido,
+            id_entrada,
+            session["id_usuario"]
+        ))
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": "¡Escrito actualizado correctamente!"
+        }), 200
+
+    except Error:
+
+        app.logger.exception("Error al editar escrito")
+
+        return jsonify({
+            "mensaje": "No pudimos actualizar el escrito."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# ELIMINAR ESCRITO
+# ==========================================
+
+@app.route("/api/diario/<int:id_entrada>", methods=["DELETE"])
+@requiere_sesion
+def eliminar_escrito(id_entrada):
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            DELETE FROM diario
+            WHERE id_entrada = %s
+            AND id_usuario = %s
+        """, (
+            id_entrada,
+            session["id_usuario"]
+        ))
+
+        if cursor.rowcount == 0:
+            return jsonify({
+                "mensaje": "No se encontró el escrito."
+            }), 404
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": "Escrito eliminado correctamente."
+        }), 200
+
+    except Error:
+
+        app.logger.exception("Error al eliminar escrito")
+
+        return jsonify({
+            "mensaje": "No pudimos eliminar el escrito."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# EMOCIONES Y ACTIVIDADES
+# ==========================================
+
+@app.route("/actividades")
+@requiere_sesion
+def mostrar_actividades():
+
+    nombre_emocion = request.args.get(
+        "emocion", ""
+    ).strip()
+
+    if not nombre_emocion:
+        return redirect(url_for("pantalla_inicio"))
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT id_emocion, nombre, descripcion
+            FROM emociones
+            WHERE nombre = %s
+        """, (nombre_emocion,))
+
+        emocion = cursor.fetchone()
+
+        if emocion is None:
+            return "La emoción no está registrada.", 404
+
+        cursor.execute("""
+            SELECT
+                a.id_actividad,
+                a.id_emocion,
+                a.nombre,
+                a.descripcion,
+                a.tipo,
+                a.duracion,
+                c.nombre AS categoria
+            FROM actividades AS a
+            INNER JOIN categorias AS c
+                ON a.id_categoria = c.id_categoria
+            WHERE a.id_emocion = %s
+            ORDER BY a.id_actividad
+        """, (emocion["id_emocion"],))
+
+        actividades = cursor.fetchall()
+
+        return render_template(
+            "actividades.html",
+            nombre=session.get("nombre", "Usuario"),
+            emocion=emocion,
+            actividades=actividades
+        )
+
+    except Error:
+
+        app.logger.exception("Error al consultar actividades")
+
+        return "No pudimos cargar las actividades.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# DETALLE DE UNA ACTIVIDAD
+# ==========================================
+
+@app.route("/actividad/<int:id_actividad>")
+@requiere_sesion
+def ver_actividad(id_actividad):
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                a.id_actividad,
+                a.id_categoria,
+                a.id_emocion,
+                a.nombre,
+                a.descripcion,
+                a.tipo,
+                a.duracion,
+                e.nombre AS emocion,
+                c.nombre AS categoria
+            FROM actividades AS a
+            INNER JOIN emociones AS e
+                ON a.id_emocion = e.id_emocion
+            INNER JOIN categorias AS c
+                ON a.id_categoria = c.id_categoria
+            WHERE a.id_actividad = %s
+        """, (id_actividad,))
+
+        actividad = cursor.fetchone()
+
+        if actividad is None:
+            return "Actividad no encontrada.", 404
+
+        return render_template(
+            "detalle_actividad.html",
+            nombre=session.get("nombre", "Usuario"),
+            actividad=actividad
+        )
+
+    except Error:
+
+        app.logger.exception("Error al consultar actividad")
+
+        return "No pudimos cargar la actividad.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# CONSTELACIONES DISPONIBLES
+# ==========================================
+
+FIGURAS_CIELO = (
+    "corazon",
+    "mariposa",
+    "flor",
+    "luna",
+    "leo",
+    "aries",
+    "tauro",
+    "cancer",
+    "escorpio",
+    "piscis",
+    "capricornio",
+    "sagitario",
+    "conejo",
+    "dragon"
+)
+
+ESTRELLAS_POR_CONSTELACION = 8
+
+
+# ==========================================
+# CREAR CIELO DEL USUARIO
+# ==========================================
+
+def asegurar_cielo(cursor, usuario_id):
+
+    cursor.execute("""
+        INSERT IGNORE INTO cielo_bienestar
+        (
+            id_usuario,
+            estrellas,
+            constelaciones,
+            figura_activa
+        )
+        VALUES (%s, 0, 0, 'corazon')
+    """, (usuario_id,))
+
+
+# ==========================================
+# SINCRONIZAR ESTRELLAS
+# ==========================================
+
+def sincronizar_cielo(cursor, usuario_id):
+
+    cursor.execute("""
+        SELECT figura_activa
+        FROM cielo_bienestar
+        WHERE id_usuario = %s
+        FOR UPDATE
+    """, (usuario_id,))
+
+    fila = cursor.fetchone()
+
+    activa = (
+        fila["figura_activa"]
+        if fila else "corazon"
+    )
+
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM actividades_realizadas
+        WHERE id_usuario = %s
+    """, (usuario_id,))
+
+    total = cursor.fetchone()["total"]
+
+    cursor.execute("""
+        SELECT codigo_figura
+        FROM constelaciones_descubiertas
+        WHERE id_usuario = %s
+        ORDER BY id_descubrimiento
+    """, (usuario_id,))
+
+    descubiertas = [
+        registro["codigo_figura"]
+        for registro in cursor.fetchall()
+    ]
+
+    nuevas = []
+
+    pendientes = [
+        figura
+        for figura in FIGURAS_CIELO
+        if figura not in descubiertas
+    ]
+
+    if activa not in pendientes and pendientes:
+        activa = pendientes[0]
+
+    while (
+        len(descubiertas) < (
+            total // ESTRELLAS_POR_CONSTELACION
+        )
+        and pendientes
+    ):
+
+        elegida = (
+            activa if activa in pendientes
+            else pendientes[0]
+        )
+
+        cursor.execute("""
+            INSERT IGNORE INTO constelaciones_descubiertas
+            (id_usuario, codigo_figura)
+            VALUES (%s, %s)
+        """, (usuario_id, elegida))
+
+        descubiertas.append(elegida)
+        nuevas.append(elegida)
+
+        pendientes = [
+            figura
+            for figura in FIGURAS_CIELO
+            if figura not in descubiertas
+        ]
+
+        activa = (
+            pendientes[0]
+            if pendientes else "corazon"
+        )
+
+    cursor.execute("""
+        UPDATE cielo_bienestar
+        SET
+            estrellas = %s,
+            constelaciones = %s,
+            figura_activa = %s,
+            ultima_actualizacion = NOW()
+        WHERE id_usuario = %s
+    """, (
+        total,
+        len(descubiertas),
+        activa,
+        usuario_id
+    ))
+
+    restantes = [
+        figura
+        for figura in FIGURAS_CIELO
+        if figura not in descubiertas
+    ]
+
+    progreso = (
+        min(
+            ESTRELLAS_POR_CONSTELACION,
+            max(
+                0,
+                total - (
+                    len(descubiertas)
+                    * ESTRELLAS_POR_CONSTELACION
+                )
+            )
+        )
+        if restantes else 0
+    )
+
+    estado = {
+        "estrellas_total": total,
+        "constelaciones": len(descubiertas),
+        "figura_activa": (
+            activa if restantes else ""
+        ),
+        "descubiertas": descubiertas,
+        "progreso": progreso,
+        "estrellas_meta": ESTRELLAS_POR_CONSTELACION
+    }
+
+    return estado, nuevas
+
+
+# ==========================================
+# PANTALLA CONSTELACIÓN
+# ==========================================
+
+@app.route("/constelacion")
+@requiere_sesion
+def constelacion():
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(
+            dictionary=True,
+            buffered=True
+        )
+
+        usuario_id = session["id_usuario"]
+
+        asegurar_cielo(cursor, usuario_id)
+
+        estado, _ = sincronizar_cielo(
+            cursor, usuario_id
+        )
+
+        conexion.commit()
+
+        return render_template(
+            "constelacion.html",
+            nombre=session.get("nombre", "Usuario"),
+            cielo=estado
+        )
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception("Error al consultar cielo")
+
+        return "No pudimos cargar tu cielo.", 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# ELEGIR CONSTELACIÓN
+# ==========================================
+
+@app.route(
+    "/api/constelacion/seleccionar",
+    methods=["POST"]
+)
+@requiere_sesion
+def seleccionar_constelacion():
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    codigo = datos.get("codigo")
+
+    if codigo not in FIGURAS_CIELO:
+        return jsonify({
+            "mensaje": "Figura no válida."
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(
+            dictionary=True,
+            buffered=True
+        )
+
+        usuario_id = session["id_usuario"]
+
+        asegurar_cielo(cursor, usuario_id)
+
+        estado, _ = sincronizar_cielo(
+            cursor, usuario_id
+        )
+
+        if codigo in estado["descubiertas"]:
+
+            conexion.commit()
+
+            return jsonify({
+                "mensaje": "Ya descubriste esa figura."
+            }), 409
+
+        cursor.execute("""
+            UPDATE cielo_bienestar
+            SET figura_activa = %s
+            WHERE id_usuario = %s
+        """, (codigo, usuario_id))
+
+        conexion.commit()
+
+        estado["figura_activa"] = codigo
+
+        return jsonify({
+            "mensaje": "Figura elegida.",
+            "cielo": estado
+        }), 200
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception("Error al elegir figura")
+
+        return jsonify({
+            "mensaje": "No se pudo elegir la figura."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# GUARDAR ACTIVIDAD Y SUMAR ESTRELLA
+# ==========================================
+
+@app.route(
+    "/api/actividades/<int:id_actividad>/completar",
+    methods=["POST"]
+)
+@requiere_sesion
+def completar_actividad(id_actividad):
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    clave = datos.get("clave_evento", "")
+
+    if (
+        not isinstance(clave, str)
+        or not 16 <= len(clave) <= 64
+    ):
+        return jsonify({
+            "mensaje": "Identificador de intento inválido."
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(
+            dictionary=True,
+            buffered=True
+        )
+
+        usuario_id = session["id_usuario"]
+
+        asegurar_cielo(cursor, usuario_id)
+
+        cursor.execute("""
+            SELECT id_cielo
+            FROM cielo_bienestar
+            WHERE id_usuario = %s
+            FOR UPDATE
+        """, (usuario_id,))
+
+        cursor.fetchone()
+
+        cursor.execute("""
+            SELECT id_actividad
+            FROM actividades
+            WHERE id_actividad = %s
+        """, (id_actividad,))
+
+        if cursor.fetchone() is None:
+
+            conexion.rollback()
+
+            return jsonify({
+                "mensaje": "Actividad no encontrada."
+            }), 404
+
+        cursor.execute("""
+            SELECT id_realizacion
+            FROM actividades_realizadas
+            WHERE id_usuario = %s
+              AND clave_evento = %s
+        """, (usuario_id, clave))
+
+        repetida = cursor.fetchone() is not None
+
+        if not repetida:
+
+            cursor.execute("""
+                INSERT INTO actividades_realizadas
+                (
+                    id_usuario,
+                    id_actividad,
+                    resultado,
+                    clave_evento
+                )
+                VALUES (%s, %s, %s, %s)
+            """, (
+                usuario_id,
+                id_actividad,
+                "Completada en CONTIGO",
+                clave
+            ))
+
+        estado, nuevas = sincronizar_cielo(
+            cursor, usuario_id
+        )
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": (
+                "Actividad ya registrada."
+                if repetida
+                else "Actividad guardada."
+            ),
+            "repetida": repetida,
+            "cielo": estado,
+            "nuevas_constelaciones": nuevas
+        }), 200
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception(
+            "Error al registrar actividad completada"
+        )
+
+        return jsonify({
+            "mensaje": (
+                "No pudimos guardar el progreso. "
+                "Intenta nuevamente."
+            )
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ==========================================
+# COMPAÑERO EMOCIONAL IAN
+# ==========================================
+
+@app.route("/ian")
+@requiere_sesion
+def ian():
+
+    return render_template(
+        "ian.html",
+        nombre=session.get("nombre", "Usuario")
+    )
+
+
+# ==========================================
+# INSTRUCCIONES DE IAN
+# ==========================================
+
+INSTRUCCIONES_IAN = """
+Eres IAN, el compañero emocional de CONTIGO,
+una aplicación de bienestar emocional para
+jóvenes de 14 a 27 años.
+
+Habla en español latinoamericano con un tono
+amable, natural, cálido y sin juzgar.
+
+Tu objetivo es escuchar a las personas y
+acompañarlas en la comprensión de sus emociones.
+
+Debes:
+- Escuchar primero y reconocer las emociones.
+- Hacer preguntas amables, de una en una.
+- No interrogar a la persona.
+- Dar estrategias sencillas de autocuidado
+  cuando sean apropiadas.
+- Respetar cuando la persona solo quiera hablar.
+- Utilizar normalmente entre 2 y 5 frases.
+- Evitar respuestas excesivamente largas.
+- Promover el contacto con personas de confianza.
+
+Reglas de seguridad:
+- Eres una inteligencia artificial.
+- No finjas ser una persona humana.
+- No eres psicólogo, terapeuta ni médico.
+- No diagnostiques ni recetes medicamentos.
+- No prometas confidencialidad absoluta.
+- No minimices el dolor emocional.
+- No fomentes dependencia emocional hacia IAN.
+- No animes a alejarse de amigos o familiares.
+- No des instrucciones para hacerse daño.
+- No recomiendes guardar secretos peligrosos.
+
+Si alguien expresa riesgo de autolesión,
+suicidio, abuso o peligro inmediato:
+- Responde con empatía.
+- Toma en serio la situación.
+- Prioriza su seguridad inmediata.
+- Recomienda apoyo humano y profesional.
+- Orienta a contactar emergencias si corresponde.
+
+Si la persona es menor de edad y está en
+una situación de riesgo, recomienda acudir
+a un adulto de confianza cuando sea seguro.
+
+No asumas su país de residencia.
+Pregunta la ubicación si necesita recursos
+de apoyo locales.
+"""
+
+
+# ==========================================
+# API: CONVERSAR CON IAN
+# ==========================================
+
+@app.route("/api/ian/chat", methods=["POST"])
+@requiere_sesion
+def chat_con_ian():
+
+    # Comprobar token de seguridad
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    # Limitar tamaño de solicitud
+    if request.content_length and request.content_length > 16000:
+        return jsonify({
+            "mensaje": "El mensaje enviado es demasiado grande."
+        }), 413
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    mensaje = datos.get("mensaje", "")
+
+    if not isinstance(mensaje, str):
+        return jsonify({
+            "mensaje": "Escribe un mensaje válido."
+        }), 400
+
+    mensaje = mensaje.strip()
+
+    if not 1 <= len(mensaje) <= 1500:
+        return jsonify({
+            "mensaje": "Escribe un mensaje de máximo 1500 caracteres."
+        }), 400
+
+    # Obtener contexto de conversación
+    historial = []
+    historial_recibido = datos.get("historial", [])
+
+    if isinstance(historial_recibido, list):
+
+        for item in historial_recibido[-10:]:
+
+            if not isinstance(item, dict):
+                continue
+
+            rol = item.get("role")
+            contenido = item.get("content")
+
+            if rol not in ("user", "assistant"):
+                continue
+
+            if not isinstance(contenido, str):
+                continue
+
+            contenido = contenido.strip()
+
+            if not contenido:
+                continue
+
+            historial.append({
+                "role": rol,
+                "content": contenido[:1500]
+            })
+
+    # Verificar la clave de OpenAI
+    if not os.environ.get("OPENAI_API_KEY"):
+
+        return jsonify({
+            "mensaje": (
+                "IAN necesita OPENAI_API_KEY en "
+                "la terminal desde la que ejecutaste Flask."
+            )
+        }), 503
+
+    # Identificar en qué paso ocurre un error
+    etapa = "preparando el cliente"
+
+    try:
+
+        from openai import OpenAI
+
+        cliente = OpenAI(
+            api_key=os.environ["OPENAI_API_KEY"],
+            timeout=30.0
+        )
+
+        # ==================================
+        # REVISIÓN DE SEGURIDAD
+        # ==================================
+
+        etapa = "moderación"
+
+        revision = cliente.moderations.create(
+            model="omni-moderation-latest",
+            input=mensaje
+        )
+
+        categorias = revision.results[0].categories
+
+        riesgo_inmediato = (
+            categorias.self_harm_intent
+            or categorias.self_harm_instructions
+        )
+
+        if riesgo_inmediato:
+
+            return jsonify({
+                "respuesta": (
+                    "Gracias por confiarme algo tan difícil. "
+                    "Me preocupa tu seguridad y quiero "
+                    "tomar en serio lo que estás sintiendo. "
+                    "Si crees que podrías hacerte daño ahora, "
+                    "intenta alejarte de cualquier objeto "
+                    "peligroso y busca la compañía de alguien "
+                    "de confianza de inmediato. "
+                    "Si hay peligro inmediato, llama a "
+                    "emergencias; en Colombia puedes "
+                    "comunicarte al 123. "
+                    "¿Estás en un lugar seguro ahora?"
+                )
+            }), 200
+
+        # ==================================
+        # GENERAR RESPUESTA CON IA
+        # ==================================
+
+        etapa = "generación de respuesta"
+
+        respuesta_api = cliente.responses.create(
+            model=os.environ.get(
+                "IAN_MODEL",
+                "gpt-4.1-mini"
+            ),
+
+            instructions=INSTRUCCIONES_IAN,
+
+            input=historial + [{
+                "role": "user",
+                "content": mensaje
+            }],
+
+            max_output_tokens=350,
+
+            store=False
+        )
+
+        respuesta = (
+            respuesta_api.output_text or ""
+        ).strip()
+
+        if not respuesta:
+
+            return jsonify({
+                "mensaje": (
+                    "IAN no generó una respuesta. "
+                    "Intenta nuevamente."
+                )
+            }), 502
+
+        return jsonify({
+            "respuesta": respuesta
+        }), 200
+
+    # ======================================
+    # DIAGNÓSTICO TEMPORAL DE ERRORES
+    # ======================================
+
+    except Exception as error:
+
+        app.logger.error(
+            "IAN: error de %s | Etapa: %s | Detalle: %s",
+            type(error).__name__,
+            etapa,
+            str(error)[:1200]
+        )
+
+        return jsonify({
+            "mensaje": (
+                "IAN no pudo responder en este momento. "
+                "Revisa el error detallado en la "
+                "terminal de Flask."
+            )
+        }), 503
+
+
+# ==========================================
+# RED DE APOYO
+# ==========================================
+
+@app.route("/red-apoyo")
+@requiere_sesion
+def red_apoyo():
+
+    return (
+        "Red de Apoyo: "
+        "pantalla pendiente de implementar."
+    )
+
+
+# ==========================================
+# PERFIL
+# ==========================================
+
+@app.route("/perfil")
+@requiere_sesion
+def perfil():
+
+    return (
+        "Perfil: pantalla pendiente de implementar."
+    )
+
+
+# ==========================================
+# NOTIFICACIONES
+# ==========================================
+
+@app.route("/notificaciones")
+@requiere_sesion
+def notificaciones():
+
+    return (
+        "Notificaciones: "
+        "pantalla pendiente de implementar."
+    )
+
+
+# ==========================================
+# CONFIGURACIÓN
+# ==========================================
+
+@app.route("/configuracion")
+@requiere_sesion
+def configuracion():
+
+    return (
+        "Configuración: "
+        "pantalla pendiente de implementar."
+    )
+
+
+# ==========================================
+# EJECUTAR CONTIGO
+# ==========================================
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+RESPALDO APP.PY
+
+    

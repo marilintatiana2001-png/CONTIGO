@@ -1,0 +1,489 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        CONTIGO | Cielo de Bienestar
+    </title>
+
+    <!-- CSS DE LA CONSTELACIÓN -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/constelacion.css') }}"
+    >
+
+</head>
+
+<body
+    class="pagina-cielo"
+    data-csrf="{{ csrf_contigo }}"
+>
+
+    <!-- ====================================
+         CONTENEDOR PRINCIPAL
+    ===================================== -->
+
+    <main class="contenedor-cielo">
+
+
+        <!-- =================================
+             ENCABEZADO
+        ================================== -->
+
+        <header class="encabezado-cielo">
+
+            <h2>
+                ☀️ Hola,
+                <span>{{ nombre }}</span>
+            </h2>
+
+            <div class="acciones-encabezado">
+
+                <!-- NOTIFICACIONES -->
+                <a
+                    href="{{ url_for('notificaciones') }}"
+                    aria-label="Notificaciones"
+                    title="Notificaciones"
+                >
+                    🔔
+                </a>
+
+                <!-- CONFIGURACIÓN -->
+                <a
+                    href="{{ url_for('configuracion') }}"
+                    aria-label="Configuración"
+                    title="Configuración"
+                >
+                    ⚙️
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================
+             VOLVER AL INICIO
+        ================================== -->
+
+        <a
+            href="{{ url_for('pantalla_inicio') }}"
+            class="volver-inicio"
+        >
+            ← Volver a Inicio
+        </a>
+
+
+        <!-- =================================
+             BIENVENIDA
+        ================================== -->
+
+        <section class="bienvenida-cielo">
+
+            <div
+                class="adorno-cielo"
+                aria-hidden="true"
+            >
+                🌙 ✨ 💗
+            </div>
+
+            <h1>
+                Mi Cielo de Bienestar
+            </h1>
+
+            <p>
+                Cada estrella representa un momento
+                que decidiste dedicarte.
+
+                Poco a poco, tus pequeños logros
+                se transformarán en hermosas
+                constelaciones.
+            </p>
+
+            <p>
+                Y recuerda: las estrellas que
+                consigues nunca se apagan
+                por tomarte un descanso.
+            </p>
+
+        </section>
+
+
+        <!-- =================================
+             RESUMEN DE PROGRESO
+        ================================== -->
+
+        <section
+            class="resumen-cielo"
+            aria-label="Mi progreso"
+        >
+
+            <!-- ESTRELLAS -->
+
+            <div>
+
+                <strong
+                    id="total-estrellas"
+                >
+                    {{ cielo.estrellas_total }}
+                </strong>
+
+                <span>
+                    ⭐ Estrellas ganadas
+                </span>
+
+            </div>
+
+
+            <!-- CONSTELACIONES -->
+
+            <div>
+
+                <strong
+                    id="total-figuras"
+                >
+                    {{ cielo.constelaciones }}
+                </strong>
+
+                <span>
+                    🌌 Constelaciones descubiertas
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================
+             CIELO INTERACTIVO
+        ================================== -->
+
+        <section class="tarjeta-cielo">
+
+            <!-- TÍTULO -->
+
+            <div class="titulo-zona-cielo">
+
+                <h2 id="nombre-figura">
+                    ✨ Mi constelación
+                </h2>
+
+                <p id="significado-figura">
+                    Una pequeña luz que representa
+                    algo especial de ti.
+                </p>
+
+            </div>
+
+
+            <!-- ESCENARIO NOCTURNO -->
+
+            <div class="escenario-cielo">
+
+                <svg
+                    id="mapa-estrellas"
+                    viewBox="0 0 320 270"
+                    xmlns="http://www.w3.org/2000/svg"
+                    role="img"
+                    aria-label="Constelación formada por estrellas"
+                >
+
+                    <!--
+                        Las estrellas y las líneas
+                        serán creadas automáticamente
+                        por constelacion.js
+                    -->
+
+                </svg>
+
+            </div>
+
+
+            <!-- =================================
+                 PROGRESO DE LA FIGURA
+            ================================== -->
+
+            <div class="progreso-cielo">
+
+                <span id="texto-progreso">
+                    {{ cielo.progreso }}
+                    de
+                    {{ cielo.estrellas_meta }}
+                    estrellas
+                </span>
+
+
+                <!-- BARRA DE PROGRESO -->
+
+                <div
+                    class="barra-estrellas"
+                    role="progressbar"
+                    aria-label="Progreso de la constelación"
+                    aria-valuemin="0"
+                    aria-valuemax="8"
+                >
+
+                    <div
+                        id="relleno-estrellas"
+                    ></div>
+
+                </div>
+
+
+                <!-- ESTADO -->
+
+                <p
+                    id="estado-figura"
+                    aria-live="polite"
+                >
+                    Cada actividad completada
+                    enciende una nueva estrella.
+                </p>
+
+            </div>
+
+
+            <!-- =================================
+                 ELEGIR FIGURA
+            ================================== -->
+
+            <button
+                type="button"
+                id="elegir-figura"
+                class="boton-elegir"
+                hidden
+            >
+                Elegir esta constelación 💜
+            </button>
+
+
+            <!-- MENSAJE DEL SISTEMA -->
+
+            <p
+                id="mensaje-cielo"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+        </section>
+
+
+        <!-- =================================
+             GALERÍA DE CONSTELACIONES
+        ================================== -->
+
+        <section class="coleccion-cielo">
+
+            <h2>
+                ✨ Descubre tus constelaciones
+            </h2>
+
+            <p>
+                Explora las figuras que puedes
+                construir con tus estrellas.
+
+                Elige la que más te guste
+                y descubre cómo se ilumina
+                con cada actividad.
+            </p>
+
+
+            <!--
+                JavaScript insertará aquí:
+
+                - Corazón
+                - Mariposa
+                - Flor
+                - Luna
+                - Leo
+                - Aries
+                - Tauro
+                - Cáncer
+                - Escorpio
+                - Piscis
+                - Capricornio
+                - Sagitario
+                - Conejito lunar
+                - Dragón de luz
+            -->
+
+            <div
+                id="galeria-figuras"
+                class="galeria-figuras"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================
+             MENSAJE FINAL
+        ================================== -->
+
+        <section class="bienvenida-cielo">
+
+            <div
+                class="adorno-cielo"
+                aria-hidden="true"
+            >
+                🦊 ⭐ 💜
+            </div>
+
+            <h2>
+                Tu cielo cuenta tu historia
+            </h2>
+
+            <p>
+                No importa cuántas estrellas
+                hayas encendido hoy.
+
+                Lo importante es que cada
+                pequeño momento de cuidado
+                también merece ser recordado.
+            </p>
+
+            <p>
+                Sigue construyendo tu propio
+                universo, a tu ritmo.
+            </p>
+
+            <a
+                href="{{ url_for('pantalla_inicio') }}"
+                class="boton-elegir"
+                style="
+                    display: block;
+                    margin-top: 18px;
+                    text-decoration: none;
+                "
+            >
+                💗 Realizar otra actividad
+            </a>
+
+        </section>
+
+
+        <!-- =================================
+             NOTA INFORMATIVA
+        ================================== -->
+
+        <p class="nota-cielo">
+
+            ⭐ Cada actividad completada suma
+            una estrella a tu progreso.
+
+            Las figuras de vista previa
+            no representan estrellas ganadas.
+
+            Las constelaciones descubiertas
+            permanecen guardadas en tu cuenta.
+
+        </p>
+
+
+    </main>
+
+
+    <!-- ====================================
+         MENÚ INFERIOR DE CONTIGO
+    ===================================== -->
+
+    <nav
+        class="navegacion-inferior"
+        aria-label="Navegación principal"
+    >
+
+        <!-- INICIO -->
+
+        <a
+            href="{{ url_for('pantalla_inicio') }}"
+            class="activo"
+        >
+
+            <span class="icono-menu">
+                🏠
+            </span>
+
+            <span>
+                Inicio
+            </span>
+
+        </a>
+
+
+        <!-- MI DIARIO -->
+
+        <a href="{{ url_for('diario') }}">
+
+            <span class="icono-menu">
+                📓
+            </span>
+
+            <span>
+                Diario
+            </span>
+
+        </a>
+
+
+        <!-- RED DE APOYO -->
+
+        <a href="{{ url_for('red_apoyo') }}">
+
+            <span class="icono-menu">
+                👥
+            </span>
+
+            <span>
+                Red Apoyo
+            </span>
+
+        </a>
+
+
+        <!-- MI PERFIL -->
+
+        <a href="{{ url_for('perfil') }}">
+
+            <span class="icono-menu">
+                👤
+            </span>
+
+            <span>
+                Perfil
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!-- ====================================
+         DATOS DEL CIELO DESDE MARIADB
+    ===================================== -->
+
+    <script
+        id="datos-cielo"
+        type="application/json"
+    >{{ cielo | tojson }}</script>
+
+
+    <!-- ====================================
+         JAVASCRIPT INTERACTIVO
+    ===================================== -->
+
+    <script
+        src="{{ url_for('static', filename='js/constelacion.js') }}"
+    ></script>
+
+
+</body>
+
+</html>
