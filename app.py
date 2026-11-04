@@ -138,6 +138,22 @@ def validar_csrf_contigo():
         and secrets.compare_digest(enviado, esperado)
     )
 
+#BORRARRRR#
+# ============================================================
+# API: TOKEN CSRF PARA REACT
+# ============================================================
+
+@app.route("/api/csrf", methods=["GET"])
+@requiere_sesion
+def obtener_csrf_react():
+
+    if "csrf_contigo" not in session:
+        session["csrf_contigo"] = secrets.token_urlsafe(32)
+
+    return jsonify({
+        "csrf_token": session["csrf_contigo"]
+    }), 200
+
 
 # ============================================================
 # PANTALLA DE LOGIN
@@ -449,6 +465,50 @@ def nuevo_escrito():
         nombre=session.get("nombre", "Usuario")
     )
 
+# BOOORRRRAAAAARRRRR#
+
+# ============================================================
+# GET - CONSULTAR ESCRITOS DEL DIARIO
+# ============================================================
+
+@app.route("/api/diario", methods=["GET"])
+@requiere_sesion
+def obtener_escritos_diario():
+
+    conexion = None
+    cursor = None
+
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                id_entrada,
+                id_usuario,
+                titulo,
+                contenido,
+                fecha_hora
+            FROM diario
+            WHERE id_usuario = %s
+            ORDER BY id_entrada DESC
+        """, (session["id_usuario"],))
+
+        escritos = cursor.fetchall()
+
+        return jsonify(escritos), 200
+
+    except Error:
+        app.logger.exception(
+            "Error al consultar escritos del diario"
+        )
+
+        return jsonify({
+            "mensaje": "No se pudieron consultar los escritos."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
 
 # ============================================================
 # GUARDAR NUEVO ESCRITO
