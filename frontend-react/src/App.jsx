@@ -12,6 +12,17 @@ function App() {
   const [error, setError] = useState("");
   const [exito, setExito] = useState("");
 
+  
+  // Buscar escritos por título o contenido
+  const [busqueda, setBusqueda] = useState("");
+
+  const escritosFiltrados = escritos.filter((escrito) => {
+    const texto = `${escrito.titulo} ${escrito.contenido}`;
+    return texto.toLowerCase().includes(
+      busqueda.trim().toLowerCase()
+    );
+  });
+
   // Consultar información del backend Flask
   async function consultarAPI(ruta, opciones = {}) {
     const respuesta = await fetch(ruta, {
@@ -327,6 +338,18 @@ function App() {
         <section className="tarjeta">
           <h2>📖 Escritos registrados</h2>
 
+          
+<label htmlFor="busqueda">🔎 Buscar en mi diario</label>
+
+<input
+  id="busqueda"
+  type="search"
+  placeholder="Buscar por título o contenido..."
+  value={busqueda}
+  onChange={(e) => setBusqueda(e.target.value)}
+/>
+
+
           {cargando ? (
             <p>Consultando información...</p>
           ) : (
@@ -335,10 +358,10 @@ function App() {
                 Total de escritos: {escritos.length}
               </p>
 
-              {escritos.length === 0 ? (
+              {escritosFiltrados.length === 0 ? (
                 <p>No hay registros todavía.</p>
               ) : (
-                escritos.map((escrito) => (
+                escritosFiltrados.map((escrito) => (
                   <article
                     className="registro"
                     key={escrito.id_entrada}
