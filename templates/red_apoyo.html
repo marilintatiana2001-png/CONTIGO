@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="csrf-token" content="{{ csrf_contigo }}">
+
+    <title>CONTIGO | Red de Apoyo</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/red_apoyo.css') }}">
+
+    <script defer
+            src="{{ url_for('static', filename='js/red_apoyo.js') }}">
+    </script>
+</head>
+
+<body>
+
+<div class="pagina-red">
+
+    <!-- ENCABEZADO -->
+    <header class="encabezado">
+
+        <a href="{{ url_for('pantalla_inicio') }}"
+           class="marca">
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Logo de CONTIGO"
+                class="logo"
+            >
+            <span>CONTIGO 💜</span>
+        </a>
+
+        <a href="{{ url_for('pantalla_inicio') }}"
+           class="volver">
+            ← Inicio
+        </a>
+
+    </header>
+
+    <main class="contenido">
+
+        <!-- PRESENTACIÓN -->
+        <section class="bienvenida">
+
+            <div class="icono-principal">🤝</div>
+
+            <h1>Mi Red de Apoyo</h1>
+
+            <p>
+                No tienes que afrontar todo sin compañía.
+                Aquí puedes organizar las personas de
+                confianza y encontrar recursos de ayuda.
+            </p>
+
+            <div class="mensaje-bienvenida">
+                💜 Pedir apoyo también es una forma
+                de cuidar de ti.
+            </div>
+
+        </section>
+
+        <div id="mensaje-estado"
+             class="mensaje-estado"
+             role="status"
+             aria-live="polite"
+             hidden>
+        </div>
+
+        <div class="columnas">
+
+            <!-- CONTACTOS DE CONFIANZA -->
+            <section class="panel">
+
+                <div class="titulo-panel">
+                    <div>
+                        <h2>🫂 Mis contactos</h2>
+                        <p>
+                            Personas con las que puedo contar.
+                        </p>
+                    </div>
+
+                    <button
+                        id="btn-nuevo-contacto"
+                        type="button"
+                        class="boton boton-principal">
+                        + Agregar
+                    </button>
+                </div>
+
+                <div id="lista-contactos"
+                     class="lista-elementos"
+                     aria-live="polite">
+
+                    <p class="cargando">
+                        Cargando contactos...
+                    </p>
+
+                </div>
+
+                <p class="nota">
+                    Tus contactos son personales.
+                    Solo aparecen en tu cuenta.
+                </p>
+
+            </section>
+
+            <!-- RECURSOS DE AYUDA -->
+            <section class="panel">
+
+                <div class="titulo-panel">
+                    <div>
+                        <h2>🌷 Recursos de ayuda</h2>
+                        <p>
+                            Espacios y servicios donde
+                            puedes buscar orientación.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="lista-recursos"
+                     class="lista-elementos"
+                     aria-live="polite">
+
+                    <p class="cargando">
+                        Cargando recursos...
+                    </p>
+
+                </div>
+
+                <p class="nota">
+                    Consulta los horarios y la cobertura
+                    antes de comunicarte con un servicio.
+                </p>
+
+            </section>
+
+        </div>
+
+        <!-- AYUDA URGENTE -->
+        <section class="ayuda-urgente">
+
+            <div class="icono-urgente">🛟</div>
+
+            <div class="texto-urgente">
+
+                <h2>¿Necesitas ayuda inmediata?</h2>
+
+                <p>
+                    Si estás en peligro, busca un lugar
+                    seguro y comunícate con emergencias.
+                    En Colombia puedes llamar al 123.
+                    En otros países, utiliza el número
+                    local de emergencias.
+                </p>
+
+            </div>
+
+            <a href="tel:123"
+               class="boton boton-emergencia">
+                Llamar al 123
+            </a>
+
+        </section>
+
+        <section class="recordatorio">
+            <span>💌</span>
+            <p>
+                Mereces ser escuchado con respeto.
+                Buscar ayuda es una decisión valiosa.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav class="navegacion"
+         aria-label="Navegación principal">
+
+        <a href="{{ url_for('pantalla_inicio') }}">
+            <span>🏠</span>
+            Inicio
+        </a>
+
+        <a href="{{ url_for('diario') }}">
+            <span>📔</span>
+            Diario
+        </a>
+
+        <a href="{{ url_for('red_apoyo') }}"
+           class="activo"
+           aria-current="page">
+            <span>🫂</span>
+            Red de Apoyo
+        </a>
+
+        <a href="{{ url_for('perfil') }}">
+            <span>👤</span>
+            Perfil
+        </a>
+
+    </nav>
+
+</div>
+
+<!-- FORMULARIO PARA CONTACTOS -->
+<dialog id="modal-contacto"
+        class="modal-contacto"
+        aria-labelledby="titulo-modal">
+
+    <div class="modal-contenido">
+
+        <div class="modal-encabezado">
+
+            <h2 id="titulo-modal">
+                Agregar contacto
+            </h2>
+
+            <button
+                id="btn-cerrar-modal"
+                class="boton-cerrar"
+                type="button"
+                aria-label="Cerrar formulario">
+                ×
+            </button>
+
+        </div>
+
+        <p class="modal-descripcion">
+            Registra a alguien con quien te sientas
+            seguro y puedas comunicarte cuando
+            necesites apoyo.
+        </p>
+
+        <form id="form-contacto">
+
+            <input
+                type="hidden"
+                id="id-contacto"
+            >
+
+            <label for="nombre-contacto">
+                Nombre *
+            </label>
+
+            <input
+                type="text"
+                id="nombre-contacto"
+                maxlength="100"
+                placeholder="Ejemplo: Mamá"
+                required
+            >
+
+            <label for="relacion-contacto">
+                Relación
+            </label>
+
+            <input
+                type="text"
+                id="relacion-contacto"
+                maxlength="50"
+                placeholder="Ejemplo: Familiar, amiga, pareja..."
+            >
+
+            <label for="telefono-contacto">
+                Teléfono
+            </label>
+
+            <input
+                type="tel"
+                id="telefono-contacto"
+                maxlength="30"
+                placeholder="Ejemplo: +573001234567"
+            >
+
+            <p class="ayuda-campo">
+                Para habilitar WhatsApp, escribe el
+                número con el indicativo del país.
+                Ejemplo para Colombia: +57.
+            </p>
+
+            <div id="error-formulario"
+                 class="error-formulario"
+                 role="alert"
+                 hidden>
+            </div>
+
+            <div class="modal-acciones">
+
+                <button
+                    type="button"
+                    id="btn-cancelar"
+                    class="boton boton-secundario">
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    id="btn-guardar-contacto"
+                    class="boton boton-principal">
+                    Guardar contacto
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+
+</body>
+</html>

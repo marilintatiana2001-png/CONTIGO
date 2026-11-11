@@ -2005,18 +2005,379 @@ def chat_con_ian():
         }), 503
 
 
+
 # ============================================================
-# RED DE APOYO
+# PANTALLA RED DE APOYO 
 # ============================================================
 
 @app.route("/red-apoyo")
 @requiere_sesion
 def red_apoyo():
 
-    return (
-        "Red de Apoyo: "
-        "pantalla pendiente de implementar."
+    return render_template(
+        "red_apoyo.html",
+        nombre=session.get("nombre", "Usuario")
     )
+
+
+# ============================================================
+# VALIDAR DATOS DE UN CONTACTO
+# ============================================================
+
+def validar_contacto_confianza(datos):
+
+    if not isinstance(datos, dict):
+        return None, "Los datos enviados no son válidos."
+
+    nombre = datos.get("nombre", "")
+    telefono = datos.get("telefono") or ""
+    relacion = datos.get("relacion") or ""
+
+    if not all(
+        isinstance(valor, str)
+        for valor in (nombre, telefono, relacion)
+    ):
+        return None, "Los campos deben contener texto."
+
+    nombre = nombre.strip()
+    telefono = telefono.strip()
+    relacion = relacion.strip()
+
+    if not 1 <= len(nombre) <= 100:
+        return None, (
+            "El nombre es obligatorio y no puede "
+            "superar 100 caracteres."
+        )
+
+    if len(relacion) > 50:
+        return None, (
+            "La relación no puede superar 50 caracteres."
+        )
+
+    if telefono:
+
+        digitos = re.sub(r"\D", "", telefono)
+
+        if (
+            len(telefono) > 30
+            or not re.fullmatch(
+                r"\+?[\d\s().-]+",
+                telefono
+            )
+            or not 7 <= len(digitos) <= 15
+        ):
+            return None, (
+                "Ingresa un teléfono válido "
+                "de entre 7 y 15 dígitos."
+            )
+
+    contacto = {
+        "nombre": nombre,
+        "telefono": telefono or None,
+        "relacion": relacion or None
+    }
+
+    return contacto, None
+
+
+# ============================================================
+# GET - CONSULTAR MIS CONTACTOS
+# POST - AGREGAR CONTACTO DE CONFIANZA
+# ============================================================
+
+@app.route(
+    "/api/red-apoyo/contactos",
+    methods=["GET", "POST"]
+)
+@requiere_sesion
+def api_contactos_confianza():
+
+    usuario_id = session["id_usuario"]
+
+    # Validar solicitudes de escritura
+    if request.method == "POST":
+
+        if not validar_csrf_contigo():
+            return jsonify({
+                "mensaje": "Solicitud no autorizada."
+            }), 403
+
+        datos_contacto, error = validar_contacto_confianza(
+            request.get_json(silent=True)
+        )
+
+        if error:
+            return jsonify({
+                "mensaje": error
+            }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+
+        cursor = conexion.cursor(dictionary=True)
+
+        # ------------------------------------
+        # CONSULTAR CONTACTOS
+        # ------------------------------------
+
+        if request.method == "GET":
+
+            cursor.execute("""
+                SELECT
+                    id_contacto,
+                    nombre,
+                    telefono,
+                    relacion
+                FROM contactos_confianza
+                WHERE id_usuario = %s
+                ORDER BY id_contacto DESC
+            """, (usuario_id,))
+
+            contactos = cursor.fetchall()
+
+            return jsonify({
+                "contactos": contactos
+            }), 200
+
+        # ------------------------------------
+        # CREAR CONTACTO
+        # ------------------------------------
+
+        cursor.execute("""
+            INSERT INTO contactos_confianza
+            (
+                id_usuario,
+                nombre,
+                telefono,
+                relacion
+            )
+            VALUES (%s, %s, %s, %s)
+        """, (
+            usuario_id,
+            datos_contacto["nombre"],
+            datos_contacto["telefono"],
+            datos_contacto["relacion"]
+        ))
+
+        id_nuevo = cursor.lastrowid
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": (
+                "¡Contacto de confianza "
+                "agregado correctamente!"
+            ),
+            "id_contacto": id_nuevo
+        }), 201
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception(
+            "Error en contactos de Red de Apoyo"
+        )
+
+        return jsonify({
+            "mensaje": (
+                "No pudimos completar la operación "
+                "con tus contactos."
+            )
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# PUT - EDITAR CONTACTO
+# DELETE - ELIMINAR CONTACTO
+# ============================================================
+
+@app.route(
+    "/api/red-apoyo/contactos/<int:id_contacto>",
+    methods=["PUT", "DELETE"]
+)
+@requiere_sesion
+def api_modificar_contacto_confianza(id_contacto):
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    usuario_id = session["id_usuario"]
+
+    if request.method == "PUT":
+
+        datos_contacto, error = validar_contacto_confianza(
+            request.get_json(silent=True)
+        )
+
+        if error:
+            return jsonify({
+                "mensaje": error
+            }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+
+        cursor = conexion.cursor(dictionary=True)
+
+        # Comprobar que el contacto pertenece
+        # al usuario que inició sesión
+
+        cursor.execute("""
+            SELECT id_contacto
+            FROM contactos_confianza
+            WHERE id_contacto = %s
+              AND id_usuario = %s
+        """, (
+            id_contacto,
+            usuario_id
+        ))
+
+        contacto = cursor.fetchone()
+
+        if contacto is None:
+            return jsonify({
+                "mensaje": "Contacto no encontrado."
+            }), 404
+
+        # ------------------------------------
+        # EDITAR CONTACTO
+        # ------------------------------------
+
+        if request.method == "PUT":
+
+            cursor.execute("""
+                UPDATE contactos_confianza
+                SET
+                    nombre = %s,
+                    telefono = %s,
+                    relacion = %s
+                WHERE id_contacto = %s
+                  AND id_usuario = %s
+            """, (
+                datos_contacto["nombre"],
+                datos_contacto["telefono"],
+                datos_contacto["relacion"],
+                id_contacto,
+                usuario_id
+            ))
+
+            conexion.commit()
+
+            return jsonify({
+                "mensaje": (
+                    "¡Contacto actualizado "
+                    "correctamente!"
+                )
+            }), 200
+
+        # ------------------------------------
+        # ELIMINAR CONTACTO
+        # ------------------------------------
+
+        cursor.execute("""
+            DELETE FROM contactos_confianza
+            WHERE id_contacto = %s
+              AND id_usuario = %s
+        """, (
+            id_contacto,
+            usuario_id
+        ))
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": (
+                "Contacto eliminado correctamente."
+            )
+        }), 200
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception(
+            "Error al modificar contacto de apoyo"
+        )
+
+        return jsonify({
+            "mensaje": (
+                "No pudimos modificar este contacto."
+            )
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# GET - CONSULTAR RECURSOS DE AYUDA
+# ============================================================
+
+@app.route(
+    "/api/red-apoyo/recursos",
+    methods=["GET"]
+)
+@requiere_sesion
+def api_recursos_ayuda():
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                id_recurso,
+                nombre,
+                descripcion,
+                telefono,
+                url,
+                tipo
+            FROM recursos_ayuda
+            ORDER BY nombre ASC
+        """)
+
+        recursos = cursor.fetchall()
+
+        return jsonify({
+            "recursos": recursos
+        }), 200
+
+    except Error:
+
+        app.logger.exception(
+            "Error al consultar recursos de ayuda"
+        )
+
+        return jsonify({
+            "mensaje": (
+                "No pudimos consultar los "
+                "recursos de ayuda."
+            )
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
 
 
 # ============================================================
