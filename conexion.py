@@ -7,7 +7,7 @@ def conectar_db():
         host="127.0.0.1",
         port=3306,
         user="contigo_app",
-        password=os.environ["DB_PASSWORD"],
+        password=os.environ.get("DB_PASSWORD", ""),
         database="contigo_db",
         use_pure=True
     )

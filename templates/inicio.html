@@ -4,38 +4,378 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>CONTIGO | Inicio</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/inicio.css') }}">
+    <!-- ESTILOS ORIGINALES -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/inicio.css') }}"
+    >
+
+    <!-- ESTILOS DE REGISTRO EMOCIONAL -->
+    <style>
+        .registro-overlay[hidden],
+        .registro-error[hidden] {
+            display: none !important;
+        }
+
+        .registro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(47, 30, 87, 0.45);
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .registro-tarjeta {
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+            max-height: calc(100dvh - 40px);
+            overflow-y: auto;
+            padding: 28px 25px;
+            background: linear-gradient(
+                155deg,
+                #ffffff 0%,
+                #f5edff 65%,
+                #fff0f8 100%
+            );
+            border: 2px solid #e8d5ff;
+            border-radius: 28px;
+            box-shadow: 0 18px 55px rgba(61, 35, 112, 0.22);
+            text-align: center;
+            animation: registroAparecer 0.25s ease;
+        }
+
+        @keyframes registroAparecer {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .registro-cerrar {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 37px;
+            height: 37px;
+            border: none;
+            border-radius: 50%;
+            background: #eee3ff;
+            color: #6435b0;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .registro-logo {
+            display: block;
+            width: 95px;
+            height: 95px;
+            margin: 3px auto 17px;
+            object-fit: contain;
+            background: white;
+            border: 4px solid white;
+            border-radius: 26px;
+            box-shadow: 0 5px 18px rgba(100, 53, 176, 0.12);
+        }
+
+        .registro-paso {
+            display: inline-block;
+            padding: 6px 15px;
+            background: #eadcff;
+            color: #6435b0;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .registro-titulo {
+            margin: 16px 0 10px;
+            color: #4b278e;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 25px;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .registro-texto {
+            margin: 12px 0;
+            color: #66567e;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+        .registro-emocion {
+            display: inline-block;
+            margin: 10px auto;
+            padding: 12px 23px;
+            background: linear-gradient(
+                90deg,
+                #e7d6ff,
+                #ffddeb
+            );
+            border: 1px solid #e5c8f4;
+            border-radius: 20px;
+            color: #6435b0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .registro-destellos {
+            margin: 14px 0;
+            color: #a77cde;
+            font-size: 22px;
+        }
+
+        .registro-acciones {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            margin-top: 23px;
+        }
+
+        .registro-boton {
+            width: 100%;
+            min-height: 49px;
+            padding: 13px 17px;
+            border: none;
+            border-radius: 15px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                filter 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .registro-boton:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .registro-boton-principal {
+            background: linear-gradient(
+                90deg,
+                #9971df,
+                #e887bb
+            );
+            color: white;
+        }
+
+        .registro-boton-secundario {
+            background: #eae0fc;
+            color: #6435b0;
+        }
+
+        .registro-boton:hover:not(:disabled) {
+            filter: brightness(1.04);
+        }
+
+        .registro-intensidades {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 19px;
+        }
+
+        .registro-opcion {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 12px 17px;
+            border: 2px solid #e6d8f9;
+            border-radius: 17px;
+            background: white;
+            color: #5f5079;
+            font-family: "Segoe UI", Arial, sans-serif;
+            text-align: left;
+            cursor: pointer;
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .registro-opcion:hover {
+            background: #faf5ff;
+            border-color: #bea0ec;
+        }
+
+        .registro-opcion.seleccionada {
+            background: linear-gradient(
+                90deg,
+                #f0e4ff,
+                #ffe9f4
+            );
+            border-color: #9a70df;
+        }
+
+        .registro-numero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            background: #eee3ff;
+            border-radius: 14px;
+            color: #6435b0;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .registro-opcion.seleccionada .registro-numero {
+            background: #9a70df;
+            color: white;
+        }
+
+        .registro-nombre-intensidad {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .registro-error {
+            margin: 16px 0 0;
+            padding: 12px;
+            background: #ffebf0;
+            border: 1px solid #efb5c4;
+            border-radius: 13px;
+            color: #933b58;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .registro-privacidad {
+            margin: 17px 0 0;
+            color: #786b8c;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .registro-boton:focus-visible,
+        .registro-opcion:focus-visible,
+        .registro-cerrar:focus-visible {
+            outline: 3px solid #8050cb;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 480px) {
+            .registro-overlay {
+                padding: 12px;
+            }
+
+            .registro-tarjeta {
+                max-height: calc(100dvh - 24px);
+                padding: 24px 19px;
+                border-radius: 23px;
+            }
+
+            .registro-logo {
+                width: 77px;
+                height: 77px;
+            }
+
+            .registro-titulo {
+                font-size: 23px;
+            }
+
+            .registro-texto {
+                font-size: 15px;
+            }
+
+            .registro-opcion {
+                padding: 10px 13px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .registro-tarjeta {
+                animation: none;
+            }
+
+            .registro-opcion,
+            .registro-boton {
+                transition: none;
+            }
+        }
+    </style>
+
+    <!-- RESPONSIVE GENERAL -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <!-- NUEVO: ESTILOS DE NOTIFICACIONES -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/notificaciones-global.css') }}"
+    >
+
+    <!-- NUEVO: FUNCIONAMIENTO DE NOTIFICACIONES -->
+    <script
+        src="{{ url_for('static', filename='js/notificaciones-global.js') }}"
+        defer
+    ></script>
+
 </head>
 
 <body class="pagina-inicio">
 
     <main class="contenedor-inicio">
 
-        <!-- ENCABEZADO -->
+        <!-- =====================================
+             ENCABEZADO
+        ====================================== -->
+
         <header class="encabezado-inicio">
 
             <h2>
                 ☀️ Hola,
-                <span id="nombre-usuario">{{ nombre }}</span>
+                <span id="nombre-usuario">
+                    {{ nombre }}
+                </span>
             </h2>
 
             <div class="acciones-encabezado">
 
-                <a href="/notificaciones"
-                   aria-label="Notificaciones"
-                   title="Notificaciones">
+                <!-- CAMPANITA ACTUALIZADA -->
+                <a
+                    href="/perfil"
+                    data-contigo-notificaciones
+                    aria-label="Mis notificaciones"
+                    title="Mis notificaciones"
+                >
                     🔔
                 </a>
 
-                <a href="/configuracion"
-                   aria-label="Configuración"
-                   title="Configuración">
+                <a
+                    href="/configuracion"
+                    aria-label="Configuración"
+                    title="Configuración"
+                >
                     ⚙️
                 </a>
 
@@ -43,7 +383,10 @@
 
         </header>
 
-        <!-- BIENVENIDA -->
+        <!-- =====================================
+             BIENVENIDA
+        ====================================== -->
+
         <section class="bienvenida-inicio">
 
             <img
@@ -53,13 +396,15 @@
             >
 
             <div class="texto-bienvenida">
-
-                <h1> BIENVENIDO A CONTIGO</h1>
+                <h1>BIENVENIDO A CONTIGO</h1>
             </div>
 
         </section>
 
-        <!-- EMOCIONES -->
+        <!-- =====================================
+             REGISTRO DE EMOCIONES
+        ====================================== -->
+
         <section class="seccion-emociones">
 
             <h2 class="pregunta-emocional">
@@ -70,76 +415,64 @@
                 Tu estado actual:
             </h3>
 
-            <div class="lista-emociones"
-                 id="lista-emociones">
+            <div
+                class="lista-emociones"
+                id="lista-emociones"
+            >
 
-                <button type="button"
-                        data-emocion="Ansiedad">
+                <button type="button" data-emocion="Ansiedad">
                     😟 Ansiedad
                 </button>
 
-                <button type="button"
-                        data-emocion="Tristeza">
+                <button type="button" data-emocion="Tristeza">
                     😢 Tristeza
                 </button>
 
-                <button type="button"
-                        data-emocion="Miedo">
+                <button type="button" data-emocion="Miedo">
                     😨 Miedo
                 </button>
 
-                <button type="button"
-                        data-emocion="Soledad">
+                <button type="button" data-emocion="Soledad">
                     🥺 Soledad
                 </button>
 
-                <button type="button"
-                        data-emocion="Enojo">
+                <button type="button" data-emocion="Enojo">
                     😠 Enojo
                 </button>
 
-                <button type="button"
-                        data-emocion="Frustración">
+                <button type="button" data-emocion="Frustración">
                     😣 Frustración
                 </button>
 
-                <button type="button"
-                        data-emocion="Culpa">
+                <button type="button" data-emocion="Culpa">
                     😔 Culpa
                 </button>
 
-                <button type="button"
-                        data-emocion="Vergüenza">
+                <button type="button" data-emocion="Vergüenza">
                     😳 Vergüenza
                 </button>
 
-                <button type="button"
-                        data-emocion="Estrés">
+                <button type="button" data-emocion="Estrés">
                     😫 Estrés
                 </button>
 
-                <button type="button"
-                        data-emocion="Angustia">
+                <button type="button" data-emocion="Angustia">
                     😰 Angustia
                 </button>
 
-                <button type="button"
-                        data-emocion="Desesperanza">
+                <button type="button" data-emocion="Desesperanza">
                     😞 Desesperanza
                 </button>
 
-                <button type="button"
-                        data-emocion="Vacío emocional">
+                <button type="button" data-emocion="Vacío emocional">
                     😶 Vacío emocional
                 </button>
 
-                <button type="button"
-                        data-emocion="Inseguridad">
+                <button type="button" data-emocion="Inseguridad">
                     😕 Inseguridad
                 </button>
 
-                <button type="button"
-                        data-emocion="Agobio">
+                <button type="button" data-emocion="Agobio">
                     😩 Agobio
                 </button>
 
@@ -151,7 +484,10 @@
 
         </section>
 
-        <!-- COMPAÑERO EMOCIONAL IAN -->
+        <!-- =====================================
+             COMPAÑERO EMOCIONAL IAN
+        ====================================== -->
+
         <section class="tarjeta-inicio tarjeta-ian">
 
             <img
@@ -169,8 +505,10 @@
                     apoyo emocional.
                 </p>
 
-                <a href="/ian"
-                   class="boton-tarjeta boton-ian">
+                <a
+                    href="/ian"
+                    class="boton-tarjeta boton-ian"
+                >
                     Hablar ahora →
                 </a>
 
@@ -178,7 +516,10 @@
 
         </section>
 
-        <!-- CONSTELACIÓN DE BIENESTAR -->
+        <!-- =====================================
+             CIELO DE BIENESTAR
+        ====================================== -->
+
         <section class="tarjeta-inicio tarjeta-cielo">
 
             <img
@@ -196,8 +537,10 @@
                     y enciende nuevas estrellas.
                 </p>
 
-                <a href="/constelacion"
-                   class="boton-tarjeta boton-cielo">
+                <a
+                    href="/constelacion"
+                    class="boton-tarjeta boton-cielo"
+                >
                     Ver constelación →
                 </a>
 
@@ -205,9 +548,14 @@
 
         </section>
 
-        <!-- MENÚ INFERIOR ORIGINAL -->
-        <nav class="navegacion-inferior"
-             aria-label="Navegación principal">
+        <!-- =====================================
+             NAVEGACIÓN INFERIOR
+        ====================================== -->
+
+        <nav
+            class="navegacion-inferior"
+            aria-label="Navegación principal"
+        >
 
             <a href="/inicio" class="activo">
                 <span class="icono-menu">🏠</span>
@@ -233,7 +581,692 @@
 
     </main>
 
-    <script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
+    <!-- =====================================
+         VENTANA 1: CONFIRMAR EMOCIÓN
+    ====================================== -->
+
+    <div
+        id="registro-pantalla-uno"
+        class="registro-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="registro-titulo-uno"
+        hidden
+    >
+
+        <section class="registro-tarjeta">
+
+            <button
+                type="button"
+                class="registro-cerrar"
+                id="registro-cerrar-uno"
+                aria-label="Cerrar"
+            >
+                ×
+            </button>
+
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito de CONTIGO"
+                class="registro-logo"
+            >
+
+            <span class="registro-paso">
+                Paso 1 de 2
+            </span>
+
+            <h2
+                class="registro-titulo"
+                id="registro-titulo-uno"
+            >
+                Reconoce cómo te sientes
+            </h2>
+
+            <p class="registro-texto">
+                Elegiste la emoción:
+            </p>
+
+            <div
+                id="registro-emocion-elegida"
+                class="registro-emocion"
+            ></div>
+
+            <p class="registro-texto">
+                ¿Te gustaría guardarla en tu
+                progreso emocional para conocer
+                mejor cómo te has sentido?
+            </p>
+
+            <div class="registro-destellos">
+                ✦ 💜 ✧
+            </div>
+
+            <div class="registro-acciones">
+
+                <button
+                    type="button"
+                    class="registro-boton registro-boton-principal"
+                    id="registro-continuar"
+                >
+                    Sí, registrar mi emoción
+                </button>
+
+                <button
+                    type="button"
+                    class="registro-boton registro-boton-secundario"
+                    id="registro-sin-guardar"
+                >
+                    Ir a actividades sin registrar
+                </button>
+
+            </div>
+
+            <p class="registro-privacidad">
+                Registrar tu emoción es voluntario.
+                Podrás continuar a las actividades
+                sin guardarla.
+            </p>
+
+        </section>
+
+    </div>
+
+    <!-- =====================================
+         VENTANA 2: INTENSIDAD EMOCIONAL
+    ====================================== -->
+
+    <div
+        id="registro-pantalla-dos"
+        class="registro-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="registro-titulo-dos"
+        hidden
+    >
+
+        <section class="registro-tarjeta">
+
+            <button
+                type="button"
+                class="registro-cerrar"
+                id="registro-cerrar-dos"
+                aria-label="Cerrar"
+            >
+                ×
+            </button>
+
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito de CONTIGO"
+                class="registro-logo"
+            >
+
+            <span class="registro-paso">
+                Paso 2 de 2
+            </span>
+
+            <h2
+                class="registro-titulo"
+                id="registro-titulo-dos"
+            >
+                ¿Qué tan intensa la sientes?
+            </h2>
+
+            <p class="registro-texto">
+                No hay respuestas buenas o malas.
+                Selecciona la opción que mejor
+                represente cómo te sientes.
+            </p>
+
+            <div class="registro-intensidades">
+
+                <button
+                    type="button"
+                    class="registro-opcion"
+                    data-intensidad="1"
+                    aria-pressed="false"
+                >
+                    <span class="registro-numero">1</span>
+                    <span class="registro-nombre-intensidad">
+                        Muy leve
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    class="registro-opcion"
+                    data-intensidad="2"
+                    aria-pressed="false"
+                >
+                    <span class="registro-numero">2</span>
+                    <span class="registro-nombre-intensidad">
+                        Leve
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    class="registro-opcion"
+                    data-intensidad="3"
+                    aria-pressed="false"
+                >
+                    <span class="registro-numero">3</span>
+                    <span class="registro-nombre-intensidad">
+                        Moderada
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    class="registro-opcion"
+                    data-intensidad="4"
+                    aria-pressed="false"
+                >
+                    <span class="registro-numero">4</span>
+                    <span class="registro-nombre-intensidad">
+                        Intensa
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    class="registro-opcion"
+                    data-intensidad="5"
+                    aria-pressed="false"
+                >
+                    <span class="registro-numero">5</span>
+                    <span class="registro-nombre-intensidad">
+                        Muy intensa
+                    </span>
+                </button>
+
+            </div>
+
+            <p
+                id="registro-error"
+                class="registro-error"
+                role="alert"
+                hidden
+            ></p>
+
+            <div class="registro-acciones">
+
+                <button
+                    type="button"
+                    class="registro-boton registro-boton-principal"
+                    id="registro-guardar"
+                >
+                    💜 Guardar mi emoción
+                </button>
+
+                <button
+                    type="button"
+                    class="registro-boton registro-boton-secundario"
+                    id="registro-volver"
+                >
+                    ← Volver
+                </button>
+
+            </div>
+
+            <p class="registro-privacidad">
+                Este registro se guardará en tu
+                cuenta de CONTIGO. No enviará
+                avisos automáticos a tus contactos.
+            </p>
+
+        </section>
+
+    </div>
+
+    <!-- =====================================
+         JAVASCRIPT DEL REGISTRO EMOCIONAL
+         CONSERVA LA CONEXIÓN CON MARIADB
+    ====================================== -->
+
+    <script>
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                "use strict";
+
+                const listaEmociones =
+                    document.getElementById(
+                        "lista-emociones"
+                    );
+
+                const pantallaUno =
+                    document.getElementById(
+                        "registro-pantalla-uno"
+                    );
+
+                const pantallaDos =
+                    document.getElementById(
+                        "registro-pantalla-dos"
+                    );
+
+                const textoEmocion =
+                    document.getElementById(
+                        "registro-emocion-elegida"
+                    );
+
+                const mensajeError =
+                    document.getElementById(
+                        "registro-error"
+                    );
+
+                const botonGuardar =
+                    document.getElementById(
+                        "registro-guardar"
+                    );
+
+                const opcionesIntensidad =
+                    document.querySelectorAll(
+                        ".registro-opcion"
+                    );
+
+                let emocionElegida = "";
+                let intensidadElegida = null;
+                let guardando = false;
+                let focoAnterior = null;
+
+                // ====================================
+                // MOSTRAR Y CERRAR PANTALLAS
+                // ====================================
+
+                function mostrarPantalla(pantalla) {
+
+                    pantallaUno.hidden = true;
+                    pantallaDos.hidden = true;
+
+                    pantalla.hidden = false;
+
+                    document.body.style.overflow =
+                        "hidden";
+
+                    const botonCerrar =
+                        pantalla.querySelector(
+                            ".registro-cerrar"
+                        );
+
+                    if (botonCerrar) {
+                        botonCerrar.focus();
+                    }
+                }
+
+                function cerrarPantallas() {
+
+                    if (guardando) {
+                        return;
+                    }
+
+                    pantallaUno.hidden = true;
+                    pantallaDos.hidden = true;
+
+                    document.body.style.overflow =
+                        "";
+
+                    if (focoAnterior) {
+                        focoAnterior.focus();
+                    }
+                }
+
+                // ====================================
+                // LIMPIAR SELECCIÓN
+                // ====================================
+
+                function limpiarIntensidad() {
+
+                    intensidadElegida = null;
+                    mensajeError.hidden = true;
+
+                    opcionesIntensidad.forEach(
+                        function (opcion) {
+
+                            opcion.classList.remove(
+                                "seleccionada"
+                            );
+
+                            opcion.setAttribute(
+                                "aria-pressed",
+                                "false"
+                            );
+                        }
+                    );
+                }
+
+                // ====================================
+                // MOSTRAR ERROR
+                // ====================================
+
+                function mostrarError(texto) {
+
+                    mensajeError.textContent = texto;
+                    mensajeError.hidden = false;
+                }
+
+                // ====================================
+                // IR A ACTIVIDADES
+                // ====================================
+
+                function irAActividades() {
+
+                    if (!emocionElegida) {
+                        return;
+                    }
+
+                    const parametros =
+                        new URLSearchParams({
+                            emocion: emocionElegida
+                        });
+
+                    window.location.href =
+                        "/actividades?" +
+                        parametros.toString();
+                }
+
+                // ====================================
+                // SELECCIÓN DE EMOCIÓN
+                // ====================================
+
+                listaEmociones.addEventListener(
+                    "click",
+                    function (evento) {
+
+                        if (guardando) {
+                            return;
+                        }
+
+                        const boton =
+                            evento.target.closest(
+                                "button[data-emocion]"
+                            );
+
+                        if (!boton) {
+                            return;
+                        }
+
+                        emocionElegida =
+                            boton.dataset.emocion || "";
+
+                        if (!emocionElegida) {
+                            return;
+                        }
+
+                        focoAnterior = boton;
+
+                        textoEmocion.textContent =
+                            emocionElegida;
+
+                        limpiarIntensidad();
+
+                        mostrarPantalla(
+                            pantallaUno
+                        );
+                    }
+                );
+
+                // ====================================
+                // PANTALLA 1
+                // ====================================
+
+                document.getElementById(
+                    "registro-continuar"
+                ).addEventListener(
+                    "click",
+                    function () {
+
+                        mostrarPantalla(
+                            pantallaDos
+                        );
+                    }
+                );
+
+                document.getElementById(
+                    "registro-sin-guardar"
+                ).addEventListener(
+                    "click",
+                    irAActividades
+                );
+
+                document.getElementById(
+                    "registro-cerrar-uno"
+                ).addEventListener(
+                    "click",
+                    cerrarPantallas
+                );
+
+                // ====================================
+                // PANTALLA 2
+                // ====================================
+
+                document.getElementById(
+                    "registro-cerrar-dos"
+                ).addEventListener(
+                    "click",
+                    cerrarPantallas
+                );
+
+                document.getElementById(
+                    "registro-volver"
+                ).addEventListener(
+                    "click",
+                    function () {
+
+                        if (guardando) {
+                            return;
+                        }
+
+                        mostrarPantalla(
+                            pantallaUno
+                        );
+                    }
+                );
+
+                // ====================================
+                // ELEGIR INTENSIDAD
+                // ====================================
+
+                opcionesIntensidad.forEach(
+                    function (opcion) {
+
+                        opcion.addEventListener(
+                            "click",
+                            function () {
+
+                                if (guardando) {
+                                    return;
+                                }
+
+                                intensidadElegida =
+                                    Number(
+                                        opcion.dataset.intensidad
+                                    );
+
+                                opcionesIntensidad.forEach(
+                                    function (item) {
+
+                                        const activa =
+                                            item === opcion;
+
+                                        item.classList.toggle(
+                                            "seleccionada",
+                                            activa
+                                        );
+
+                                        item.setAttribute(
+                                            "aria-pressed",
+                                            String(activa)
+                                        );
+                                    }
+                                );
+
+                                mensajeError.hidden = true;
+                            }
+                        );
+                    }
+                );
+
+                // ====================================
+                // GUARDAR EN MARIADB
+                // ====================================
+
+                botonGuardar.addEventListener(
+                    "click",
+                    async function () {
+
+                        if (guardando) {
+                            return;
+                        }
+
+                        if (
+                            !Number.isInteger(
+                                intensidadElegida
+                            ) ||
+                            intensidadElegida < 1 ||
+                            intensidadElegida > 5
+                        ) {
+
+                            mostrarError(
+                                "Selecciona una intensidad " +
+                                "del 1 al 5."
+                            );
+
+                            return;
+                        }
+
+                        guardando = true;
+
+                        botonGuardar.disabled = true;
+
+                        botonGuardar.textContent =
+                            "Guardando tu emoción...";
+
+                        mensajeError.hidden = true;
+
+                        try {
+
+                            // OBTENER TOKEN DE SEGURIDAD
+
+                            const respuestaCSRF =
+                                await fetch(
+                                    "/api/csrf",
+                                    {
+                                        credentials:
+                                            "same-origin"
+                                    }
+                                );
+
+                            if (!respuestaCSRF.ok) {
+
+                                throw new Error(
+                                    "No se pudo verificar " +
+                                    "tu sesión."
+                                );
+                            }
+
+                            const seguridad =
+                                await respuestaCSRF.json();
+
+                            if (!seguridad.csrf_token) {
+
+                                throw new Error(
+                                    "Falta el token " +
+                                    "de seguridad."
+                                );
+                            }
+
+                            // GUARDAR EMOCIÓN
+
+                            const respuestaGuardar =
+                                await fetch(
+                                    "/api/registros-emocionales",
+                                    {
+                                        method: "POST",
+
+                                        credentials:
+                                            "same-origin",
+
+                                        headers: {
+                                            "Content-Type":
+                                                "application/json",
+
+                                            "X-CSRF-Token":
+                                                seguridad.csrf_token
+                                        },
+
+                                        body: JSON.stringify({
+                                            emocion:
+                                                emocionElegida,
+
+                                            intensidad:
+                                                intensidadElegida
+                                        })
+                                    }
+                                );
+
+                            const resultado =
+                                await respuestaGuardar.json();
+
+                            if (!respuestaGuardar.ok) {
+
+                                throw new Error(
+                                    resultado.mensaje ||
+                                    "No se pudo guardar " +
+                                    "tu emoción."
+                                );
+                            }
+
+                            // REGISTRO EXITOSO
+
+                            botonGuardar.textContent =
+                                "¡Emoción guardada! 💜";
+
+                            window.setTimeout(
+                                irAActividades,
+                                800
+                            );
+
+                        } catch (error) {
+
+                            mostrarError(
+                                error.message ||
+                                "Ocurrió un problema " +
+                                "al guardar tu emoción."
+                            );
+
+                            guardando = false;
+
+                            botonGuardar.disabled = false;
+
+                            botonGuardar.textContent =
+                                "💜 Guardar mi emoción";
+                        }
+                    }
+                );
+
+                // ====================================
+                // CERRAR CON ESCAPE
+                // ====================================
+
+                document.addEventListener(
+                    "keydown",
+                    function (evento) {
+
+                        if (
+                            evento.key === "Escape" &&
+                            !guardando
+                        ) {
+
+                            cerrarPantallas();
+                        }
+                    }
+                );
+
+            }
+        );
+    </script>
 
 </body>
 </html>

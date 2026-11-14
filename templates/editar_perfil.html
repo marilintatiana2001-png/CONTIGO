@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Editar mi perfil | CONTIGO</title>
+
+    <!-- ESTILOS DE LA PANTALLA -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/editar-perfil.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <!-- FUNCIONES DE ACCESIBILIDAD -->
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer
+    ></script>
+
+    <!-- FUNCIONES DE EDICIÓN -->
+    <script
+        src="{{ url_for('static', filename='js/editar-perfil.js') }}"
+        defer
+    ></script>
+
+</head>
+
+<body class="editar-perfil-pagina">
+
+<main
+    id="editar-perfil-pagina"
+    class="editar-app"
+>
+
+    <!-- ENCABEZADO -->
+
+    <header class="editar-encabezado">
+
+        <a
+            class="editar-logo"
+            href="{{ url_for('pantalla_inicio') }}"
+        >
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito oficial de CONTIGO"
+            >
+
+            <span>CONTIGO</span>
+        </a>
+
+        <a
+            class="editar-volver"
+            href="{{ url_for('perfil') }}"
+        >
+            ← Mi Perfil
+        </a>
+
+    </header>
+
+    <!-- TÍTULO -->
+
+    <div class="editar-presentacion">
+
+        <h1>💜 Personalizar mi perfil</h1>
+
+        <p>
+            Elige cómo quieres aparecer en CONTIGO.
+            Puedes utilizar una foto personal
+            o conservar nuestro zorrito.
+        </p>
+
+    </div>
+
+    <!-- =====================================
+         FOTO DE PERFIL
+    ====================================== -->
+
+    <section
+        class="editar-tarjeta"
+        aria-labelledby="titulo-editar-foto"
+    >
+
+        <h2 id="titulo-editar-foto">
+            📷 Mi foto de perfil
+        </h2>
+
+        <p class="editar-descripcion">
+            Escoge la imagen con la que te
+            sientas más cómodo.
+        </p>
+
+        <!-- FOTO ACTUAL -->
+
+        <div class="editar-foto-contenedor">
+
+            <div class="editar-foto-marco">
+
+                <img
+                    id="editar-foto-vista"
+                    src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                    alt="Mi foto actual"
+                >
+
+            </div>
+
+            <p id="editar-foto-etiqueta">
+                Tu imagen de perfil
+            </p>
+
+        </div>
+
+        <!-- OPCIONES DE FOTOGRAFÍA -->
+
+        <div class="editar-foto-opciones">
+
+            <button
+                id="editar-elegir-foto"
+                type="button"
+                class="editar-opcion editar-opcion-galeria"
+            >
+                <span class="editar-opcion-icono">
+                    🖼️
+                </span>
+
+                <span>
+                    <strong>
+                        Elegir foto de mi galería
+                    </strong>
+
+                    <small>
+                        Selecciona una imagen
+                        de tu dispositivo.
+                    </small>
+                </span>
+
+                <span class="editar-flecha">›</span>
+            </button>
+
+            <button
+                id="editar-usar-zorrito"
+                type="button"
+                class="editar-opcion"
+            >
+                <span class="editar-opcion-icono">
+                    🦊
+                </span>
+
+                <span>
+                    <strong>
+                        Usar el zorrito de CONTIGO
+                    </strong>
+
+                    <small>
+                        Mantener o recuperar
+                        nuestro avatar original.
+                    </small>
+                </span>
+
+                <span class="editar-flecha">›</span>
+            </button>
+
+        </div>
+
+        <!-- SELECTOR NATIVO DE ARCHIVOS -->
+
+        <input
+            id="editar-archivo-foto"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            aria-label="Seleccionar foto desde la galería"
+            hidden
+        >
+
+        <!-- PREVISUALIZACIÓN -->
+
+        <div
+            id="editar-foto-pendiente"
+            class="editar-foto-pendiente"
+            hidden
+        >
+
+            <p id="editar-nombre-archivo"></p>
+
+            <button
+                id="editar-guardar-foto"
+                type="button"
+                class="editar-boton-principal"
+            >
+                💜 Guardar esta foto
+            </button>
+
+            <button
+                id="editar-cancelar-foto"
+                type="button"
+                class="editar-boton-texto"
+            >
+                Cancelar selección
+            </button>
+
+        </div>
+
+        <p class="editar-descripcion editar-nota">
+            Formatos permitidos: JPG, PNG y WebP.
+            Tamaño máximo: 2 MB.
+        </p>
+
+    </section>
+
+    <!-- =====================================
+         EDITAR NOMBRE
+    ====================================== -->
+
+    <section
+        class="editar-tarjeta"
+        aria-labelledby="titulo-editar-nombre"
+    >
+
+        <h2 id="titulo-editar-nombre">
+            ✏️ Mi nombre
+        </h2>
+
+        <p class="editar-descripcion">
+            Este nombre aparecerá en tu perfil
+            y en el saludo de CONTIGO.
+        </p>
+
+        <form id="editar-formulario-nombre">
+
+            <label
+                for="editar-input-nombre"
+                class="editar-etiqueta"
+            >
+                Nombre del usuario
+            </label>
+
+            <input
+                id="editar-input-nombre"
+                type="text"
+                value="{{ nombre }}"
+                minlength="2"
+                maxlength="100"
+                autocomplete="name"
+                required
+            >
+
+            <button
+                id="editar-guardar-nombre"
+                class="editar-boton-principal"
+                type="submit"
+            >
+                💜 Guardar mi nombre
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- MENSAJES DE CONFIRMACIÓN -->
+
+    <p
+        id="editar-mensaje"
+        class="editar-mensaje"
+        role="status"
+        aria-live="polite"
+        hidden
+    ></p>
+
+    <!-- VOLVER AL PERFIL -->
+
+    <a
+        class="editar-boton-volver"
+        href="{{ url_for('perfil') }}"
+    >
+        ← Volver a Mi Perfil
+    </a>
+
+</main>
+
+</body>
+</html>

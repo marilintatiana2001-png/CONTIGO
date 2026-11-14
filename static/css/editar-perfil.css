@@ -1,0 +1,597 @@
+
+/* =====================================================
+   CONTIGO - EDITAR PERFIL
+
+   Pantalla independiente de edición
+   Compatible con celular, tableta y computador
+===================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   ACCESO DESDE MI PERFIL
+========================================== */
+
+.perfil-avatar {
+    position: relative;
+    overflow: visible;
+}
+
+.perfil-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.perfil-camara-enlace {
+    position: absolute;
+    right: -6px;
+    bottom: -5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #9970e2,
+        #e782ba
+    );
+
+    color: #ffffff;
+    font-size: 17px;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 4px 12px rgba(80, 41, 130, 0.18);
+}
+
+.perfil-editar-enlace {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 39px;
+    margin-top: 12px;
+    padding: 8px 15px;
+
+    border: 1px solid #d6baf8;
+    border-radius: 12px;
+
+    background: #f2e6ff;
+    color: #62349d;
+
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+
+    transition: background 0.2s;
+}
+
+.perfil-editar-enlace:hover {
+    background: #e9d6ff;
+}
+
+.perfil-datos {
+    min-width: 0;
+}
+
+/* ==========================================
+   NUEVA PANTALLA DE EDICIÓN
+========================================== */
+
+body.editar-perfil-pagina {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color: #3c236b;
+
+    background: linear-gradient(
+        155deg,
+        #f3eaff,
+        #fcf3ff 55%,
+        #e9f4ff
+    );
+}
+
+.editar-app {
+    width: min(
+        calc(100% - 24px),
+        700px
+    );
+
+    margin: 20px auto 40px;
+}
+
+/* ENCABEZADO */
+
+.editar-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 14px 18px;
+
+    background: #fffbff;
+
+    border: 1px solid #e5d2ff;
+    border-radius: 22px;
+}
+
+.editar-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    color: #6736b3;
+
+    font-size: 19px;
+    font-weight: 850;
+
+    text-decoration: none;
+}
+
+.editar-logo img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.editar-volver {
+    color: #6a42a2;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* TÍTULO */
+
+.editar-presentacion {
+    margin: 24px 0 21px;
+}
+
+.editar-presentacion h1 {
+    margin: 0 0 10px;
+
+    font-size: clamp(
+        24px,
+        4vw,
+        31px
+    );
+
+    color: #47237d;
+}
+
+.editar-presentacion p {
+    margin: 0;
+
+    color: #77648e;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* ==========================================
+   TARJETAS
+========================================== */
+
+.editar-tarjeta {
+    margin-bottom: 17px;
+    padding: 23px;
+
+    background: #fffbff;
+
+    border: 1px solid #e4d2fa;
+    border-radius: 23px;
+
+    box-shadow:
+        0 6px 18px rgba(95, 65, 140, 0.07);
+}
+
+.editar-tarjeta h2 {
+    margin: 0 0 7px;
+
+    color: #5d2f9a;
+    font-size: 20px;
+}
+
+.editar-descripcion {
+    margin: 0 0 18px;
+
+    color: #796a8d;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.editar-nota {
+    margin-top: 16px;
+    margin-bottom: 0;
+    text-align: center;
+}
+
+/* ==========================================
+   FOTO ACTUAL
+========================================== */
+
+.editar-foto-contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 22px 12px;
+    margin-bottom: 19px;
+
+    background: linear-gradient(
+        135deg,
+        #f2e4ff,
+        #e8f4ff
+    );
+
+    border: 1px solid #dec8f8;
+    border-radius: 19px;
+}
+
+.editar-foto-marco {
+    width: 148px;
+    height: 148px;
+
+    padding: 7px;
+
+    overflow: hidden;
+
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(95, 65, 140, 0.13);
+}
+
+.editar-foto-marco img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+#editar-foto-etiqueta {
+    margin: 0;
+
+    color: #67418f;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-align: center;
+}
+
+/* ==========================================
+   OPCIONES PARA LA FOTO
+========================================== */
+
+.editar-foto-opciones {
+    display: grid;
+    gap: 12px;
+}
+
+.editar-opcion {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    width: 100%;
+    min-height: 75px;
+
+    padding: 15px;
+
+    border: 1px solid #dfcbfa;
+    border-radius: 16px;
+
+    background: #faf5ff;
+    color: #503084;
+
+    font-family: inherit;
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.editar-opcion-galeria {
+    background: linear-gradient(
+        110deg,
+        #f1e5ff,
+        #fceafa
+    );
+}
+
+.editar-opcion:hover {
+    border-color: #b88dec;
+    background: #f0e5ff;
+}
+
+.editar-opcion:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.editar-opcion-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    width: 43px;
+    height: 43px;
+
+    border-radius: 13px;
+    background: #ffffff;
+
+    font-size: 24px;
+}
+
+.editar-opcion strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #4d267d;
+    font-size: 15px;
+}
+
+.editar-opcion small {
+    display: block;
+
+    color: #796990;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.editar-flecha {
+    margin-left: auto;
+
+    color: #7747b8;
+    font-size: 25px;
+}
+
+/* ==========================================
+   FOTO SELECCIONADA
+========================================== */
+
+.editar-foto-pendiente {
+    margin-top: 17px;
+    padding: 15px;
+
+    background: #f4ebff;
+
+    border: 1px solid #dfcbf9;
+    border-radius: 16px;
+}
+
+#editar-nombre-archivo {
+    margin: 0 0 12px;
+
+    color: #604285;
+
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   EDICIÓN DEL NOMBRE
+========================================== */
+
+#editar-formulario-nombre {
+    display: grid;
+    gap: 13px;
+}
+
+.editar-etiqueta {
+    color: #563287;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#editar-input-nombre {
+    width: 100%;
+    min-height: 47px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #c8a9ef;
+    border-radius: 13px;
+
+    background: #ffffff;
+    color: #42266a;
+
+    font-family: inherit;
+    font-size: 16px;
+}
+
+/* ==========================================
+   BOTONES
+========================================== */
+
+.editar-boton-principal {
+    display: block;
+
+    width: 100%;
+    min-height: 47px;
+
+    padding: 12px 16px;
+
+    border: none;
+    border-radius: 14px;
+
+    background: linear-gradient(
+        90deg,
+        #9663df,
+        #dd7ab9
+    );
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.editar-boton-principal:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.editar-boton-texto {
+    display: block;
+
+    width: 100%;
+    min-height: 40px;
+
+    margin-top: 9px;
+
+    border: none;
+    background: transparent;
+
+    color: #6f43a2;
+    font-family: inherit;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.editar-boton-volver {
+    display: block;
+
+    padding: 14px;
+    margin-top: 16px;
+
+    border: 1px solid #d9c2f4;
+    border-radius: 15px;
+
+    background: #f2e7ff;
+    color: #64379d;
+
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* ==========================================
+   MENSAJES DENTRO DE LA APP
+========================================== */
+
+.editar-mensaje {
+    margin: 17px 0;
+    padding: 14px 16px;
+
+    border-radius: 14px;
+
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.6;
+}
+
+.editar-mensaje.exito {
+    background: #e9f8f0;
+    color: #286747;
+}
+
+.editar-mensaje.error {
+    background: #fff0f2;
+    color: #963d5b;
+}
+
+/* ==========================================
+   ACCESIBILIDAD
+========================================== */
+
+.editar-opcion:focus-visible,
+.editar-boton-principal:focus-visible,
+.editar-boton-texto:focus-visible,
+.editar-boton-volver:focus-visible,
+.editar-volver:focus-visible,
+.perfil-editar-enlace:focus-visible,
+.perfil-camara-enlace:focus-visible,
+#editar-input-nombre:focus-visible {
+    outline: 3px solid #9564db;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 480px) {
+
+    .editar-app {
+        width: calc(100% - 18px);
+        margin: 10px auto 30px;
+    }
+
+    .editar-encabezado {
+        padding: 12px;
+    }
+
+    .editar-logo {
+        font-size: 17px;
+    }
+
+    .editar-logo img {
+        width: 38px;
+        height: 38px;
+    }
+
+    .editar-volver {
+        font-size: 13px;
+    }
+
+    .editar-tarjeta {
+        padding: 16px;
+    }
+
+    .editar-foto-marco {
+        width: 125px;
+        height: 125px;
+    }
+
+    .editar-opcion {
+        padding: 12px;
+    }
+
+    .editar-opcion strong {
+        font-size: 14px;
+    }
+}

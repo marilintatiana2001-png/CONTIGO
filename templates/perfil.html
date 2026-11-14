@@ -1,0 +1,773 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+
+<!-- EDITAR NOMBRE Y FOTO DE PERFIL -->
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/editar-perfil.css') }}"
+>
+
+<script
+    src="{{ url_for('static', filename='js/editar-perfil.js') }}"
+    defer
+></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Mi Perfil | CONTIGO</title>
+
+    <!-- ESTILOS EXISTENTES -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/perfil.css') }}"
+    >
+
+    <!-- GRAFICAS DEL PERFIL -->
+    <style>
+        .contigo-grafica-tarjeta {
+            padding: 19px;
+        }
+
+        .contigo-grafica-cabecera {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .contigo-grafica-cabecera h2 {
+            margin: 0;
+            color: #6435b0;
+            font-size: 19px;
+            line-height: 1.35;
+        }
+
+        .contigo-grafica-logo {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            object-fit: contain;
+            border-radius: 13px;
+        }
+
+        .contigo-grafica-subtitulo {
+            margin: 0 0 14px;
+            color: #786b8c;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        #grafica-semana {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .contigo-semana-grafica {
+            display: grid;
+            grid-template-columns:
+                repeat(7, minmax(0, 1fr));
+            gap: 7px;
+            align-items: end;
+            min-width: 300px;
+            min-height: 194px;
+            padding: 11px 3px 2px;
+            background: #fbf9ff;
+            border: 1px solid #eee4fa;
+            border-radius: 15px;
+        }
+
+        .contigo-semana-dia {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            min-width: 0;
+            gap: 6px;
+        }
+
+        .contigo-semana-total {
+            color: #6e5896;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .contigo-semana-barra {
+            display: flex;
+            flex-direction: column-reverse;
+            width: min(100%, 31px);
+            height: 144px;
+            overflow: hidden;
+            background: #ebe4f4;
+            border-radius: 9px 9px 4px 4px;
+        }
+
+        .contigo-semana-segmento {
+            width: 100%;
+            flex-shrink: 0;
+            min-height: 0;
+        }
+
+        .contigo-semana-etiqueta {
+            color: #665580;
+            font-size: 11px;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .contigo-leyenda {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px 12px;
+            margin-top: 15px;
+        }
+
+        .contigo-leyenda-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #615377;
+            font-size: 12px;
+        }
+
+        .contigo-leyenda-color {
+            width: 11px;
+            height: 11px;
+            flex-shrink: 0;
+            border-radius: 4px;
+        }
+
+        .contigo-grafica-nota {
+            margin: 15px 0 0;
+            padding: 13px 14px;
+            border-radius: 15px;
+            background: #f2e9ff;
+            color: #5c467c;
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .contigo-grafica-vacio {
+            padding: 22px 12px;
+            border: 1px dashed #dbcaed;
+            border-radius: 15px;
+            text-align: center;
+            color: #766688;
+            background: #fbf9ff;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .contigo-actividades-graficas {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .contigo-dona-externo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            width: 174px;
+            height: 174px;
+        }
+
+        .contigo-dona {
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 168px;
+            height: 168px;
+            border-radius: 50%;
+            background: #eae2f6;
+        }
+
+        .contigo-dona::before {
+            content: "";
+            position: absolute;
+            inset: 34px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .contigo-dona-centro {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6435b0;
+        }
+
+        .contigo-dona-numero {
+            font-size: 31px;
+            font-weight: 900;
+        }
+
+        .contigo-dona-texto {
+            font-size: 11px;
+        }
+
+        .contigo-categorias-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .contigo-categoria-fila {
+            display: grid;
+            gap: 5px;
+        }
+
+        .contigo-categoria-cabecera {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            color: #574375;
+            font-size: 13px;
+        }
+
+        .contigo-categoria-cabecera strong {
+            overflow-wrap: anywhere;
+        }
+
+        .contigo-categoria-pista {
+            height: 12px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: #eee6f8;
+        }
+
+        .contigo-categoria-barra {
+            height: 100%;
+            border-radius: 99px;
+        }
+
+        .contigo-grafica-aviso {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 16px;
+            border-radius: 18px;
+            background: linear-gradient(
+                110deg,
+                #f2e6ff,
+                #fdebf4
+            );
+            color: #5d4b76;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .contigo-grafica-aviso img {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            object-fit: contain;
+            border-radius: 13px;
+        }
+
+        .contigo-grafica-aviso p {
+            margin: 0;
+        }
+
+        @media (min-width: 480px) {
+            .contigo-actividades-graficas {
+                grid-template-columns:
+                    185px minmax(0, 1fr);
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .contigo-semana-grafica {
+                gap: 3px;
+            }
+
+            .contigo-semana-etiqueta {
+                font-size: 10px;
+            }
+
+            .contigo-grafica-tarjeta {
+                padding: 16px;
+            }
+        }
+    </style>
+
+    <!-- DISEÑO ADAPTABLE Y ACCESIBILIDAD -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer
+    ></script>
+
+    <!-- FUNCIONES DEL PERFIL -->
+    <script
+        src="{{ url_for('static', filename='js/perfil.js') }}"
+        defer
+    ></script>
+</head>
+
+<body>
+
+<div class="perfil-aplicacion">
+
+    <!-- ENCABEZADO -->
+
+    <header class="perfil-encabezado">
+
+        <a
+            class="perfil-logo"
+            href="{{ url_for('pantalla_inicio') }}"
+        >
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito oficial de CONTIGO"
+            >
+            <span>CONTIGO</span>
+        </a>
+
+        <button
+            type="button"
+            id="boton-campana"
+            class="perfil-campana"
+            aria-label="Mis notificaciones"
+            aria-expanded="false"
+        >
+            🔔
+
+            <span
+                id="contador-notificaciones"
+                class="perfil-contador"
+                hidden
+            >0</span>
+        </button>
+
+    </header>
+
+    <main class="perfil-contenido">
+
+        <!-- =====================================
+             VISTA PRINCIPAL DEL PERFIL
+        ====================================== -->
+
+        <section
+            id="vista-perfil"
+            class="perfil-vista"
+        >
+
+            <h1>Mi Perfil</h1>
+
+            <!-- INFORMACIÓN PERSONAL -->
+
+            <article class="perfil-tarjeta-usuario">
+
+                <div class="perfil-avatar">
+                    <img
+                        src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                        alt="Mascota de CONTIGO"
+                    >
+                </div>
+
+                <div class="perfil-datos">
+                    <h2 id="nombre-usuario">
+                        {{ nombre }}
+                    </h2>
+
+                    <p>Usuario de CONTIGO</p>
+
+                    <p
+                        id="correo-usuario"
+                        class="perfil-correo"
+                    >
+                        Cargando correo...
+                    </p>
+
+                    <p
+                        id="dias-usuario"
+                        class="perfil-antiguedad"
+                    >
+                        💜 Cuidando de ti
+                    </p>
+                </div>
+
+                <span class="perfil-destello">
+                    ✨
+                </span>
+
+            </article>
+
+            <!-- OPCIONES DEL PERFIL -->
+
+            <nav
+                class="perfil-opciones"
+                aria-label="Opciones del perfil"
+            >
+
+                <button
+                    type="button"
+                    class="perfil-opcion"
+                    data-vista="progreso"
+                >
+                    <span class="perfil-opcion-icono">
+                        📊
+                    </span>
+
+                    <span class="perfil-opcion-texto">
+                        <strong>
+                            Mi progreso emocional
+                        </strong>
+                        <small>
+                            Revisa tus registros,
+                            tendencias y avances.
+                        </small>
+                    </span>
+
+                    <span class="perfil-flecha">
+                        ›
+                    </span>
+                </button>
+
+            </nav>
+
+            <!-- RESUMEN DE BIENESTAR -->
+
+            <section class="perfil-resumen">
+
+                <div class="perfil-resumen-titulo">
+                    <h2>
+                        🌷 Un vistazo a tu bienestar
+                    </h2>
+
+                    <span>
+                        Últimos 30 días
+                    </span>
+                </div>
+
+                <div class="perfil-estadisticas">
+
+                    <article class="perfil-estadistica">
+                        <strong id="total-emociones">
+                            —
+                        </strong>
+                        <span>
+                            Registros emocionales
+                        </span>
+                    </article>
+
+                    <article class="perfil-estadistica">
+                        <strong id="total-actividades">
+                            —
+                        </strong>
+                        <span>
+                            Actividades completadas
+                        </span>
+                    </article>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="perfil-boton-principal"
+                    data-vista="progreso"
+                >
+                    Ver mi progreso completo →
+                </button>
+
+            </section>
+
+        </section>
+
+        <!-- =====================================
+             MI PROGRESO EMOCIONAL
+        ====================================== -->
+
+        <section
+            id="vista-progreso"
+            class="perfil-vista"
+            hidden
+        >
+
+            <div class="perfil-subencabezado">
+
+                <button
+                    type="button"
+                    class="perfil-volver"
+                    data-vista="perfil"
+                    aria-label="Volver al perfil"
+                >
+                    ←
+                </button>
+
+                <h1>Mi progreso emocional</h1>
+
+            </div>
+
+            <p class="perfil-descripcion">
+                Conoce tus registros y las actividades
+                que has realizado para cuidar de ti.
+            </p>
+
+            <!-- RESUMEN DEL PROGRESO -->
+
+            <section class="perfil-resumen">
+
+                <h2>Resumen de tu bienestar</h2>
+
+                <div class="perfil-estadisticas">
+
+                    <article class="perfil-estadistica">
+                        <strong id="progreso-registros">—</strong>
+                        <span>Registros emocionales</span>
+                    </article>
+
+                    <article class="perfil-estadistica">
+                        <strong id="progreso-actividades">—</strong>
+                        <span>Actividades completadas</span>
+                    </article>
+
+                    <article class="perfil-estadistica">
+                        <strong id="progreso-dias">—</strong>
+                        <span>Días con registros</span>
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- GRÁFICA SEMANAL -->
+
+            <section
+                class="perfil-resumen contigo-grafica-tarjeta"
+                aria-labelledby="grafica-semana-titulo"
+            >
+
+                <div class="contigo-grafica-cabecera">
+
+                    <h2 id="grafica-semana-titulo">
+                        🌷 Resumen semanal de ánimo
+                    </h2>
+
+                    <img
+                        class="contigo-grafica-logo"
+                        src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                        alt="Zorrito de CONTIGO"
+                    >
+
+                </div>
+
+                <p class="contigo-grafica-subtitulo">
+                    Emociones registradas durante los
+                    últimos 7 días. Cada columna
+                    refleja la proporción de registros
+                    de ese día.
+                </p>
+
+                <div
+                    id="grafica-semana"
+                    aria-live="polite"
+                >
+                    Cargando resumen semanal...
+                </div>
+
+                <div
+                    id="leyenda-semana"
+                    class="contigo-leyenda"
+                ></div>
+
+                <p
+                    id="nota-semana"
+                    class="contigo-grafica-nota"
+                ></p>
+
+            </section>
+
+            <!-- GRÁFICA DE ACTIVIDADES -->
+
+            <section
+                class="perfil-resumen contigo-grafica-tarjeta"
+                aria-labelledby="grafica-actividades-titulo"
+            >
+
+                <div class="contigo-grafica-cabecera">
+
+                    <h2 id="grafica-actividades-titulo">
+                        ✨ Actividades realizadas
+                    </h2>
+
+                    <img
+                        class="contigo-grafica-logo"
+                        src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                        alt="Zorrito de CONTIGO"
+                    >
+
+                </div>
+
+                <p class="contigo-grafica-subtitulo">
+                    Actividades completadas por categoría
+                    durante los últimos 30 días.
+                </p>
+
+                <div
+                    id="graficas-actividades"
+                    class="contigo-actividades-graficas"
+                    aria-live="polite"
+                >
+                    Cargando actividades...
+                </div>
+
+                <p
+                    id="nota-actividades"
+                    class="contigo-grafica-nota"
+                ></p>
+
+            </section>
+
+            <!-- CONTENEDOR OCULTO DE COMPATIBILIDAD -->
+            <div
+                id="distribucion-emociones"
+                hidden
+                aria-hidden="true"
+            ></div>
+
+            <!-- MENSAJE FINAL -->
+
+            <aside
+                class="contigo-grafica-aviso"
+                aria-label="Nota sobre el progreso emocional"
+            >
+
+                <img
+                    src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                    alt="Zorrito de CONTIGO"
+                >
+
+                <p>
+                    <strong>Una nota para ti:</strong>
+                    este resumen sirve para conocerte
+                    mejor y reflexionar sobre tus registros.
+                    No es un diagnóstico ni sustituye
+                    la valoración de un profesional
+                    de salud mental.
+                </p>
+
+            </aside>
+
+        </section>
+
+        <!-- =====================================
+             PANEL DE NOTIFICACIONES
+        ====================================== -->
+
+        <aside
+            id="panel-notificaciones"
+            class="perfil-panel-notificaciones"
+            hidden
+        >
+
+            <div class="perfil-panel-titulo">
+
+                <div>
+                    <h2>🔔 Mis notificaciones</h2>
+                    <p>
+                        Un espacio para cuidar de ti 💜
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    id="cerrar-notificaciones"
+                    aria-label="Cerrar notificaciones"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div
+                id="lista-notificaciones"
+                aria-live="polite"
+            >
+                Cargando notificaciones...
+            </div>
+
+            <button
+                type="button"
+                id="marcar-todas-leidas"
+                class="perfil-boton-secundario"
+            >
+                ✓ Marcar todas como leídas
+            </button>
+
+        </aside>
+
+        <!-- MENSAJES DE CONFIRMACIÓN -->
+
+        <div
+            id="mensaje-perfil"
+            class="perfil-mensaje"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></div>
+
+    </main>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+
+    <nav
+        class="perfil-navegacion-inferior"
+        aria-label="Navegación principal"
+    >
+
+        <a href="{{ url_for('pantalla_inicio') }}">
+            <span>🏠</span>
+            Inicio
+        </a>
+
+        <a href="{{ url_for('diario') }}">
+            <span>📖</span>
+            Mi Diario
+        </a>
+
+        <a href="{{ url_for('red_apoyo') }}">
+            <span>🫂</span>
+            Red de Apoyo
+        </a>
+
+        <a
+            href="{{ url_for('perfil') }}"
+            class="activo"
+            aria-current="page"
+        >
+            <span>👤</span>
+            Perfil
+        </a>
+
+    </nav>
+
+</div>
+
+</body>
+</html>

@@ -1,9 +1,8 @@
-
 import os
 import re
 import json
 import secrets
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from functools import wraps
 
 from flask import (
@@ -24,6 +23,12 @@ from werkzeug.security import (
 from mysql.connector import Error, IntegrityError
 from conexion import conectar_db
 
+
+from io import BytesIO
+from pathlib import Path
+
+from PIL import Image, ImageOps, UnidentifiedImageError
+from flask import send_file
 
 # ============================================================
 # CONFIGURACION PRINCIPAL DE CONTIGO
@@ -137,22 +142,6 @@ def validar_csrf_contigo():
         bool(enviado and esperado)
         and secrets.compare_digest(enviado, esperado)
     )
-
-#BORRARRRR#
-# ============================================================
-# API: TOKEN CSRF PARA REACT
-# ============================================================
-
-@app.route("/api/csrf", methods=["GET"])
-@requiere_sesion
-def obtener_csrf_react():
-
-    if "csrf_contigo" not in session:
-        session["csrf_contigo"] = secrets.token_urlsafe(32)
-
-    return jsonify({
-        "csrf_token": session["csrf_contigo"]
-    }), 200
 
 
 # ============================================================
@@ -465,50 +454,7 @@ def nuevo_escrito():
         nombre=session.get("nombre", "Usuario")
     )
 
-# BOOORRRRAAAAARRRRR#
 
-# ============================================================
-# GET - CONSULTAR ESCRITOS DEL DIARIO
-# ============================================================
-
-@app.route("/api/diario", methods=["GET"])
-@requiere_sesion
-def obtener_escritos_diario():
-
-    conexion = None
-    cursor = None
-
-    try:
-        conexion = conectar_db()
-        cursor = conexion.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT
-                id_entrada,
-                id_usuario,
-                titulo,
-                contenido,
-                fecha_hora
-            FROM diario
-            WHERE id_usuario = %s
-            ORDER BY id_entrada DESC
-        """, (session["id_usuario"],))
-
-        escritos = cursor.fetchall()
-
-        return jsonify(escritos), 200
-
-    except Error:
-        app.logger.exception(
-            "Error al consultar escritos del diario"
-        )
-
-        return jsonify({
-            "mensaje": "No se pudieron consultar los escritos."
-        }), 500
-
-    finally:
-        cerrar_conexion(cursor, conexion)
 
 # ============================================================
 # GUARDAR NUEVO ESCRITO
@@ -1752,8 +1698,9 @@ def chat_con_ian():
         RateLimitError
     )
 
+    #===============================
     # Comprobar token de seguridad
-
+    #===============================
     if not validar_csrf_contigo():
         return jsonify({
             "mensaje": "Solicitud no autorizada."
@@ -1787,7 +1734,9 @@ def chat_con_ian():
             "mensaje": "Escribe un mensaje de máximo 1500 caracteres."
         }), 400
 
+    #====================================
     # Verificar la clave de GroqCloud
+    #===================================
 
     clave_groq = os.environ.get("GROQ_API_KEY")
 
@@ -1798,8 +1747,9 @@ def chat_con_ian():
                 "la terminal desde la que ejecutaste Flask."
             )
         }), 503
-
+    #======================================
     # Obtener contexto de conversación
+    #======================================
 
     historial = []
     historial_recibido = datos.get("historial", [])
@@ -1834,7 +1784,9 @@ def chat_con_ian():
 
     try:
 
-        # Conexion directa con GroqCloud
+        # ====================================================
+        # RCONEXION CON GroqCloud
+        # ==================================================== 
 
         cliente = OpenAI(
             api_key=clave_groq,
@@ -2081,8 +2033,8 @@ def validar_contacto_confianza(datos):
 
 
 # ============================================================
-# GET - CONSULTAR MIS CONTACTOS
-# POST - AGREGAR CONTACTO DE CONFIANZA
+#  CONSULTAR MIS CONTACTOS
+# AGREGAR CONTACTO
 # ============================================================
 
 @app.route(
@@ -2196,8 +2148,8 @@ def api_contactos_confianza():
 
 
 # ============================================================
-# PUT - EDITAR CONTACTO
-# DELETE - ELIMINAR CONTACTO
+# EDITAR CONTACTO
+# DELETE CONTACTO
 # ============================================================
 
 @app.route(
@@ -2380,18 +2332,33 @@ def api_recursos_ayuda():
         cerrar_conexion(cursor, conexion)
 
 
-# ============================================================
-# PERFIL
-# ============================================================
+
+# ==========================================
+# MI PERFIL
+# ==========================================
 
 @app.route("/perfil")
 @requiere_sesion
 def perfil():
 
-    return (
-        "Perfil: pantalla pendiente de implementar."
+    return render_template(
+        "perfil.html",
+        nombre=session.get("nombre", "Usuario")
     )
 
+
+# ==========================================
+# EDITAR MI PERFIL
+# ==========================================
+
+@app.route("/perfil/editar")
+@requiere_sesion
+def pantalla_editar_perfil():
+
+    return render_template(
+        "editar_perfil.html",
+        nombre=session.get("nombre", "Usuario")
+    )
 
 # ============================================================
 # NOTIFICACIONES
@@ -2407,23 +2374,786 @@ def notificaciones():
     )
 
 
-# ============================================================
-# CONFIGURACION
-# ============================================================
+
+# ==========================================
+# CONFIGURACIÓN DE CONTIGO
+# ==========================================
 
 @app.route("/configuracion")
 @requiere_sesion
 def configuracion():
 
-    return (
-        "Configuración: "
-        "pantalla pendiente de implementar."
+    return render_template(
+        "configuracion.html",
+        nombre=session.get("nombre", "Usuario")
     )
 
 
 # ============================================================
-# EJECUTAR CONTIGO
+# API DE PERFIL Y NOTIFICACIONES
 # ============================================================
+
+@app.route("/api/csrf", methods=["GET"])
+@requiere_sesion
+def csrf_del_perfil():
+    if "csrf_contigo" not in session:
+        session["csrf_contigo"] = secrets.token_urlsafe(32)
+    return jsonify({"csrf_token": session["csrf_contigo"]})
+
+
+@app.route("/api/perfil/resumen", methods=["GET"])
+@requiere_sesion
+def resumen_del_perfil():
+    """Estadisticas reales del usuario; solo lectura de MariaDB."""
+    conexion = None
+    cursor = None
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+        usuario_id = session["id_usuario"]
+
+        cursor.execute("""
+            SELECT id_usuario, nombre, correo, fecha_registro
+            FROM usuarios
+            WHERE id_usuario = %s
+        """, (usuario_id,))
+        usuario = cursor.fetchone()
+        if not usuario:
+            return jsonify({"mensaje": "Usuario no encontrado."}), 404
+
+        # Todos los totales del resumen corresponden a 30 dias.
+        cursor.execute("""
+            SELECT COUNT(*) AS total
+            FROM actividades_realizadas
+            WHERE id_usuario = %s
+              AND fecha_hora >= NOW() - INTERVAL 30 DAY
+        """, (usuario_id,))
+        actividades = cursor.fetchone()["total"]
+
+        cursor.execute("""
+            SELECT COUNT(*) AS total,
+                   COUNT(DISTINCT DATE(fecha_hora)) AS dias
+            FROM registros_emocionales
+            WHERE id_usuario = %s
+              AND fecha_hora >= NOW() - INTERVAL 30 DAY
+        """, (usuario_id,))
+        registros = cursor.fetchone()
+
+        cursor.execute("""
+            SELECT e.nombre, COUNT(*) AS cantidad
+            FROM registros_emocionales AS r
+            JOIN emociones AS e ON e.id_emocion = r.id_emocion
+            WHERE r.id_usuario = %s
+              AND r.fecha_hora >= NOW() - INTERVAL 30 DAY
+            GROUP BY e.id_emocion, e.nombre
+            ORDER BY cantidad DESC, e.nombre ASC
+        """, (usuario_id,))
+        distribucion = [
+            {"nombre": fila["nombre"], "cantidad": int(fila["cantidad"])}
+            for fila in cursor.fetchall()
+        ]
+
+        # Registros diarios de la ultima semana (incluido hoy).
+        # Un dia sin registros aparece vacio, no como otra emocion.
+        hoy = date.today()
+        inicio_semana = hoy - timedelta(days=6)
+        fin_exclusivo = hoy + timedelta(days=1)
+        semana_por_fecha = {
+            (inicio_semana + timedelta(days=i)).isoformat(): []
+            for i in range(7)
+        }
+
+        cursor.execute("""
+            SELECT DATE(r.fecha_hora) AS dia,
+                   e.nombre AS nombre,
+                   COUNT(*) AS cantidad
+            FROM registros_emocionales AS r
+            INNER JOIN emociones AS e ON e.id_emocion = r.id_emocion
+            WHERE r.id_usuario = %s
+              AND r.fecha_hora >= %s
+              AND r.fecha_hora < %s
+            GROUP BY DATE(r.fecha_hora), e.id_emocion, e.nombre
+            ORDER BY dia ASC, e.nombre ASC
+        """, (usuario_id, inicio_semana, fin_exclusivo))
+
+        for fila in cursor.fetchall():
+            fecha = fila["dia"]
+            clave = fecha.isoformat() if hasattr(fecha, "isoformat") else str(fecha)
+            if clave in semana_por_fecha:
+                semana_por_fecha[clave].append({
+                    "nombre": fila["nombre"],
+                    "cantidad": int(fila["cantidad"])
+                })
+
+        semana = [
+            {
+                "fecha": fecha,
+                "emociones": emociones,
+                "total": sum(e["cantidad"] for e in emociones)
+            }
+            for fecha, emociones in semana_por_fecha.items()
+        ]
+
+        # Distribucion REAL por categoria de las actividades completadas.
+        # No contamos actividades solamente sugeridas o abiertas.
+        cursor.execute("""
+            SELECT COALESCE(c.nombre, 'Sin categoría') AS categoria,
+                   COUNT(*) AS cantidad
+            FROM actividades_realizadas AS ar
+            INNER JOIN actividades AS a ON a.id_actividad = ar.id_actividad
+            LEFT JOIN categorias AS c ON c.id_categoria = a.id_categoria
+            WHERE ar.id_usuario = %s
+              AND ar.fecha_hora >= NOW() - INTERVAL 30 DAY
+            GROUP BY c.id_categoria, c.nombre
+            ORDER BY cantidad DESC, categoria ASC
+        """, (usuario_id,))
+        actividades_categorias = [
+            {"categoria": fila["categoria"], "cantidad": int(fila["cantidad"])}
+            for fila in cursor.fetchall()
+        ]
+
+        fecha = usuario["fecha_registro"]
+        return jsonify({
+            "perfil": {
+                "id_usuario": usuario["id_usuario"],
+                "nombre": usuario["nombre"],
+                "correo": usuario["correo"],
+                "fecha_registro": (
+                    fecha.date().isoformat()
+                    if isinstance(fecha, datetime)
+                    else fecha.isoformat() if fecha else None
+                )
+            },
+            "resumen": {
+                "registros_emocionales": int(registros["total"]),
+                "actividades_completadas": int(actividades),
+                "dias_con_registros": int(registros["dias"])
+            },
+            "distribucion_emociones": distribucion,
+            "periodo": "Últimos 30 días",
+            "graficas": {
+                "semana": semana,
+                "actividades": actividades_categorias
+            }
+        }), 200
+    except Error:
+        app.logger.exception("Error cargando resumen y graficas del perfil")
+        return jsonify({"mensaje": "No se pudo cargar tu resumen."}), 500
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+@app.route("/api/perfil/alertas", methods=["GET", "PUT"])
+@requiere_sesion
+def alertas_del_perfil():
+    usuario_id = session["id_usuario"]
+    if request.method == "PUT":
+        if not validar_csrf_contigo():
+            return jsonify({"mensaje": "Solicitud no autorizada."}), 403
+        datos = request.get_json(silent=True)
+        campos = (
+            "recordatorios_bienestar",
+            "sugerencias_apoyo",
+            "avisos_contacto_habilitados"
+        )
+        if not isinstance(datos, dict) or any(
+            type(datos.get(c)) is not bool for c in campos
+        ):
+            return jsonify({"mensaje": "Revisa las preferencias enviadas."}), 400
+        contacto_id = datos.get("id_contacto")
+        avisos = datos["avisos_contacto_habilitados"]
+        if avisos and (type(contacto_id) is not int or contacto_id <= 0):
+            return jsonify({"mensaje": "Selecciona un contacto válido."}), 400
+        if not avisos:
+            contacto_id = None
+
+    conexion = None
+    cursor = None
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        if request.method == "GET":
+            cursor.execute("""
+                SELECT recordatorios_bienestar, sugerencias_apoyo,
+                       avisos_contacto_habilitados, id_contacto
+                FROM configuracion_alertas WHERE id_usuario = %s
+            """, (usuario_id,))
+            fila = cursor.fetchone() or {}
+            return jsonify({"configuracion": {
+                "recordatorios_bienestar": bool(fila.get("recordatorios_bienestar", 0)),
+                "sugerencias_apoyo": bool(fila.get("sugerencias_apoyo", 0)),
+                "avisos_contacto_habilitados": bool(fila.get("avisos_contacto_habilitados", 0)),
+                "id_contacto": fila.get("id_contacto")
+            }, "envio_automatico_disponible": False}), 200
+
+        if avisos:
+            cursor.execute("""
+                SELECT id_contacto FROM contactos_confianza
+                WHERE id_contacto = %s AND id_usuario = %s
+            """, (contacto_id, usuario_id))
+            if cursor.fetchone() is None:
+                return jsonify({"mensaje": "El contacto no pertenece a tu Red de Apoyo."}), 400
+
+        cursor.execute("""
+            INSERT INTO configuracion_alertas
+              (id_usuario, recordatorios_bienestar, sugerencias_apoyo,
+               avisos_contacto_habilitados, id_contacto, fecha_autorizacion)
+            VALUES (%s, %s, %s, %s, %s, CASE WHEN %s THEN NOW() ELSE NULL END)
+            ON DUPLICATE KEY UPDATE
+              recordatorios_bienestar = VALUES(recordatorios_bienestar),
+              sugerencias_apoyo = VALUES(sugerencias_apoyo),
+              avisos_contacto_habilitados = VALUES(avisos_contacto_habilitados),
+              id_contacto = VALUES(id_contacto),
+              fecha_autorizacion = CASE
+                WHEN VALUES(avisos_contacto_habilitados) = 1 THEN NOW()
+                ELSE NULL END
+        """, (
+            usuario_id,
+            int(datos["recordatorios_bienestar"]),
+            int(datos["sugerencias_apoyo"]),
+            int(avisos), contacto_id, int(avisos)
+        ))
+        conexion.commit()
+        return jsonify({
+            "mensaje": "Preferencias guardadas correctamente.",
+            "envio_automatico_disponible": False
+        }), 200
+    except Error:
+        if conexion is not None:
+            conexion.rollback()
+        app.logger.exception("Error guardando las preferencias")
+        return jsonify({"mensaje": "No se pudieron guardar las preferencias."}), 500
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+@app.route("/api/notificaciones/generar", methods=["POST"])
+@requiere_sesion
+def generar_notificaciones_del_perfil():
+    if not validar_csrf_contigo():
+        return jsonify({"mensaje": "Solicitud no autorizada."}), 403
+
+    # Aún no se activa detección automática de crisis
+    # ni avisos externos a contactos de confianza.
+    # Las recomendaciones por emociones se implementarán
+    # y probarán por separado.
+    return jsonify({
+        "mensaje": "Revisión pendiente de implementar.",
+        "notificaciones_nuevas": 0
+    }), 200
+
+
+@app.route("/api/notificaciones", methods=["GET"])
+@requiere_sesion
+def listar_notificaciones_del_perfil():
+    conexion = None
+    cursor = None
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+        usuario_id = session["id_usuario"]
+        cursor.execute("""
+            SELECT id_notificacion, tipo, titulo, mensaje, enlace,
+                   leida, fecha_creacion, fecha_lectura
+            FROM notificaciones
+            WHERE id_usuario = %s
+            ORDER BY fecha_creacion DESC, id_notificacion DESC
+            LIMIT 50
+        """, (usuario_id,))
+        filas = cursor.fetchall()
+        for fila in filas:
+            fila["leida"] = bool(fila["leida"])
+            for campo in ("fecha_creacion", "fecha_lectura"):
+                fecha = fila[campo]
+                fila[campo] = fecha.isoformat() if fecha else None
+
+        cursor.execute("""
+            SELECT COUNT(*) AS total FROM notificaciones
+            WHERE id_usuario = %s AND leida = 0
+        """, (usuario_id,))
+        pendientes = cursor.fetchone()["total"]
+        return jsonify({
+            "notificaciones": filas,
+            "total_pendientes": int(pendientes)
+        }), 200
+    except Error:
+        app.logger.exception("Error consultando notificaciones")
+        return jsonify({"mensaje": "No pudimos cargar tus notificaciones."}), 500
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+@app.route("/api/notificaciones/<int:id_notificacion>/leer", methods=["PUT"])
+@requiere_sesion
+def leer_notificacion_del_perfil(id_notificacion):
+    if not validar_csrf_contigo():
+        return jsonify({"mensaje": "Solicitud no autorizada."}), 403
+    conexion = None
+    cursor = None
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+        cursor.execute("""
+            UPDATE notificaciones
+            SET leida = 1, fecha_lectura = COALESCE(fecha_lectura, NOW())
+            WHERE id_notificacion = %s AND id_usuario = %s
+        """, (id_notificacion, session["id_usuario"]))
+        actualizadas = cursor.rowcount
+        conexion.commit()
+        if not actualizadas:
+            return jsonify({"mensaje": "No se encontró la notificación pendiente."}), 404
+        return jsonify({"mensaje": "Notificación marcada como leída."}), 200
+    except Error:
+        if conexion is not None:
+            conexion.rollback()
+        app.logger.exception("Error marcando notificación")
+        return jsonify({"mensaje": "No se pudo actualizar la notificación."}), 500
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+@app.route("/api/notificaciones/leer-todas", methods=["PUT"])
+@requiere_sesion
+def leer_todas_las_notificaciones_del_perfil():
+    if not validar_csrf_contigo():
+        return jsonify({"mensaje": "Solicitud no autorizada."}), 403
+    conexion = None
+    cursor = None
+    try:
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+        cursor.execute("""
+            UPDATE notificaciones
+            SET leida = 1, fecha_lectura = COALESCE(fecha_lectura, NOW())
+            WHERE id_usuario = %s AND leida = 0
+        """, (session["id_usuario"],))
+        actualizadas = cursor.rowcount
+        conexion.commit()
+        return jsonify({
+            "mensaje": "Notificaciones marcadas como leídas.",
+            "actualizadas": actualizadas,
+            "total_pendientes": 0
+        }), 200
+    except Error:
+        if conexion is not None:
+            conexion.rollback()
+        app.logger.exception("Error marcando notificaciones")
+        return jsonify({"mensaje": "No se pudieron actualizar las notificaciones."}), 500
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+
+# ============================================================
+# CONTIGO - REGISTRO DE EMOCIONES
+# ============================================================
+
+@app.route("/api/registros-emocionales", methods=["POST"])
+@requiere_sesion
+def registrar_emocion():
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    datos = request.get_json(silent=True)
+
+    if not isinstance(datos, dict):
+        return jsonify({
+            "mensaje": "Datos inválidos."
+        }), 400
+
+    emocion = datos.get("emocion")
+    intensidad = datos.get("intensidad")
+
+    if not isinstance(emocion, str) or not emocion.strip():
+        return jsonify({
+            "mensaje": "Selecciona una emoción válida."
+        }), 400
+
+    emocion = emocion.strip()
+
+    if (
+        type(intensidad) is not int
+        or not 1 <= intensidad <= 5
+    ):
+        return jsonify({
+            "mensaje": "La intensidad debe estar entre 1 y 5."
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT id_emocion
+            FROM emociones
+            WHERE nombre = %s
+        """, (emocion,))
+
+        emocion_db = cursor.fetchone()
+
+        if emocion_db is None:
+            return jsonify({
+                "mensaje": "La emoción no está registrada."
+            }), 404
+
+        cursor.execute("""
+            INSERT INTO registros_emocionales
+            (id_usuario, id_emocion, intensidad)
+            VALUES (%s, %s, %s)
+        """, (
+            session["id_usuario"],
+            emocion_db["id_emocion"],
+            intensidad
+        ))
+
+        conexion.commit()
+
+        return jsonify({
+            "mensaje": "Emoción registrada correctamente.",
+            "id_registro": cursor.lastrowid
+        }), 201
+
+    except Error:
+
+        if conexion is not None:
+            conexion.rollback()
+
+        app.logger.exception(
+            "Error al registrar emoción"
+        )
+
+        return jsonify({
+            "mensaje": "No se pudo guardar la emoción."
+        }), 500
+
+    finally:
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# CONTIGO - EDITAR NOMBRE Y FOTO DE PERFIL
+# ============================================================
+
+FOTOS_PERFIL_DIR = (
+    Path(app.instance_path) / "fotos_perfil"
+)
+
+MAX_FOTO_BYTES = 2 * 1024 * 1024
+
+
+def ruta_foto_usuario():
+    """
+    Obtiene la ubicación privada de la foto
+    del usuario que tiene la sesión iniciada.
+    """
+
+    usuario_id = int(session["id_usuario"])
+
+    return FOTOS_PERFIL_DIR / f"{usuario_id}.jpg"
+
+
+# ============================================================
+# ACTUALIZAR NOMBRE EN MARIADB
+# ============================================================
+
+@app.route(
+    "/api/perfil/nombre",
+    methods=["PUT"]
+)
+@requiere_sesion
+def actualizar_nombre_perfil():
+
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    datos = request.get_json(silent=True)
+
+    nombre = (
+        datos.get("nombre")
+        if isinstance(datos, dict)
+        else None
+    )
+
+    if not isinstance(nombre, str):
+        return jsonify({
+            "mensaje": "Escribe un nombre válido."
+        }), 400
+
+    nombre = " ".join(nombre.split())
+
+    if (
+        len(nombre) < 2
+        or len(nombre) > 100
+        or any(
+            ord(caracter) < 32
+            or ord(caracter) == 127
+            for caracter in nombre
+        )
+    ):
+        return jsonify({
+            "mensaje": (
+                "El nombre debe tener entre "
+                "2 y 100 caracteres."
+            )
+        }), 400
+
+    conexion = None
+    cursor = None
+
+    try:
+
+        conexion = conectar_db()
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET nombre = %s
+            WHERE id_usuario = %s
+        """, (
+            nombre,
+            session["id_usuario"]
+        ))
+
+        conexion.commit()
+
+        # Actualizar también la sesión de Flask
+
+        session["nombre"] = nombre
+
+        return jsonify({
+            "mensaje": "Nombre actualizado correctamente.",
+            "nombre": nombre
+        }), 200
+
+    except Error:
+
+        app.logger.exception(
+            "Error al actualizar el nombre del usuario"
+        )
+
+        return jsonify({
+            "mensaje": "No pudimos actualizar el nombre."
+        }), 500
+
+    finally:
+
+        cerrar_conexion(cursor, conexion)
+
+
+# ============================================================
+# CONSULTAR, SUBIR Y QUITAR FOTO DE PERFIL
+# ============================================================
+
+@app.route(
+    "/api/perfil/foto",
+    methods=["GET", "POST", "DELETE"]
+)
+@requiere_sesion
+def foto_perfil_usuario():
+
+    foto = ruta_foto_usuario()
+
+    # --------------------------------------------------------
+    # GET: MOSTRAR FOTO O ZORRITO PREDETERMINADO
+    # --------------------------------------------------------
+
+    if request.method == "GET":
+
+        if foto.is_file():
+            ruta = foto
+        else:
+            ruta = (
+                Path(app.static_folder)
+                / "img"
+                / "logo-contigo.jpeg"
+            )
+
+        respuesta = send_file(
+            ruta,
+            mimetype="image/jpeg"
+        )
+
+        # Evitar guardar fotos personales
+        # en cachés compartidas.
+
+        respuesta.headers["Cache-Control"] = (
+            "private, no-store"
+        )
+
+        return respuesta
+
+    # --------------------------------------------------------
+    # SEGURIDAD PARA MODIFICACIONES
+    # --------------------------------------------------------
+
+    if not validar_csrf_contigo():
+
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
+    # --------------------------------------------------------
+    # DELETE: QUITAR FOTO
+    # --------------------------------------------------------
+
+    if request.method == "DELETE":
+
+        try:
+
+            foto.unlink(missing_ok=True)
+
+            return jsonify({
+                "mensaje": (
+                    "Volvimos al zorrito de CONTIGO."
+                )
+            }), 200
+
+        except OSError:
+
+            app.logger.exception(
+                "Error al quitar la foto de perfil"
+            )
+
+            return jsonify({
+                "mensaje": "No pudimos quitar la foto."
+            }), 500
+
+    # --------------------------------------------------------
+    # POST: RECIBIR IMAGEN
+    # --------------------------------------------------------
+
+    archivo = request.files.get("foto")
+
+    if not archivo:
+
+        return jsonify({
+            "mensaje": "Selecciona una imagen."
+        }), 400
+
+    contenido = archivo.stream.read(
+        MAX_FOTO_BYTES + 1
+    )
+
+    if (
+        not contenido
+        or len(contenido) > MAX_FOTO_BYTES
+    ):
+
+        return jsonify({
+            "mensaje": (
+                "La foto debe pesar máximo 2 MB."
+            )
+        }), 413
+
+    temporal = None
+
+    try:
+
+        with Image.open(
+            BytesIO(contenido)
+        ) as original:
+
+            # Validar el formato real,
+            # no solamente la extensión.
+
+            if original.format not in (
+                "JPEG",
+                "PNG",
+                "WEBP"
+            ):
+
+                return jsonify({
+                    "mensaje": (
+                        "Solo se aceptan JPG, PNG o WebP."
+                    )
+                }), 400
+
+            if (
+                original.width * original.height
+                > 12000000
+            ):
+
+                return jsonify({
+                    "mensaje": (
+                        "La imagen tiene demasiados píxeles."
+                    )
+                }), 400
+
+            original.load()
+
+            # Corregir orientación de fotografías.
+
+            imagen = ImageOps.exif_transpose(
+                original
+            )
+
+            # Recortar y redimensionar a 400 x 400.
+
+            imagen = ImageOps.fit(
+                imagen.convert("RGB"),
+                (400, 400),
+                method=Image.Resampling.LANCZOS
+            )
+
+        # Crear carpeta privada del servidor.
+
+        FOTOS_PERFIL_DIR.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        temporal = FOTOS_PERFIL_DIR / (
+            f".{int(session['id_usuario'])}-"
+            f"{secrets.token_hex(8)}.tmp"
+        )
+
+        # Generar un JPG sin metadatos EXIF.
+
+        imagen.save(
+            temporal,
+            format="JPEG",
+            quality=85,
+            optimize=True
+        )
+
+        os.replace(temporal, foto)
+
+        return jsonify({
+            "mensaje": "Foto de perfil actualizada."
+        }), 200
+
+    except (
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        OSError,
+        ValueError
+    ):
+
+        app.logger.info(
+            "Foto de perfil inválida o no procesable"
+        )
+
+        return jsonify({
+            "mensaje": (
+                "No pudimos procesar esa imagen. "
+                "Prueba con otra JPG, PNG o WebP."
+            )
+        }), 400
+
+    finally:
+
+        if temporal is not None:
+            temporal.unlink(missing_ok=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

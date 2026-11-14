@@ -1,0 +1,1021 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configuración | CONTIGO</title>
+
+    <!-- DISEÑO RESPONSIVE -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #3b236e;
+            background: #f5efff;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(
+                155deg,
+                #f4e9ff,
+                #f9f1ff 55%,
+                #eef5ff
+            );
+        }
+
+        .config-app {
+            width: min(100% - 24px, 720px);
+            margin: 20px auto 42px;
+        }
+
+        .config-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 18px;
+            background: #fffaff;
+            border: 1px solid #e5d2ff;
+            border-radius: 22px;
+        }
+
+        .config-marca {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6532b3;
+            text-decoration: none;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .config-marca img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .config-volver {
+            color: #623ca4;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        h1 {
+            margin: 22px 0 6px;
+            font-size: clamp(24px, 4vw, 31px);
+        }
+
+        .config-subtitulo {
+            margin: 0 0 20px;
+            color: #74638f;
+            line-height: 1.6;
+        }
+
+        .config-tarjeta {
+            margin-bottom: 15px;
+            padding: 20px;
+            background: #fffaff;
+            border: 1px solid #e5d6fb;
+            border-radius: 21px;
+            box-shadow:
+                0 5px 15px rgba(103, 69, 151, 0.06);
+        }
+
+        .config-tarjeta h2 {
+            margin: 0 0 5px;
+            color: #54268f;
+            font-size: 19px;
+        }
+
+        .config-ayuda {
+            margin: 0 0 16px;
+            color: #7b6b93;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .config-opcion {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 11px;
+            padding: 15px;
+            border: 1px solid #e6d7fb;
+            border-radius: 15px;
+            background: #fbf7ff;
+            cursor: pointer;
+        }
+
+        .config-opcion strong {
+            display: block;
+            color: #47247e;
+            font-size: 15px;
+        }
+
+        .config-opcion small {
+            display: block;
+            margin-top: 4px;
+            color: #74668a;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .config-opcion input {
+            width: 19px;
+            height: 19px;
+            flex-shrink: 0;
+            accent-color: #7a4bc9;
+        }
+
+        .config-contacto {
+            display: grid;
+            gap: 9px;
+            margin-top: 12px;
+            padding: 15px;
+            background: #f0e6ff;
+            border: 1px solid #dac1fc;
+            border-radius: 15px;
+        }
+
+        .config-contacto label {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .config-contacto select {
+            width: 100%;
+            min-height: 44px;
+            padding: 12px;
+            border: 1px solid #be9ae9;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #482675;
+            font-size: 15px;
+        }
+
+        .config-boton {
+            display: block;
+            width: 100%;
+            min-height: 48px;
+            margin-top: 16px;
+            padding: 12px 16px;
+            border: 0;
+            border-radius: 14px;
+            color: #ffffff;
+            background: linear-gradient(
+                90deg,
+                #9564e1,
+                #e17ab9
+            );
+            font-weight: 750;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .config-boton:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .config-mensaje {
+            margin: 14px 0 0;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 650;
+            line-height: 1.5;
+        }
+
+        .config-mensaje.exito {
+            background: #eaf8f0;
+            color: #286747;
+        }
+
+        .config-mensaje.error {
+            background: #fff0f2;
+            color: #963d5b;
+        }
+
+        .config-privacidad {
+            margin: 12px 0 0;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f3ecff;
+            color: #73628c;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .config-campo {
+            display: grid;
+            gap: 9px;
+            margin: 12px 0;
+            color: #47247e;
+        }
+
+        .config-campo select {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            border: 1px solid #be9ae9;
+            border-radius: 12px;
+            background: white;
+            color: #482675;
+        }
+
+        .config-enlace {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 0;
+            border-top: 1px solid #ede3f8;
+            color: #56338a;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .config-enlace:hover {
+            color: #9258d9;
+        }
+
+        .config-local-nota {
+            color: #6a5884;
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .config-boton-secundario {
+            border: 1px solid #ceb0f0;
+            background: #f0e7ff;
+            color: #5a3193;
+        }
+
+        .config-ayuda-final {
+            margin: 10px 0;
+            color: #76688b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid #925fd7;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 480px) {
+
+            .config-app {
+                width: calc(100% - 18px);
+                margin: 10px auto 30px;
+            }
+
+            .config-tarjeta {
+                padding: 15px;
+            }
+
+            .config-header {
+                padding: 12px;
+            }
+
+            .config-marca {
+                font-size: 17px;
+            }
+
+            .config-volver {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .config-opcion {
+                padding: 12px 10px;
+            }
+
+            .config-enlace {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+
+    <!-- PREFERENCIAS COMPARTIDAS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer
+    ></script>
+
+</head>
+
+<body>
+
+<main class="config-app">
+
+    <!-- ======================================
+         ENCABEZADO
+    ======================================= -->
+
+    <header class="config-header">
+
+        <a
+            class="config-marca"
+            href="{{ url_for('pantalla_inicio') }}"
+        >
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito oficial de CONTIGO"
+            >
+
+            <span>CONTIGO</span>
+        </a>
+
+        <a
+            class="config-volver"
+            href="{{ url_for('pantalla_inicio') }}"
+        >
+            ← Volver a Inicio
+        </a>
+
+    </header>
+
+    <h1>⚙️ Configuración</h1>
+
+    <p class="config-subtitulo">
+        Personaliza cómo quieres vivir
+        tu experiencia en CONTIGO 💜
+    </p>
+
+    <!-- ======================================
+         ALERTAS Y PERMISOS
+    ======================================= -->
+
+    <section
+        class="config-tarjeta"
+        id="alertas"
+        aria-labelledby="titulo-alertas"
+    >
+
+        <h2 id="titulo-alertas">
+            🔔 Alertas y permisos
+        </h2>
+
+        <p class="config-ayuda">
+            Tú decides qué recomendaciones
+            deseas recibir.
+        </p>
+
+        <form id="config-formulario">
+
+            <label class="config-opcion">
+
+                <span>
+                    <strong>
+                        Recordatorios de bienestar
+                    </strong>
+                    <small>
+                        Recomendaciones de autocuidado.
+                    </small>
+                </span>
+
+                <input
+                    id="config-recordatorios"
+                    type="checkbox"
+                >
+
+            </label>
+
+            <label class="config-opcion">
+
+                <span>
+                    <strong>
+                        Sugerencias de apoyo
+                    </strong>
+                    <small>
+                        Ideas para buscar compañía
+                        y apoyo.
+                    </small>
+                </span>
+
+                <input
+                    id="config-sugerencias"
+                    type="checkbox"
+                >
+
+            </label>
+
+            <label class="config-opcion">
+
+                <span>
+                    <strong>
+                        Preferencia de aviso
+                        a un contacto
+                    </strong>
+                    <small>
+                        Selecciona a alguien para
+                        una futura función de avisos.
+                    </small>
+                </span>
+
+                <input
+                    id="config-avisos"
+                    type="checkbox"
+                >
+
+            </label>
+
+            <!-- CONTACTO DE CONFIANZA -->
+
+            <div
+                id="config-contacto-caja"
+                class="config-contacto"
+                hidden
+            >
+
+                <label for="config-contacto">
+                    Persona de tu Red de Apoyo
+                </label>
+
+                <select id="config-contacto">
+                    <option value="">
+                        Cargando contactos...
+                    </option>
+                </select>
+
+            </div>
+
+            <button
+                id="config-guardar"
+                class="config-boton"
+                type="submit"
+                disabled
+            >
+                💜 Guardar mis preferencias
+            </button>
+
+            <div
+                id="config-mensaje"
+                class="config-mensaje"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></div>
+
+        </form>
+
+        <p class="config-privacidad">
+            🔒 Estas preferencias no envían mensajes
+            automáticos a otras personas ni comparten
+            tus conversaciones con IAN.
+        </p>
+
+    </section>
+
+    <!-- ======================================
+         APARIENCIA Y ACCESIBILIDAD
+    ======================================= -->
+
+    <section
+        class="config-tarjeta"
+        id="accesibilidad"
+        aria-labelledby="titulo-accesibilidad"
+    >
+
+        <h2 id="titulo-accesibilidad">
+            🎨 Apariencia y accesibilidad
+        </h2>
+
+        <p class="config-ayuda">
+            Personaliza cómo ves CONTIGO.
+            Estos ajustes se guardan en este navegador.
+        </p>
+
+        <label
+            class="config-campo"
+            for="ui-tamano"
+        >
+
+            <strong>
+                Tamaño del texto
+            </strong>
+
+            <select id="ui-tamano">
+                <option value="normal">
+                    Normal
+                </option>
+                <option value="grande">
+                    Grande
+                </option>
+                <option value="muy-grande">
+                    Muy grande
+                </option>
+            </select>
+
+        </label>
+
+        <label
+            class="config-opcion"
+            for="ui-contraste"
+        >
+
+            <span>
+                <strong>
+                    Mayor contraste
+                </strong>
+                <small>
+                    Mejora la legibilidad de los textos.
+                </small>
+            </span>
+
+            <input
+                type="checkbox"
+                id="ui-contraste"
+            >
+
+        </label>
+
+        <label
+            class="config-opcion"
+            for="ui-movimiento"
+        >
+
+            <span>
+                <strong>
+                    Reducir animaciones
+                </strong>
+                <small>
+                    Reduce los movimientos decorativos.
+                </small>
+            </span>
+
+            <input
+                type="checkbox"
+                id="ui-movimiento"
+            >
+
+        </label>
+
+        <p
+            id="ui-mensaje"
+            class="config-mensaje"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></p>
+
+    </section>
+
+    <!-- ======================================
+         PREFERENCIAS DE IAN
+    ======================================= -->
+
+    <section
+        class="config-tarjeta"
+        id="preferencias-ian"
+        aria-labelledby="titulo-ian"
+    >
+
+        <h2 id="titulo-ian">
+            💬 Preferencias de IAN
+        </h2>
+
+        <p class="config-ayuda">
+            Elige cómo te gustaría recibir
+            el acompañamiento de IAN.
+        </p>
+
+        <label
+            class="config-campo"
+            for="ui-ian"
+        >
+
+            <strong>
+                Estilo de conversación preferido
+            </strong>
+
+            <select id="ui-ian">
+
+                <option value="calido">
+                    Cálido y cercano
+                </option>
+
+                <option value="breve">
+                    Breve y claro
+                </option>
+
+                <option value="reflexivo">
+                    Reflexivo, con preguntas
+                </option>
+
+            </select>
+
+        </label>
+
+        <p class="config-local-nota">
+            Esta preferencia se guarda en el navegador.
+            Todavía debemos conectarla con el servicio
+            de IAN para que modifique sus respuestas.
+        </p>
+
+        <p
+            id="ui-ian-mensaje"
+            class="config-mensaje"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></p>
+
+    </section>
+
+
+<!-- ======================================
+     CERRAR SESIÓN
+======================================= -->
+
+<section class="config-tarjeta">
+
+    <a
+        class="config-enlace"
+        href="{{ url_for('cerrar_sesion') }}"
+        style="border-top: none;"
+    >
+        <span>🚪 Cerrar sesión</span>
+        <span>›</span>
+    </a>
+
+</section>
+
+    <p class="config-ayuda-final">
+        CONTIGO acompaña el autocuidado emocional,
+        pero no reemplaza la atención de
+        profesionales de salud mental.
+    </p>
+
+</main>
+
+<!-- ======================================
+     JAVASCRIPT DE ALERTAS Y PERMISOS
+     UTILIZA LA API EXISTENTE DE FLASK
+======================================= -->
+
+<script>
+(() => {
+    "use strict";
+
+    const $ = (id) =>
+        document.getElementById(id);
+
+    const formulario =
+        $("config-formulario");
+
+    const mensaje =
+        $("config-mensaje");
+
+    const guardar =
+        $("config-guardar");
+
+    const avisos =
+        $("config-avisos");
+
+    const contacto =
+        $("config-contacto");
+
+    let preferenciasCargadas = false;
+    let guardando = false;
+
+    // =====================================
+    // CONEXIÓN CON FLASK
+    // =====================================
+
+    async function api(
+        ruta,
+        opciones = {}
+    ) {
+        const respuesta = await fetch(ruta, {
+            credentials: "same-origin",
+            ...opciones,
+
+            headers: {
+                Accept: "application/json",
+                ...(opciones.headers || {})
+            }
+        });
+
+        let datos = {};
+
+        try {
+            datos = await respuesta.json();
+        } catch {
+            throw new Error(
+                "El servidor no devolvió información válida."
+            );
+        }
+
+        if (!respuesta.ok) {
+            throw new Error(
+                datos.mensaje ||
+                `Error ${respuesta.status}`
+            );
+        }
+
+        return datos;
+    }
+
+    // =====================================
+    // MENSAJES DE CONFIRMACIÓN
+    // =====================================
+
+    function mostrarMensaje(
+        texto,
+        esError = false
+    ) {
+        mensaje.textContent = texto;
+
+        mensaje.className =
+            "config-mensaje " +
+            (esError ? "error" : "exito");
+
+        mensaje.hidden = false;
+    }
+
+    // =====================================
+    // MOSTRAR SELECTOR DE CONTACTOS
+    // =====================================
+
+    function mostrarContacto() {
+
+        const visible = avisos.checked;
+
+        $("config-contacto-caja").hidden =
+            !visible;
+
+        contacto.disabled =
+            !visible;
+    }
+
+    // =====================================
+    // CARGAR PREFERENCIAS Y CONTACTOS
+    // =====================================
+
+    async function cargarPreferencias() {
+
+        guardar.disabled = true;
+
+        try {
+
+            const [respuestaAlertas, respuestaContactos] =
+                await Promise.all([
+                    api("/api/perfil/alertas"),
+                    api("/api/red-apoyo/contactos")
+                ]);
+
+            const config =
+                respuestaAlertas.configuracion || {};
+
+            $("config-recordatorios").checked =
+                Boolean(
+                    config.recordatorios_bienestar
+                );
+
+            $("config-sugerencias").checked =
+                Boolean(
+                    config.sugerencias_apoyo
+                );
+
+            avisos.checked =
+                Boolean(
+                    config.avisos_contacto_habilitados
+                );
+
+            // CARGAR RED DE APOYO
+
+            contacto.replaceChildren();
+
+            const inicial =
+                document.createElement("option");
+
+            inicial.value = "";
+            inicial.textContent =
+                "Selecciona un contacto";
+
+            contacto.appendChild(inicial);
+
+            const personas =
+                Array.isArray(
+                    respuestaContactos.contactos
+                )
+                    ? respuestaContactos.contactos
+                    : [];
+
+            personas.forEach((persona) => {
+
+                const opcion =
+                    document.createElement("option");
+
+                opcion.value = String(
+                    persona.id_contacto
+                );
+
+                opcion.textContent =
+                    String(
+                        persona.nombre || "Contacto"
+                    ) +
+                    (
+                        persona.relacion
+                            ? " — " +
+                              String(persona.relacion)
+                            : ""
+                    );
+
+                contacto.appendChild(opcion);
+            });
+
+            contacto.value =
+                config.id_contacto == null
+                    ? ""
+                    : String(config.id_contacto);
+
+            mostrarContacto();
+
+            preferenciasCargadas = true;
+
+            guardar.disabled = false;
+
+        } catch (error) {
+
+            mostrarMensaje(
+                "No se pudieron cargar tus " +
+                "preferencias: " +
+                error.message,
+                true
+            );
+        }
+    }
+
+    avisos.addEventListener(
+        "change",
+        mostrarContacto
+    );
+
+    // =====================================
+    // GUARDAR PREFERENCIAS EN MARIADB
+    // =====================================
+
+    formulario.addEventListener(
+        "submit",
+        async (evento) => {
+
+            evento.preventDefault();
+
+            if (
+                !preferenciasCargadas ||
+                guardando
+            ) {
+                return;
+            }
+
+            if (
+                avisos.checked &&
+                !contacto.value
+            ) {
+
+                mostrarMensaje(
+                    "Selecciona una persona de tu Red de Apoyo.",
+                    true
+                );
+
+                return;
+            }
+
+            guardando = true;
+            guardar.disabled = true;
+
+            guardar.textContent =
+                "Guardando...";
+
+            mensaje.hidden = true;
+
+            try {
+
+                // TOKEN CSRF
+
+                const seguridad =
+                    await api("/api/csrf");
+
+                if (!seguridad.csrf_token) {
+                    throw new Error(
+                        "No se pudo verificar tu sesión."
+                    );
+                }
+
+                // GUARDAR EN EL SERVIDOR
+
+                const resultado = await api(
+                    "/api/perfil/alertas",
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "X-CSRF-Token":
+                                seguridad.csrf_token
+                        },
+
+                        body: JSON.stringify({
+
+                            recordatorios_bienestar:
+                                $("config-recordatorios")
+                                    .checked,
+
+                            sugerencias_apoyo:
+                                $("config-sugerencias")
+                                    .checked,
+
+                            avisos_contacto_habilitados:
+                                avisos.checked,
+
+                            id_contacto:
+                                avisos.checked
+                                    ? Number(contacto.value)
+                                    : null
+                        })
+                    }
+                );
+
+                mostrarMensaje(
+                    "✅ " +
+                    (
+                        resultado.mensaje ||
+                        "Preferencias guardadas correctamente."
+                    )
+                );
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    "No se pudieron guardar las " +
+                    "preferencias: " +
+                    error.message,
+                    true
+                );
+
+            } finally {
+
+                guardando = false;
+
+                guardar.disabled =
+                    !preferenciasCargadas;
+
+                guardar.textContent =
+                    "💜 Guardar mis preferencias";
+            }
+        }
+    );
+
+    // INICIAR
+
+    cargarPreferencias();
+
+})();
+</script>
+
+</body>
+</html>

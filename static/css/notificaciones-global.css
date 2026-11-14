@@ -1,0 +1,215 @@
+
+/* ============================================
+   CONTIGO - NOTIFICACIONES GLOBALES
+   Diseño pastel y responsive
+   ============================================ */
+
+[data-contigo-notificaciones] {
+    position: relative;
+}
+
+.contigo-notif-contador {
+    position: absolute;
+    top: -4px;
+    right: -5px;
+    min-width: 18px;
+    padding: 2px 5px;
+    border-radius: 20px;
+    background: #df73ac;
+    color: white;
+    font: 700 11px/1.2 "Segoe UI", sans-serif;
+    text-align: center;
+}
+
+.contigo-notif-panel {
+    position: fixed;
+    z-index: 10000;
+
+    box-sizing: border-box;
+    width: min(390px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+
+    border: 1px solid #dec8fb;
+    border-radius: 24px;
+
+    background: #ffffff;
+    box-shadow: 0 14px 40px rgba(65, 36, 103, 0.22);
+
+    color: #3f2a68;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.contigo-notif-panel[hidden],
+.contigo-notif-contador[hidden] {
+    display: none !important;
+}
+
+/* ENCABEZADO */
+
+.contigo-notif-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 19px 17px;
+    background: #f1e5ff;
+    border-bottom: 1px solid #e3d3f8;
+}
+
+.contigo-notif-cabecera h2 {
+    margin: 0 0 5px;
+    color: #6232ad;
+    font-size: clamp(17px, 3vw, 21px);
+    line-height: 1.35;
+}
+
+.contigo-notif-cabecera p {
+    margin: 0;
+    color: #725a93;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.contigo-notif-cerrar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #6330a5;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* CONTENIDO */
+
+.contigo-notif-contenido {
+    padding: 15px;
+}
+
+.contigo-notif-lista {
+    display: grid;
+    gap: 12px;
+}
+
+/* TARJETAS */
+
+.contigo-notif-tarjeta {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #ead9fb;
+    border-radius: 17px;
+    background: #f9f2ff;
+    overflow-wrap: anywhere;
+}
+
+.contigo-notif-tarjeta.leida {
+    background: #faf9fb;
+    border-color: #ece4f2;
+}
+
+.contigo-notif-tarjeta h3 {
+    margin: 0 0 9px;
+    color: #8553c8;
+    font-size: 16px;
+}
+
+.contigo-notif-tarjeta p {
+    margin: 0 0 12px;
+    color: #635873;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.contigo-notif-tarjeta small {
+    display: block;
+    margin-bottom: 8px;
+    color: #87799a;
+    font-size: 12px;
+}
+
+/* ACCIONES */
+
+.contigo-notif-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    color: #8066a3;
+    font-size: 13px;
+}
+
+.contigo-notif-acciones button,
+.contigo-notif-acciones a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 7px 11px;
+
+    border: 1px solid #dac4f9;
+    border-radius: 12px;
+    background: #eee1ff;
+
+    color: #6232ad;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.contigo-notif-leer-todas {
+    width: 100%;
+    min-height: 45px;
+    margin-top: 15px;
+
+    border: 1px solid #d8c0f8;
+    border-radius: 14px;
+
+    background: #eee0ff;
+    color: #6533b0;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.contigo-notif-leer-todas:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.contigo-notif-vacio {
+    margin: 0;
+    padding: 18px 8px;
+    text-align: center;
+    color: #76658e;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ACCESIBILIDAD */
+
+.contigo-notif-cerrar:focus-visible,
+.contigo-notif-leer-todas:focus-visible,
+.contigo-notif-acciones button:focus-visible {
+    outline: 3px solid #9a70df;
+    outline-offset: 3px;
+}
+
+/* CELULARES PEQUEÑOS */
+
+@media (max-width: 380px) {
+    .contigo-notif-cabecera {
+        padding: 14px 12px;
+    }
+
+    .contigo-notif-contenido {
+        padding: 11px;
+    }
+
+    .contigo-notif-tarjeta {
+        padding: 12px;
+    }
+}

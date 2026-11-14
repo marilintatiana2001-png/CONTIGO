@@ -1,0 +1,261 @@
+
+/* ===================================================
+   CONTIGO - DISEÑO RESPONSIVE GLOBAL
+   Celulares, tabletas, computadores y zoom
+   =================================================== */
+
+/* BASE GENERAL */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-width: 0;
+}
+
+img,
+video,
+canvas {
+    max-width: 100%;
+}
+
+img {
+    height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* EVITAR DESBORDAMIENTOS DE TEXTO */
+
+.perfil-contenido,
+.perfil-vista,
+.perfil-datos,
+.perfil-opcion-texto,
+.contenedor-inicio,
+.contenido-tarjeta {
+    min-width: 0;
+}
+
+.perfil-datos,
+.perfil-opcion-texto,
+.contenido-tarjeta {
+    overflow-wrap: anywhere;
+}
+
+/* IMAGENES Y LOGO */
+
+.mascota-inicio,
+.perfil-avatar img,
+.perfil-logo img,
+.registro-logo,
+.contigo-grafica-logo {
+    max-width: 100%;
+    object-fit: contain;
+}
+
+/* GRAFICAS */
+
+#grafica-semana {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.contigo-semana-grafica {
+    min-width: 300px;
+}
+
+#graficas-actividades,
+#leyenda-semana {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* BOTONES E INTERACCIONES */
+
+.perfil-boton-principal,
+.perfil-boton-secundario,
+.boton-tarjeta,
+.registro-boton {
+    min-height: 44px;
+}
+
+.perfil-alerta-opcion,
+.perfil-opcion {
+    min-width: 0;
+}
+
+/* ==========================================
+   TABLETAS Y PANTALLAS MEDIANAS
+   ========================================== */
+
+@media (max-width: 900px) {
+
+    .perfil-contenido,
+    .contenedor-inicio {
+        width: min(100%, 850px);
+    }
+
+    .perfil-estadisticas {
+        display: grid;
+        grid-template-columns:
+            repeat(auto-fit, minmax(min(100%, 155px), 1fr));
+        gap: 12px;
+    }
+
+    .contigo-actividades-graficas {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* ==========================================
+   CELULARES
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .perfil-encabezado,
+    .encabezado-inicio {
+        gap: 10px;
+    }
+
+    .perfil-contenido {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .perfil-resumen,
+    .contigo-grafica-tarjeta {
+        max-width: 100%;
+    }
+
+    .perfil-tarjeta-usuario {
+        flex-wrap: wrap;
+    }
+
+    .perfil-estadisticas {
+        grid-template-columns:
+            repeat(auto-fit, minmax(min(100%, 135px), 1fr));
+    }
+
+    .contigo-actividades-graficas {
+        grid-template-columns: 1fr;
+    }
+
+    .contigo-dona-externo {
+        max-width: 100%;
+    }
+
+    .registro-tarjeta {
+        width: 100%;
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+    }
+
+    .perfil-panel-notificaciones {
+        max-width: 100%;
+        max-height: 75dvh;
+        overflow-y: auto;
+    }
+
+    .navegacion-inferior,
+    .perfil-navegacion-inferior {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+    .navegacion-inferior a,
+    .perfil-navegacion-inferior a {
+        min-width: 0;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+}
+
+/* ==========================================
+   CELULARES PEQUEÑOS Y ZOOM ELEVADO
+   ========================================== */
+
+@media (max-width: 380px) {
+
+    .perfil-estadisticas {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .perfil-alerta-opcion {
+        gap: 10px;
+    }
+
+    .navegacion-inferior,
+    .perfil-navegacion-inferior {
+        gap: 3px;
+    }
+
+    .navegacion-inferior a,
+    .perfil-navegacion-inferior a {
+        padding-inline: 3px;
+    }
+
+}
+
+/* ==========================================
+   PANTALLAS BAJAS Y ZOOM ALTO
+   ========================================== */
+
+@media (max-height: 500px) {
+
+    .registro-overlay {
+        align-items: flex-start;
+        overflow-y: auto;
+    }
+
+    .registro-tarjeta {
+        margin-block: 12px;
+        max-height: none;
+    }
+
+}
+
+/* ==========================================
+   ACCESIBILIDAD
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+
+}

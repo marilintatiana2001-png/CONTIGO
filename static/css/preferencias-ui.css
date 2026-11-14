@@ -1,0 +1,190 @@
+
+/* ===================================================
+   CONTIGO - APARIENCIA Y ACCESIBILIDAD
+
+   Preferencias:
+   - Tamaño de texto
+   - Contraste
+   - Reducción de animaciones
+
+   Compatible con responsive.css
+=================================================== */
+
+[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   TAMAÑO DE TEXTO
+========================================== */
+
+html[data-contigo-tamano="grande"]
+body :is(
+    p,
+    small,
+    label,
+    a,
+    button,
+    input,
+    select,
+    textarea
+) {
+    font-size: max(1em, 1rem) !important;
+    line-height: 1.55;
+}
+
+html[data-contigo-tamano="muy-grande"]
+body :is(
+    p,
+    small,
+    label,
+    a,
+    button,
+    input,
+    select,
+    textarea
+) {
+    font-size: max(1em, 1.125rem) !important;
+    line-height: 1.6;
+}
+
+html[data-contigo-tamano="grande"]
+body :is(h1, h2, h3),
+html[data-contigo-tamano="muy-grande"]
+body :is(h1, h2, h3) {
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+/* Evitar que los textos largos se corten */
+
+html[data-contigo-tamano="grande"] body,
+html[data-contigo-tamano="muy-grande"] body {
+    overflow-wrap: break-word;
+}
+
+/* ==========================================
+   MAYOR CONTRASTE
+========================================== */
+
+html[data-contigo-contraste="alto"]
+body :is(
+    p,
+    small,
+    label,
+    strong,
+    h1,
+    h2,
+    h3
+) {
+    color: #281444 !important;
+}
+
+/* Conservar texto legible en los botones */
+
+html[data-contigo-contraste="alto"]
+body :is(
+    .config-boton,
+    .perfil-boton-principal,
+    .registro-boton-principal
+) {
+    color: #ffffff !important;
+}
+
+/* ==========================================
+   REDUCIR ANIMACIONES
+========================================== */
+
+html[data-contigo-movimiento="reducido"] *,
+html[data-contigo-movimiento="reducido"] *::before,
+html[data-contigo-movimiento="reducido"] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* Respetar preferencias del sistema operativo */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ==========================================
+   CAMPOS DE CONFIGURACIÓN
+========================================== */
+
+.config-campo {
+    display: grid;
+    gap: 9px;
+    margin: 12px 0;
+    color: #47247e;
+}
+
+.config-campo select {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #be9ae9;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #482675;
+}
+
+.config-boton-secundario {
+    background: #f0e7ff !important;
+    color: #5a3193 !important;
+    border: 1px solid #ceb0f0 !important;
+}
+
+.config-local-nota {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #6a5884;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   ENLACE DE PERFIL A CONFIGURACIÓN
+========================================== */
+
+.perfil-config-enlace {
+    margin: 0 0 16px;
+}
+
+.perfil-config-enlace a {
+    display: inline-block;
+    padding: 9px 14px;
+    background: #f6eaff;
+    color: #6435b0;
+    border: 1px solid #e1cef7;
+    border-radius: 13px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.perfil-config-enlace a:hover {
+    background: #ead8ff;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 380px) {
+
+    .config-opcion {
+        padding: 12px 10px;
+    }
+
+    .config-enlace {
+        flex-wrap: wrap;
+    }
+}
