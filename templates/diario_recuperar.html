@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Recuperar PIN | CONTIGO</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/tema-contigo.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/seguridad-diario.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/seguridad-diario.js') }}"
+        defer
+    ></script>
+
+</head>
+
+<body
+    class="contigo-tema candado-pagina"
+    data-pantalla="recuperar"
+>
+
+<div class="candado-contenedor">
+
+    <!-- ENCABEZADO -->
+
+    <header class="candado-encabezado">
+
+        <a href="/inicio" class="candado-logo">
+
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito de CONTIGO"
+            >
+
+            <span>CONTIGO 💜</span>
+
+        </a>
+
+        <a
+            href="/diario/acceso"
+            class="candado-volver"
+        >
+            ← Mi Diario
+        </a>
+
+    </header>
+
+    <main class="candado-cuerpo">
+
+        <section class="candado-tarjeta">
+
+            <div
+                class="candado-icono"
+                aria-hidden="true"
+            >
+                ✉️
+            </div>
+
+            <h1>Recuperar mi PIN</h1>
+
+            <p class="candado-descripcion">
+                Te ayudaremos a crear un PIN
+                nuevo sin borrar tus escritos.
+            </p>
+
+            <!-- INDICADOR DE PASOS -->
+
+            <div
+                class="candado-pasos"
+                aria-label="Pasos de recuperación"
+            >
+
+                <span
+                    id="paso-indicador-1"
+                    class="actual"
+                >
+                    1. Correo
+                </span>
+
+                <span id="paso-indicador-2">
+                    2. Código
+                </span>
+
+                <span id="paso-indicador-3">
+                    3. PIN
+                </span>
+
+            </div>
+
+            <!-- ===========================
+                 PASO 1: CORREO
+            ============================ -->
+
+            <form
+                id="form-correo-pin"
+                class="candado-formulario"
+            >
+
+                <label for="correo-recuperacion">
+                    Correo electrónico de tu cuenta
+                </label>
+
+                <input
+                    id="correo-recuperacion"
+                    type="email"
+                    autocomplete="email"
+                    maxlength="150"
+                    placeholder="tucorreo@ejemplo.com"
+                    required
+                >
+
+                <p class="candado-ayuda">
+                    Enviaremos un código al correo
+                    registrado en CONTIGO.
+                    No compartas ese código.
+                </p>
+
+                <button
+                    type="submit"
+                    class="candado-principal"
+                >
+                    💌 Enviar código
+                </button>
+
+            </form>
+
+            <!-- ===========================
+                 PASO 2: VERIFICAR CÓDIGO
+            ============================ -->
+
+            <form
+                id="form-codigo-pin"
+                class="candado-formulario"
+                hidden
+            >
+
+                <label for="codigo-recuperacion">
+                    Código recibido por correo
+                </label>
+
+                <input
+                    id="codigo-recuperacion"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    placeholder="6 números"
+                    required
+                >
+
+                <p class="candado-ayuda">
+                    El código vence en 10 minutos.
+                    Si no llega, revisa spam
+                    o vuelve a comenzar.
+                </p>
+
+                <button
+                    type="submit"
+                    class="candado-principal"
+                >
+                    ✅ Verificar código
+                </button>
+
+                <button
+                    type="button"
+                    id="volver-correo"
+                    class="candado-secundario"
+                >
+                    Usar otro correo
+                </button>
+
+            </form>
+
+            <!-- ===========================
+                 PASO 3: CREAR NUEVO PIN
+            ============================ -->
+
+            <form
+                id="form-cambiar-pin"
+                class="candado-formulario"
+                hidden
+            >
+
+                <label for="pin-recuperado">
+                    Nuevo PIN de 6 números
+                </label>
+
+                <input
+                    id="pin-recuperado"
+                    type="password"
+                    inputmode="numeric"
+                    autocomplete="new-password"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    required
+                >
+
+                <label for="pin-recuperado-confirmar">
+                    Confirma tu nuevo PIN
+                </label>
+
+                <input
+                    id="pin-recuperado-confirmar"
+                    type="password"
+                    inputmode="numeric"
+                    autocomplete="new-password"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    required
+                >
+
+                <label for="contrasena-cuenta">
+                    Contraseña de tu cuenta CONTIGO
+                </label>
+
+                <input
+                    id="contrasena-cuenta"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Tu contraseña de inicio de sesión"
+                    required
+                >
+
+                <p class="candado-ayuda">
+                    Esta verificación evita que otra
+                    persona cambie tu PIN aunque
+                    tenga acceso al correo abierto
+                    en tu celular.
+                </p>
+
+                <label for="pista-recuperada">
+                    Nueva pista (opcional)
+                </label>
+
+                <input
+                    id="pista-recuperada"
+                    type="text"
+                    maxlength="120"
+                    placeholder="Una pista que no revele el PIN"
+                >
+
+                <button
+                    type="submit"
+                    class="candado-principal"
+                >
+                    💜 Guardar mi nuevo PIN
+                </button>
+
+            </form>
+
+            <!-- MENSAJES DENTRO DE LA APP -->
+
+            <p
+                id="candado-mensaje"
+                class="candado-mensaje"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></p>
+
+            <a
+                class="candado-enlace"
+                href="/diario/acceso"
+            >
+                ← Volver al candado
+            </a>
+
+        </section>
+
+        <p class="candado-pie">
+            El código se verifica dentro de CONTIGO.
+            No necesitas abrir ventanas emergentes.
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

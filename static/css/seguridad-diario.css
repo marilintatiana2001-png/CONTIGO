@@ -1,0 +1,487 @@
+
+/* ==================================================
+   CONTIGO - MI DIARIO PRIVADO
+
+   Paleta oficial:
+   Lavanda  #F4F0FF
+   Azul     #EDF5FF
+   Rosa     #FCEBF5
+   Morado   #9666DC
+   Rosa btn #DB7FBB
+
+   Compatible con tema-contigo.css
+================================================== */
+
+/* ==========================================
+   FONDO Y TIPOGRAFÍA
+========================================== */
+
+body.candado-pagina {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-size: 16px;
+    line-height: 1.6;
+
+    color: #38235F;
+
+    background:
+        radial-gradient(
+            circle at 9% 12%,
+            rgba(205, 184, 249, 0.18),
+            transparent 40%
+        ),
+        linear-gradient(
+            125deg,
+            #F4F0FF 0%,
+            #EDF5FF 65%,
+            #FCEBF5 100%
+        );
+}
+
+.candado-pagina *,
+.candado-pagina *::before,
+.candado-pagina *::after {
+    box-sizing: border-box;
+}
+
+.candado-pagina [hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   CONTENEDOR
+========================================== */
+
+.candado-contenedor {
+    width: min(
+        calc(100% - 24px),
+        940px
+    );
+
+    margin: 0 auto;
+}
+
+/* ==========================================
+   ENCABEZADO
+========================================== */
+
+.candado-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    margin-top: 18px;
+    padding: 13px 20px;
+
+    background: #FFFBFF;
+
+    border: 1px solid #E3D5F7;
+    border-radius: 22px;
+
+    box-shadow:
+        0 7px 22px rgba(
+            69,
+            45,
+            111,
+            0.07
+        );
+}
+
+.candado-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    color: #6034A1;
+    font-size: 20px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.candado-logo img {
+    width: 45px;
+    height: 45px;
+
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.candado-volver {
+    padding: 9px 14px;
+
+    background: #F5EEFF;
+    border: 1px solid #E3D5F7;
+    border-radius: 999px;
+
+    color: #6034A1;
+    font-size: 14px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+/* ==========================================
+   CONTENIDO CENTRAL
+========================================== */
+
+.candado-cuerpo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    min-height: calc(100vh - 108px);
+    padding: 35px 0 50px;
+}
+
+/* ==========================================
+   TARJETA DEL CANDADO
+========================================== */
+
+.candado-tarjeta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 13px;
+
+    width: min(100%, 475px);
+    padding: 32px 30px;
+
+    background: #FFFBFF;
+    border: 1px solid #E3D5F7;
+    border-radius: 26px;
+
+    box-shadow:
+        0 9px 24px rgba(
+            69,
+            45,
+            111,
+            0.08
+        );
+}
+
+.candado-icono {
+    display: grid;
+    place-items: center;
+
+    width: 74px;
+    height: 74px;
+
+    background: #F5EEFF;
+    border: 1px solid #E3D5F7;
+    border-radius: 22px;
+
+    font-size: 33px;
+}
+
+.candado-tarjeta h1 {
+    margin: 0;
+
+    color: #38235F;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.candado-descripcion {
+    max-width: 340px;
+    margin: 0 0 4px;
+
+    color: #67567F;
+    font-size: 16px;
+    line-height: 1.65;
+    text-align: center;
+}
+
+/* ==========================================
+   FORMULARIOS
+========================================== */
+
+.candado-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+
+    width: 100%;
+    margin: 6px 0 0;
+}
+
+.candado-formulario label {
+    color: #38235F;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.candado-formulario input {
+    width: 100%;
+    min-height: 48px;
+
+    padding: 11px 14px;
+
+    background: #FFFFFF;
+
+    border: 1px solid #D8C4F4;
+    border-radius: 13px;
+
+    color: #38235F;
+    font-family: inherit;
+    font-size: 16px;
+
+    outline-offset: 3px;
+}
+
+.candado-formulario input::placeholder {
+    color: #A18CB7;
+}
+
+.candado-formulario input:focus-visible,
+.candado-pagina :is(
+    button,
+    a
+):focus-visible {
+    outline: 3px solid #9666DC;
+}
+
+/* ==========================================
+   TEXTO DE AYUDA
+========================================== */
+
+.candado-ayuda {
+    margin: 1px 0 5px;
+
+    color: #67567F;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+/* ==========================================
+   BOTONES
+========================================== */
+
+.candado-principal,
+.candado-secundario {
+    width: 100%;
+    min-height: 48px;
+
+    border-radius: 13px;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.candado-principal {
+    margin-top: 6px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #9666DC,
+            #DB7FBB
+        );
+
+    border: none;
+    color: #FFFFFF;
+}
+
+.candado-principal:hover {
+    filter: brightness(1.04);
+}
+
+.candado-secundario {
+    background: #F5EEFF;
+
+    border: 1px solid #E3D5F7;
+
+    color: #6034A1;
+}
+
+.candado-pagina button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* ==========================================
+   ENLACES
+========================================== */
+
+.candado-enlace {
+    display: block;
+
+    color: #7246AA;
+    font-size: 14px;
+    font-weight: 750;
+    text-align: center;
+    text-decoration: none;
+}
+
+.candado-enlace:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   PISTA DEL PIN
+========================================== */
+
+.candado-pista {
+    width: 100%;
+    padding: 12px 15px;
+
+    background: #F5EEFF;
+
+    border: 1px solid #E3D5F7;
+    border-radius: 12px;
+
+    color: #59407F;
+    font-size: 14px;
+}
+
+.candado-pista summary {
+    cursor: pointer;
+    font-weight: 750;
+}
+
+.candado-pista p {
+    margin: 9px 0 0;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   MENSAJES DE LA APLICACIÓN
+========================================== */
+
+.candado-mensaje {
+    width: 100%;
+    margin: 0;
+    padding: 12px 14px;
+
+    background: #E8F8EF;
+    border-radius: 12px;
+
+    color: #286747;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.candado-mensaje.error {
+    background: #FFF0F3;
+    color: #963D59;
+}
+
+/* ==========================================
+   PIE DE PANTALLA
+========================================== */
+
+.candado-pie {
+    margin: 0;
+
+    color: #67567F;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* ==========================================
+   PASOS DE RECUPERACIÓN
+========================================== */
+
+.candado-pasos {
+    display: grid;
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 6px;
+
+    width: 100%;
+    margin: 8px 0 4px;
+}
+
+.candado-pasos span {
+    padding: 8px 4px;
+
+    background: #F5EEFF;
+
+    border: 1px solid #E3D5F7;
+    border-radius: 10px;
+
+    color: #80669D;
+    font-size: 12px;
+    font-weight: 750;
+    text-align: center;
+}
+
+.candado-pasos span.actual {
+    background: #E5D7FF;
+    color: #5D309A;
+}
+
+/* ==========================================
+   CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    .candado-contenedor {
+        width: calc(100% - 16px);
+    }
+
+    .candado-encabezado {
+        margin-top: 9px;
+        padding: 10px 12px;
+    }
+
+    .candado-logo {
+        font-size: 17px;
+    }
+
+    .candado-logo img {
+        width: 39px;
+        height: 39px;
+    }
+
+    .candado-volver {
+        padding: 8px 11px;
+        font-size: 12px;
+    }
+
+    .candado-cuerpo {
+        min-height: 0;
+        padding: 25px 0 45px;
+    }
+
+    .candado-tarjeta {
+        padding: 24px 17px;
+        border-radius: 21px;
+    }
+
+    .candado-tarjeta h1 {
+        font-size: 27px;
+    }
+
+    .candado-descripcion {
+        font-size: 14px;
+    }
+}
+
+/* ==========================================
+   REDUCIR ANIMACIONES
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .candado-pagina * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}

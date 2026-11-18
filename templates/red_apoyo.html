@@ -1,324 +1,410 @@
 
 <!DOCTYPE html>
 <html lang="es">
-
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/responsive.css') }}"
->
-
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <meta name="csrf-token" content="{{ csrf_contigo }}">
+    <title>Mi Red de Apoyo | CONTIGO</title>
 
-    <title>CONTIGO | Red de Apoyo</title>
-
+    <!-- IDENTIDAD VISUAL DE CONTIGO -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/red_apoyo.css') }}">
+          href="{{ url_for('static', filename='css/tema-contigo.css', v='2') }}">
 
-    <script defer
-            src="{{ url_for('static', filename='js/red_apoyo.js') }}">
+    <!-- DISEÑO DE RED DE APOYO -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/red_apoyo.css', v='diseno-final-3') }}">
+
+    <!-- PREFERENCIAS DE ACCESIBILIDAD -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/preferencias-ui.css') }}">
+
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer>
+    </script>
+
+    <script
+        src="{{ url_for('static', filename='js/red_apoyo.js', v='diseno-final-3') }}"
+        defer>
     </script>
 </head>
 
-<body>
+<body class="contigo-tema red-pagina">
 
-<div class="pagina-red">
+<div class="red-app" data-diseno="aprobado-v3">
 
-    <!-- ENCABEZADO -->
-    <header class="encabezado">
+    <!-- =========================================
+         ENCABEZADO SUPERIOR
+    ========================================== -->
 
-        <a href="{{ url_for('pantalla_inicio') }}"
-           class="marca">
+    <header class="red-encabezado">
+
+        <a class="red-logo"
+           href="{{ url_for('pantalla_inicio') }}">
+
             <img
                 src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
-                alt="Logo de CONTIGO"
-                class="logo"
-            >
+                alt="Zorrito oficial de CONTIGO">
+
             <span>CONTIGO 💜</span>
         </a>
 
-        <a href="{{ url_for('pantalla_inicio') }}"
-           class="volver">
+        <a class="red-volver"
+           href="{{ url_for('pantalla_inicio') }}">
             ← Inicio
         </a>
 
     </header>
 
-    <main class="contenido">
+    <main class="red-contenido">
 
-        <!-- PRESENTACIÓN -->
-        <section class="bienvenida">
+        <!-- =====================================
+             TARJETA PRINCIPAL CON IAN
+        ====================================== -->
 
-            <div class="icono-principal">🤝</div>
+        <section class="red-presentacion">
 
-            <h1>Mi Red de Apoyo</h1>
+            <div class="red-presentacion-imagen">
 
-            <p>
-                No tienes que afrontar todo sin compañía.
-                Aquí puedes organizar las personas de
-                confianza y encontrar recursos de ayuda.
-            </p>
+                <img
+                    class="red-imagen-ian"
+                    src="{{ url_for('static', filename='img/ian.png') }}"
+                    alt="IAN, el compañero emocional de CONTIGO">
 
-            <div class="mensaje-bienvenida">
-                💜 Pedir apoyo también es una forma
-                de cuidar de ti.
+            </div>
+
+            <div class="red-presentacion-texto">
+
+                <h1>Mi Red de Apoyo</h1>
+
+                <p class="red-descripcion">
+                    Aquí puedes organizar a tus
+                    personas de confianza y
+                    encontrar recursos de ayuda
+                    cuando los necesites.
+                </p>
+
+                <p class="red-frase">
+                    💜 Pedir apoyo también es una
+                    forma de cuidarte.
+                </p>
+
             </div>
 
         </section>
 
-        <div id="mensaje-estado"
-             class="mensaje-estado"
-             role="status"
-             aria-live="polite"
-             hidden>
-        </div>
+        <!-- =====================================
+             DOS COLUMNAS
+        ====================================== -->
 
-        <div class="columnas">
+        <div class="red-columnas">
 
-            <!-- CONTACTOS DE CONFIANZA -->
-            <section class="panel">
+            <!-- ================================
+                 COLUMNA: MIS CONTACTOS
+            ================================= -->
 
-                <div class="titulo-panel">
-                    <div>
-                        <h2>🫂 Mis contactos</h2>
-                        <p>
-                            Personas con las que puedo contar.
-                        </p>
+            <section class="red-panel red-panel-contactos"
+                     aria-labelledby="titulo-contactos">
+
+                <header class="red-panel-cabecera">
+
+                    <div class="red-panel-identidad">
+
+                        <span class="red-icono-seccion"
+                              aria-hidden="true">
+                            💞
+                        </span>
+
+                        <div class="red-panel-textos">
+                            <h2 id="titulo-contactos">
+                                Mis contactos
+                            </h2>
+
+                            <p>
+                                Personas con las que
+                                puedo contar.
+                            </p>
+                        </div>
+
                     </div>
 
                     <button
-                        id="btn-nuevo-contacto"
-                        type="button"
-                        class="boton boton-principal">
+                        id="btn-agregar-contacto"
+                        class="red-boton-agregar"
+                        type="button">
                         + Agregar
                     </button>
-                </div>
 
-                <div id="lista-contactos"
-                     class="lista-elementos"
-                     aria-live="polite">
+                </header>
 
-                    <p class="cargando">
-                        Cargando contactos...
+                <!-- FORMULARIO PARA AGREGAR O EDITAR -->
+
+                <section
+                    id="caja-formulario-contacto"
+                    class="red-formulario-caja"
+                    aria-labelledby="titulo-formulario-contacto"
+                    hidden>
+
+                    <div class="red-formulario-encabezado">
+
+                        <h3 id="titulo-formulario-contacto">
+                            Agregar contacto
+                        </h3>
+
+                        <button
+                            id="btn-cerrar-formulario"
+                            class="red-boton-cerrar"
+                            type="button"
+                            aria-label="Cerrar formulario">
+                            ×
+                        </button>
+
+                    </div>
+
+                    <form id="formulario-contacto">
+
+                        <label for="contacto-nombre">
+                            Nombre
+                        </label>
+
+                        <input
+                            id="contacto-nombre"
+                            type="text"
+                            maxlength="100"
+                            placeholder="Nombre del contacto"
+                            required>
+
+                        <label for="contacto-relacion">
+                            Relación
+                        </label>
+
+                        <input
+                            id="contacto-relacion"
+                            type="text"
+                            maxlength="50"
+                            placeholder="Familiar, pareja, amistad...">
+
+                        <label for="contacto-telefono">
+                            Teléfono
+                        </label>
+
+                        <input
+                            id="contacto-telefono"
+                            type="tel"
+                            maxlength="30"
+                            placeholder="Número de teléfono">
+
+                        <p class="red-formulario-ayuda">
+                            El nombre es obligatorio.
+                            El teléfono es opcional.
+                        </p>
+
+                        <div class="red-formulario-botones">
+
+                            <button
+                                id="btn-guardar-contacto"
+                                class="red-boton-principal"
+                                type="submit">
+                                💜 Guardar contacto
+                            </button>
+
+                            <button
+                                id="btn-cancelar-contacto"
+                                class="red-boton-secundario"
+                                type="button">
+                                Cancelar
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+                <!-- CONFIRMAR ELIMINACIÓN
+                     DENTRO DE CONTIGO -->
+
+                <section
+                    id="caja-eliminar-contacto"
+                    class="red-confirmar-caja"
+                    aria-labelledby="titulo-eliminar-contacto"
+                    hidden>
+
+                    <h3 id="titulo-eliminar-contacto">
+                        ¿Eliminar contacto?
+                    </h3>
+
+                    <p id="texto-eliminar-contacto">
+                        ¿Deseas eliminar este contacto?
+                    </p>
+
+                    <div class="red-formulario-botones">
+
+                        <button
+                            id="btn-confirmar-eliminar"
+                            class="red-boton-peligro"
+                            type="button">
+                            Eliminar contacto
+                        </button>
+
+                        <button
+                            id="btn-cancelar-eliminar"
+                            class="red-boton-secundario"
+                            type="button">
+                            Conservar contacto
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <!-- CONTACTOS REALES DE MARIADB -->
+
+                <div
+                    id="lista-contactos"
+                    class="red-lista"
+                    aria-live="polite"
+                    aria-busy="true">
+
+                    <p class="red-cargando">
+                        Cargando tus contactos...
                     </p>
 
                 </div>
-
-                <p class="nota">
-                    Tus contactos son personales.
-                    Solo aparecen en tu cuenta.
-                </p>
 
             </section>
 
-            <!-- RECURSOS DE AYUDA -->
-            <section class="panel">
+            <!-- ================================
+                 COLUMNA: RECURSOS DE AYUDA
+            ================================= -->
 
-                <div class="titulo-panel">
-                    <div>
-                        <h2>🌷 Recursos de ayuda</h2>
-                        <p>
-                            Espacios y servicios donde
-                            puedes buscar orientación.
-                        </p>
+            <section class="red-panel red-panel-recursos"
+                     aria-labelledby="titulo-recursos">
+
+                <header class="red-panel-cabecera">
+
+                    <div class="red-panel-identidad">
+
+                        <span class="red-icono-seccion"
+                              aria-hidden="true">
+                            🌷
+                        </span>
+
+                        <div class="red-panel-textos">
+
+                            <h2 id="titulo-recursos">
+                                Recursos de ayuda
+                            </h2>
+
+                            <p>
+                                Orientación y acompañamiento
+                                cuando lo necesites.
+                            </p>
+
+                        </div>
+
                     </div>
-                </div>
 
-                <div id="lista-recursos"
-                     class="lista-elementos"
-                     aria-live="polite">
+                </header>
 
-                    <p class="cargando">
-                        Cargando recursos...
+                <!-- RECURSOS REALES DE MARIADB -->
+
+                <div
+                    id="lista-recursos"
+                    class="red-lista"
+                    aria-live="polite"
+                    aria-busy="true">
+
+                    <p class="red-cargando">
+                        Cargando recursos de ayuda...
                     </p>
 
                 </div>
-
-                <p class="nota">
-                    Consulta los horarios y la cobertura
-                    antes de comunicarte con un servicio.
-                </p>
 
             </section>
 
         </div>
 
-        <!-- AYUDA URGENTE -->
-        <section class="ayuda-urgente">
+        <!-- =====================================
+             FRANJA DE AYUDA INMEDIATA
+        ====================================== -->
 
-            <div class="icono-urgente">🛟</div>
+        <aside class="red-emergencia"
+               aria-labelledby="titulo-emergencia">
 
-            <div class="texto-urgente">
+            <span class="red-emergencia-icono"
+                  aria-hidden="true">
+                🛟
+            </span>
 
-                <h2>¿Necesitas ayuda inmediata?</h2>
+            <div class="red-emergencia-texto">
+
+                <h2 id="titulo-emergencia">
+                    ¿Necesitas ayuda inmediata?
+                </h2>
 
                 <p>
-                    Si estás en peligro, busca un lugar
-                    seguro y comunícate con emergencias.
+                    Si estás en peligro, busca
+                    un lugar seguro y comunícate
+                    con los servicios de emergencia.
                     En Colombia puedes llamar al 123.
-                    En otros países, utiliza el número
-                    local de emergencias.
                 </p>
 
             </div>
 
-            <a href="tel:123"
-               class="boton boton-emergencia">
-                Llamar al 123
+            <a class="red-emergencia-boton"
+               href="tel:123">
+                📞 Llamar al 123
             </a>
 
-        </section>
+        </aside>
 
-        <section class="recordatorio">
-            <span>💌</span>
-            <p>
-                Mereces ser escuchado con respeto.
-                Buscar ayuda es una decisión valiosa.
-            </p>
-        </section>
+        <!-- MENSAJES DE LA APLICACIÓN -->
+
+        <p
+            id="red-mensaje"
+            class="red-mensaje"
+            role="status"
+            aria-live="polite"
+            hidden>
+        </p>
 
     </main>
 
-    <!-- NAVEGACIÓN INFERIOR -->
-    <nav class="navegacion"
+    <!-- =====================================
+         NAVEGACIÓN INFERIOR
+    ====================================== -->
+
+    <nav class="red-navegacion"
          aria-label="Navegación principal">
 
         <a href="{{ url_for('pantalla_inicio') }}">
             <span>🏠</span>
-            Inicio
+            <small>Inicio</small>
         </a>
 
         <a href="{{ url_for('diario') }}">
-            <span>📔</span>
-            Diario
+            <span>📖</span>
+            <small>Mi Diario</small>
         </a>
 
         <a href="{{ url_for('red_apoyo') }}"
            class="activo"
            aria-current="page">
             <span>🫂</span>
-            Red de Apoyo
+            <small>Red de Apoyo</small>
         </a>
 
         <a href="{{ url_for('perfil') }}">
             <span>👤</span>
-            Perfil
+            <small>Perfil</small>
         </a>
 
     </nav>
 
 </div>
-
-<!-- FORMULARIO PARA CONTACTOS -->
-<dialog id="modal-contacto"
-        class="modal-contacto"
-        aria-labelledby="titulo-modal">
-
-    <div class="modal-contenido">
-
-        <div class="modal-encabezado">
-
-            <h2 id="titulo-modal">
-                Agregar contacto
-            </h2>
-
-            <button
-                id="btn-cerrar-modal"
-                class="boton-cerrar"
-                type="button"
-                aria-label="Cerrar formulario">
-                ×
-            </button>
-
-        </div>
-
-        <p class="modal-descripcion">
-            Registra a alguien con quien te sientas
-            seguro y puedas comunicarte cuando
-            necesites apoyo.
-        </p>
-
-        <form id="form-contacto">
-
-            <input
-                type="hidden"
-                id="id-contacto"
-            >
-
-            <label for="nombre-contacto">
-                Nombre *
-            </label>
-
-            <input
-                type="text"
-                id="nombre-contacto"
-                maxlength="100"
-                placeholder="Ejemplo: Mamá"
-                required
-            >
-
-            <label for="relacion-contacto">
-                Relación
-            </label>
-
-            <input
-                type="text"
-                id="relacion-contacto"
-                maxlength="50"
-                placeholder="Ejemplo: Familiar, amiga, pareja..."
-            >
-
-            <label for="telefono-contacto">
-                Teléfono
-            </label>
-
-            <input
-                type="tel"
-                id="telefono-contacto"
-                maxlength="30"
-                placeholder="Ejemplo: +573001234567"
-            >
-
-            <p class="ayuda-campo">
-                Para habilitar WhatsApp, escribe el
-                número con el indicativo del país.
-                Ejemplo para Colombia: +57.
-            </p>
-
-            <div id="error-formulario"
-                 class="error-formulario"
-                 role="alert"
-                 hidden>
-            </div>
-
-            <div class="modal-acciones">
-
-                <button
-                    type="button"
-                    id="btn-cancelar"
-                    class="boton boton-secundario">
-                    Cancelar
-                </button>
-
-                <button
-                    type="submit"
-                    id="btn-guardar-contacto"
-                    class="boton boton-principal">
-                    Guardar contacto
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</dialog>
 
 </body>
 </html>

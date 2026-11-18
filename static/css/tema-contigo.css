@@ -1,0 +1,201 @@
+
+/* ==================================================
+   CONTIGO - SISTEMA DE DISEÑO GLOBAL
+   Identidad visual oficial
+   Versión 1.0
+================================================== */
+
+:root {
+
+    /* FONDOS */
+
+    --ct-fondo-lavanda: #F4F0FF;
+    --ct-fondo-azul: #EDF5FF;
+    --ct-fondo-rosa: #FCEBF5;
+
+    /* SUPERFICIES */
+
+    --ct-blanco: #FFFBFF;
+    --ct-tarjeta: #FFFBFF;
+    --ct-tarjeta-lila: #F5EEFF;
+
+    /* BORDES */
+
+    --ct-borde: #E3D5F7;
+
+    /* COLORES DE MARCA */
+
+    --ct-morado: #9666DC;
+    --ct-rosa: #DB7FBB;
+
+    /* TEXTOS */
+
+    --ct-titulo: #38235F;
+    --ct-texto: #67567F;
+    --ct-texto-fuerte: #493275;
+
+    /* ESTADOS */
+
+    --ct-exito-fondo: #E8F8EF;
+    --ct-exito-texto: #286747;
+
+    --ct-error-fondo: #FFF0F3;
+    --ct-error-texto: #963D59;
+
+    /* TIPOGRAFÍA */
+
+    --ct-fuente:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    --ct-h1: 2rem;
+    --ct-h2: 1.4375rem;
+    --ct-h3: 1.125rem;
+
+    --ct-normal: 1rem;
+    --ct-secundario: 0.875rem;
+    --ct-boton: 0.9375rem;
+    --ct-menu: 0.8125rem;
+
+    /* ESPACIADOS */
+
+    --ct-espacio-1: 8px;
+    --ct-espacio-2: 12px;
+    --ct-espacio-3: 16px;
+    --ct-espacio-4: 20px;
+    --ct-espacio-5: 24px;
+
+    /* FORMAS */
+
+    --ct-radio: 22px;
+    --ct-radio-interior: 17px;
+    --ct-radio-boton: 13px;
+
+    /* EFECTOS */
+
+    --ct-sombra:
+        0 7px 22px rgba(
+            69,
+            45,
+            111,
+            0.07
+        );
+
+    --ct-degradado-boton:
+        linear-gradient(
+            90deg,
+            #9666DC,
+            #DB7FBB
+        );
+
+    --ct-degradado-fondo:
+        linear-gradient(
+            125deg,
+            #F4F0FF 0%,
+            #EDF5FF 64%,
+            #FCEBF5 100%
+        );
+}
+
+/* ==========================================
+   ESTRUCTURA GLOBAL
+========================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: var(--ct-fuente);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* Activar tema por pantalla */
+
+body.contigo-tema {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family: var(--ct-fuente);
+    font-size: var(--ct-normal);
+    line-height: 1.6;
+
+    color: var(--ct-titulo);
+
+    background:
+        radial-gradient(
+            circle at 8% 12%,
+            rgba(195, 173, 239, 0.14),
+            transparent 40%
+        ),
+        var(--ct-degradado-fondo);
+}
+
+/* ELEMENTOS COMPARTIDOS */
+
+body.contigo-tema button,
+body.contigo-tema input,
+body.contigo-tema select,
+body.contigo-tema textarea {
+    font: inherit;
+}
+
+body.contigo-tema img {
+    max-width: 100%;
+}
+
+body.contigo-tema button {
+    cursor: pointer;
+}
+
+body.contigo-tema button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+/* ACCESIBILIDAD */
+
+body.contigo-tema :is(
+    a,
+    button,
+    input,
+    select,
+    textarea
+):focus-visible {
+    outline: 3px solid var(--ct-morado);
+    outline-offset: 3px;
+}
+
+/* PANTALLAS PEQUEÑAS */
+
+@media (max-width: 600px) {
+
+    :root {
+        --ct-h1: 1.6875rem;
+        --ct-h2: 1.3125rem;
+        --ct-h3: 1.0625rem;
+    }
+
+}
+
+/* MOVIMIENTO REDUCIDO */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body.contigo-tema *,
+    body.contigo-tema *::before,
+    body.contigo-tema *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+}

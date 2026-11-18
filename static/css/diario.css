@@ -1,215 +1,697 @@
 
-/* ======================================
-   CONTIGO - ESTILOS GENERALES DEL DIARIO
-====================================== */
+/* =====================================================
+   CONTIGO - MI DIARIO
+   SISTEMA VISUAL UNIFICADO
 
-* {
+   Compatible con:
+   - tema-contigo.css
+   - diario.html
+   - nuevo_escrito.html
+   - diario.js
+   - nuevo_escrito.js
+   - responsive.css
+   - preferencias-ui.css
+
+   Diseño:
+   - Fondo lavanda, azul y rosa pastel
+   - Tarjetas suaves
+   - Tipografía uniforme
+   - Botones morados y rosados
+   - Responsive
+===================================================== */
+
+
+/* ==========================================
+   1. COLORES COMPARTIDOS
+========================================== */
+
+:root {
+    --diario-fondo-1: #F4F0FF;
+    --diario-fondo-2: #EDF5FF;
+    --diario-fondo-3: #FCEBF5;
+
+    --diario-blanco: #FFFBFF;
+    --diario-lila: #F5EEFF;
+    --diario-lila-fuerte: #E8DAFF;
+
+    --diario-morado: #9666DC;
+    --diario-rosa: #DB7FBB;
+
+    --diario-titulo: #38235F;
+    --diario-texto: #67567F;
+    --diario-borde: #E3D5F7;
+
+    --diario-degradado:
+        linear-gradient(
+            90deg,
+            #9666DC,
+            #DB7FBB
+        );
+
+    --diario-sombra:
+        0 7px 22px rgba(
+            69,
+            45,
+            111,
+            0.07
+        );
+}
+
+
+/* ==========================================
+   2. ESTILOS GENERALES
+========================================== */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 body.pagina-diario {
     margin: 0;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    color: #32176e;
 
-    background: linear-gradient(
-        135deg,
-        #f1e9ff 0%,
-        #fff8ef 50%,
-        #d9f4ef 100%
-    );
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-size: var(--ct-normal, 1rem);
+    line-height: 1.6;
+
+    color: var(--ct-titulo, #38235F);
+
+    background:
+        radial-gradient(
+            circle at 8% 12%,
+            rgba(195, 173, 239, 0.14),
+            transparent 40%
+        ),
+        linear-gradient(
+            125deg,
+            #F4F0FF 0%,
+            #EDF5FF 64%,
+            #FCEBF5 100%
+        );
 }
+
+button,
+input,
+textarea {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+img {
+    max-width: 100%;
+}
+
+
+/* ==========================================
+   3. CONTENEDOR GENERAL
+========================================== */
+
+/* Contenedor compartido con Nuevo escrito */
 
 .contenedor-diario {
-    width: min(100% - 24px, 520px);
-    min-height: 100vh;
+    width: min(calc(100% - 24px), 780px);
+
+    min-width: 0;
+    min-height: 0;
+
     margin: 0 auto;
-    padding: 15px 0 115px;
+    padding: 18px 0 125px;
 }
 
-/* ======================================
-   ENCABEZADO
-====================================== */
+/* Contenedor principal de Mi Diario */
 
-.encabezado-diario {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 15px;
-    border-radius: 22px;
-    background: #fffaf8;
-    box-shadow: 0 5px 18px #66548a20;
+body.pagina-diario .diario-aplicacion {
+    width: min(
+        calc(100% - 28px),
+        1120px
+    );
+
+    min-width: 0;
+
+    margin: 0 auto;
+    padding-bottom: 115px;
 }
 
-.encabezado-diario h2 {
+/* Permitir que Mi Diario ocupe el ancho
+   de Red de Apoyo, sin afectar Nuevo escrito */
+
+body.pagina-diario
+.diario-aplicacion > .contenedor-diario {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+
     margin: 0;
-    font-size: 17px;
+    padding: 0;
 }
 
-.encabezado-diario h2 span {
-    color: #9464e1;
+
+/* ==========================================
+   4. ENCABEZADO DE CONTIGO
+========================================== */
+
+body.pagina-diario .encabezado-diario {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin: 18px 0;
+    padding: 13px 20px;
+
+    background: var(--ct-tarjeta, #FFFBFF);
+
+    border: 1px solid
+        var(--ct-borde, #E3D5F7);
+
+    border-radius: 23px;
+
+    box-shadow: var(--diario-sombra);
 }
+
+/* Logo oficial */
+
+.diario-logo {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 11px;
+
+    color: #6235A7;
+    text-decoration: none;
+
+    font-size: 21px;
+    font-weight: 850;
+}
+
+.diario-logo img {
+    display: block;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 13px;
+    object-fit: contain;
+}
+
+/* Acciones de la parte superior */
 
 .acciones-encabezado {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 9px;
 }
 
+body.pagina-diario
+.acciones-encabezado .diario-accion,
+body.pagina-diario
 .acciones-encabezado a {
     display: grid;
     place-items: center;
-    width: 38px;
-    height: 38px;
+
+    width: 43px;
+    height: 43px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    background: #F3EAFE;
+
+    border: 1px solid #E9DBFA;
     border-radius: 50%;
-    background: #f3edfb;
+
+    color: #633C99;
+    font-size: 21px;
+
     text-decoration: none;
-    font-size: 19px;
 }
 
-/* ======================================
-   TÍTULO MI DIARIO
-====================================== */
-
-.titulo-diario {
-    text-align: center;
-    padding: 30px 10px 18px;
+.acciones-encabezado a:hover {
+    background: #EADDFF;
 }
 
-.titulo-diario h1 {
+/* Compatibilidad con encabezados anteriores */
+
+.encabezado-diario h2 {
     margin: 0;
-    font-size: clamp(32px, 8vw, 43px);
-    color: #321478;
+
+    color: var(--diario-titulo);
+    font-size: 19px;
     font-weight: 800;
 }
 
-/* ======================================
-   BOTÓN NUEVO ESCRITO
-====================================== */
+.encabezado-diario h2 span {
+    color: var(--diario-morado);
+}
 
-.boton-nuevo {
-    display: block;
-    padding: 17px;
-    text-align: center;
-    text-decoration: none;
-    color: white;
-    font-size: 21px;
-    font-weight: bold;
-    border-radius: 23px;
 
-    background: linear-gradient(
-        135deg,
-        #ff91b5,
-        #f467a0
+/* ==========================================
+   5. TARJETA DE BIENVENIDA
+========================================== */
+
+.diario-bienvenida {
+    display: grid;
+
+    grid-template-columns:
+        185px minmax(0, 1fr);
+
+    align-items: center;
+
+    gap: 28px;
+
+    width: 100%;
+    min-height: 224px;
+
+    margin-bottom: 18px;
+    padding: 24px 32px;
+
+    background:
+        linear-gradient(
+            110deg,
+            #FFFBFF 0%,
+            #F3ECFF 52%,
+            #E9F4FF 100%
+        );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 27px;
+
+    box-shadow: var(--diario-sombra);
+}
+
+/* Imagen del zorrito del diario */
+
+.diario-bienvenida-imagen {
+    display: grid;
+    place-items: center;
+
+    width: 185px;
+    height: 185px;
+
+    padding: 12px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.65
     );
 
-    box-shadow: 0 7px 18px #f467a044;
-    margin-bottom: 18px;
+    border: 1px solid #E6D8FA;
+    border-radius: 24px;
+}
+
+.diario-bienvenida-imagen img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+/* Información de bienvenida */
+
+.diario-bienvenida-texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.diario-etiqueta {
+    display: inline-block;
+
+    padding: 6px 13px;
+
+    background: #FFFFFF;
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 999px;
+
+    color: #6F43A5;
+
+    font-size: var(--ct-secundario, 0.875rem);
+    font-weight: 750;
+}
+
+.diario-bienvenida h1 {
+    margin: 0;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h1, 2rem);
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.diario-bienvenida-texto > p {
+    max-width: 675px;
+
+    margin: 0;
+
+    color: var(--ct-texto-fuerte, #493275);
+
+    font-size: var(--ct-normal, 1rem);
+    line-height: 1.7;
+}
+
+.diario-frase {
+    display: inline-block;
+
+    max-width: 100%;
+
+    margin-top: 3px;
+    padding: 10px 15px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.9
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 999px;
+
+    color: #6739A2;
+
+    font-size: var(--ct-secundario, 0.875rem);
+    font-weight: 750;
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   6. SECCIÓN MIS ESCRITOS
+========================================== */
+
+.diario-seccion-escritos {
+    width: 100%;
+    min-width: 0;
+
+    padding: 23px;
+
+    background: rgba(
+        255,
+        251,
+        255,
+        0.97
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 25px;
+
+    box-shadow: var(--diario-sombra);
+}
+
+/* Encabezado de la sección */
+
+.diario-cabecera-escritos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 21px;
+}
+
+.diario-cabecera-titulo {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.diario-cabecera-titulo > div {
+    min-width: 0;
+}
+
+.diario-icono-seccion {
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 49px;
+
+    width: 49px;
+    height: 49px;
+
+    background: #F0E5FF;
+
+    border-radius: 16px;
+
+    font-size: 24px;
+}
+
+.diario-cabecera-escritos h2 {
+    margin: 0 0 4px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h2, 1.4375rem);
+    font-weight: 900;
+    line-height: 1.3;
+}
+
+.diario-cabecera-escritos p {
+    margin: 0;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-secundario, 0.875rem);
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   7. BOTÓN NUEVO ESCRITO
+========================================== */
+
+.boton-nuevo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    min-height: 44px;
+
+    padding: 10px 18px;
+
+    background: var(
+        --ct-degradado-boton,
+        linear-gradient(90deg, #9666DC, #DB7FBB)
+    );
+
+    border: none;
+    border-radius: 13px;
+
+    color: #FFFFFF;
+
+    font-size: var(--ct-boton, 0.9375rem);
+    font-weight: 800;
+
+    text-align: center;
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    box-shadow:
+        0 4px 12px rgba(
+            150,
+            102,
+            220,
+            0.12
+        );
 }
 
 .boton-nuevo:hover {
     filter: brightness(1.04);
 }
 
-/* ======================================
-   LISTA DE ESCRITOS
-====================================== */
+
+/* ==========================================
+   8. LISTA DE ESCRITOS
+========================================== */
 
 .lista-escritos {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    align-items: stretch;
+
+    gap: 15px;
+
+    min-width: 0;
 }
+
+
+/* ==========================================
+   9. TARJETAS DE ESCRITOS
+========================================== */
 
 .tarjeta-escrito {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
 
-    background: #fffefd;
-    border: 1px solid #ffffff;
-    border-radius: 23px;
-    padding: 16px;
+    min-width: 0;
+    height: 100%;
 
-    box-shadow: 0 5px 16px #6c55851c;
+    gap: 13px;
+
+    padding: 18px;
+
+    background: var(
+        --ct-tarjeta-lila,
+        #F5EEFF
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 19px;
 }
 
+/* Contenido del escrito */
+
 .informacion-escrito {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+
     flex: 1;
     min-width: 0;
 }
 
 .fecha-escrito {
-    color: #9385ba;
-    font-size: 12px;
-    margin: 0 0 8px;
+    margin: 0 0 9px;
+
+    color: #766390;
+
+    font-size: 0.8125rem;
+    font-weight: 650;
 }
 
 .titulo-escrito {
-    margin: 0 0 7px;
-    font-size: 19px;
-    color: #321478;
+    margin: 0 0 9px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h3, 1.125rem);
+    font-weight: 850;
+
+    line-height: 1.35;
+
     overflow-wrap: anywhere;
 }
 
-/* ======================================
-   RESUMEN DE LOS ESCRITOS - CORREGIDO
-====================================== */
+/* Vista previa de tres líneas */
 
 .resumen-escrito {
     margin: 0;
-    color: #8274aa;
-    font-size: 14px;
-    line-height: 1.5;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-secundario, 0.875rem);
+    line-height: 1.65;
+
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 
     display: -webkit-box;
 
-    /* Mostrar máximo tres líneas */
-    line-clamp: 3;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
+
     -webkit-box-orient: vertical;
 
     overflow: hidden;
 }
 
-/* ======================================
-   IMAGEN DEL ZORRITO EN LAS TARJETAS
-====================================== */
+/* Zorrito decorativo */
 
 .zorrito-tarjeta {
-    width: 100px;
-    height: 105px;
-    object-fit: contain;
+    display: block;
+
     flex-shrink: 0;
+
+    width: 105px;
+    height: 115px;
+
+    object-fit: contain;
 }
 
-/* ======================================
-   BOTONES EDITAR Y ELIMINAR
-====================================== */
+
+/* ==========================================
+   10. BOTONES EDITAR Y ELIMINAR
+========================================== */
 
 .acciones-escrito {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
+
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 17px;
 }
 
 .acciones-escrito button {
-    border: none;
-    padding: 9px 12px;
-    border-radius: 13px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 39px;
+
+    padding: 9px 13px;
+
+    border: 1px solid #DCCAF4;
+    border-radius: 12px;
+
+    font-size: 0.8125rem;
+    font-weight: 750;
 }
 
 .acciones-escrito button:hover {
-    transform: translateY(-2px);
+    filter: brightness(0.98);
 }
 
 .acciones-escrito button:disabled {
@@ -218,378 +700,651 @@ body.pagina-diario {
 }
 
 .boton-editar {
-    background: #eee3ff;
-    color: #6540aa;
+    background: #EAE1FF;
+    color: #62399C;
 }
 
 .boton-eliminar {
-    background: #ffe1e9;
-    color: #b34260;
+    background: #FFE8F0;
+
+    border-color: #F5CCDA !important;
+
+    color: #A23B5F;
 }
 
-/* ======================================
-   DIARIO SIN ESCRITOS
-====================================== */
+
+/* ==========================================
+   11. ESTADO CUANDO NO HAY ESCRITOS
+========================================== */
 
 .diario-vacio {
-    min-height: 480px;
-    background: #fffaf7;
-    border-radius: 28px;
-    padding: 30px 20px;
-    text-align: center;
-    box-shadow: 0 5px 20px #66548a1c;
-}
+    grid-column: 1 / -1;
 
-.zorrito-vacio {
-    width: min(100%, 300px);
-    height: auto;
-    object-fit: contain;
-}
-
-.diario-vacio h2 {
-    color: #392080;
-    font-size: 27px;
-    margin: 15px 0;
-}
-
-.diario-vacio p {
-    color: #8c80b2;
-    font-size: 17px;
-    line-height: 1.6;
-}
-
-.boton-primer-escrito {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 15px 20px;
-    border-radius: 25px;
-
-    background: #ffe6ef;
-    color: #ec4b8e;
-
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.boton-primer-escrito:hover {
-    background: #ffdae9;
-}
-
-/* ======================================
-   MENÚ INFERIOR SIEMPRE FIJO
-====================================== */
-
-.navegacion-inferior {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    z-index: 100;
-
-    width: min(calc(100% - 24px), 520px);
-
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 5px;
-    padding: 10px;
-
-    background: #fffaf6;
-    border-radius: 25px;
-
-    box-shadow: 0 4px 25px #5941812b;
-}
-
-.navegacion-inferior a {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
 
-    min-width: 0;
-    min-height: 60px;
+    width: 100%;
+    min-height: 370px;
 
-    border-radius: 14px;
-    text-decoration: none;
+    padding: 30px 20px;
 
-    color: #82769f;
-    font-size: 12px;
+    background: linear-gradient(
+        135deg,
+        #F7F1FF,
+        #EEF5FF
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 21px;
+
     text-align: center;
 }
 
-.icono-menu {
-    font-size: 23px;
+.zorrito-vacio {
+    display: block;
+
+    width: min(100%, 210px);
+    max-height: 210px;
+
+    object-fit: contain;
 }
 
+.diario-vacio h2 {
+    margin: 12px 0 9px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h2, 1.4375rem);
+    font-weight: 900;
+}
+
+.diario-vacio p {
+    max-width: 520px;
+
+    margin: 0;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-normal, 1rem);
+    line-height: 1.7;
+}
+
+.boton-primer-escrito {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 45px;
+
+    margin-top: 21px;
+    padding: 11px 19px;
+
+    background: var(
+        --ct-degradado-boton,
+        linear-gradient(90deg, #9666DC, #DB7FBB)
+    );
+
+    border-radius: 13px;
+
+    color: white;
+
+    font-size: var(--ct-boton, 0.9375rem);
+    font-weight: 800;
+
+    text-align: center;
+    text-decoration: none;
+}
+
+.boton-primer-escrito:hover {
+    filter: brightness(1.04);
+}
+
+
+/* ==========================================
+   12. TARJETA DE RECORDATORIO
+========================================== */
+
+.diario-recordatorio {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    width: 100%;
+
+    margin-top: 17px;
+    padding: 18px 21px;
+
+    background: rgba(
+        255,
+        251,
+        255,
+        0.97
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 23px;
+
+    box-shadow: var(--diario-sombra);
+}
+
+.diario-recordatorio-icono {
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 52px;
+
+    width: 52px;
+    height: 52px;
+
+    background: #F0E5FF;
+
+    border-radius: 16px;
+
+    font-size: 25px;
+}
+
+.diario-recordatorio h2 {
+    margin: 0 0 5px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h2, 1.4375rem);
+    line-height: 1.3;
+}
+
+.diario-recordatorio p {
+    margin: 0;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-secundario, 0.875rem);
+    line-height: 1.6;
+}
+
+
+/* ==========================================
+   13. NAVEGACIÓN INFERIOR
+========================================== */
+
+body.pagina-diario .navegacion-inferior {
+    position: fixed;
+    z-index: 100;
+
+    bottom: 12px;
+    left: 50%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    align-items: stretch;
+
+    gap: 6px;
+
+    width: min(
+        calc(100% - 24px),
+        540px
+    );
+
+    margin: 0;
+    padding: 7px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.97
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 23px;
+
+    box-shadow:
+        0 10px 28px rgba(
+            61,
+            41,
+            99,
+            0.15
+        );
+
+    transform: translateX(-50%);
+}
+
+body.pagina-diario .navegacion-inferior a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    min-width: 0;
+    min-height: 58px;
+
+    padding: 7px 5px;
+
+    border-radius: 16px;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-menu, 0.8125rem);
+
+    font-weight: 700;
+    line-height: 1.3;
+
+    text-decoration: none;
+    text-align: center;
+}
+
+.navegacion-inferior a .icono-menu {
+    display: block;
+
+    font-size: 21px;
+    line-height: 1.2;
+}
+
+body.pagina-diario
 .navegacion-inferior a.activo {
-    color: #6534c2;
-    background: #eee4ff;
-    font-weight: bold;
+    background: #E9DDFF;
+
+    color: #5D329B;
+    font-weight: 850;
 }
 
 .navegacion-inferior a:hover {
-    background: #f1e9ff;
+    background: #F1E8FF;
 }
 
-/* ======================================
-   VENTANA PARA EDITAR ESCRITOS
-====================================== */
 
-.panel-edicion {
+/* ==========================================
+   14. PANEL PARA EDITAR ESCRITOS
+========================================== */
+
+body.pagina-diario .panel-edicion {
     position: fixed;
+    z-index: 200;
+
     inset: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: #28164e88;
-    padding: 20px;
-    z-index: 200;
+    padding: 18px;
+
+    background: rgba(
+        38,
+        23,
+        70,
+        0.57
+    );
 }
 
-.panel-edicion[hidden] {
-    display: none;
+/* Evitar que el panel oculto aparezca */
+
+body.pagina-diario .panel-edicion[hidden] {
+    display: none !important;
 }
 
 .contenido-edicion {
-    width: 100%;
-    max-width: 450px;
-    max-height: 90vh;
+    width: min(100%, 530px);
+
+    max-height: min(90vh, 850px);
 
     overflow-y: auto;
-    padding: 25px;
-    border-radius: 25px;
+    overscroll-behavior: contain;
 
-    background: #fffaf8;
-    box-shadow: 0 15px 40px #28164e40;
+    padding: 25px;
+
+    background: var(
+        --ct-tarjeta,
+        #FFFBFF
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 15px 40px rgba(
+            35,
+            20,
+            67,
+            0.22
+        );
 }
 
 .contenido-edicion h2 {
-    margin-top: 0;
-    color: #392080;
+    margin: 0 0 8px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h2, 1.4375rem);
+    font-weight: 900;
+}
+
+.diario-edicion-descripcion {
+    margin: 0 0 15px;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-secundario, 0.875rem);
+    line-height: 1.6;
 }
 
 .contenido-edicion label {
     display: block;
-    margin: 15px 0 7px;
-    font-weight: bold;
+
+    margin: 14px 0 7px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-secundario, 0.875rem);
+    font-weight: 750;
 }
 
-.contenido-edicion input,
+.contenido-edicion input:not([type="hidden"]),
 .contenido-edicion textarea {
     display: block;
+
     width: 100%;
+    min-width: 0;
 
-    border: 1px solid #d6c3f7;
-    border-radius: 14px;
-    padding: 13px;
+    padding: 12px 14px;
 
-    font: inherit;
-    color: #321478;
-    background: white;
+    background: #FFFFFF;
+
+    border: 1px solid #D6C3F3;
+    border-radius: 13px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-normal, 1rem);
 }
 
 .contenido-edicion textarea {
-    min-height: 180px;
+    min-height: 190px;
+
     resize: vertical;
-    line-height: 1.6;
+    line-height: 1.65;
 }
 
-.contenido-edicion input:focus,
-.contenido-edicion textarea:focus {
-    outline: 2px solid #9b7ede;
-    outline-offset: 1px;
+.contenido-edicion input:focus-visible,
+.contenido-edicion textarea:focus-visible {
+    outline: 3px solid #9666DC;
+    outline-offset: 2px;
 }
 
 .botones-edicion {
     display: flex;
+    flex-wrap: wrap;
+
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 19px;
 }
 
 .botones-edicion button {
     flex: 1;
-    padding: 12px;
+    min-height: 44px;
 
-    border: none;
-    border-radius: 13px;
+    padding: 10px 15px;
 
-    font-weight: bold;
-    cursor: pointer;
-}
+    border-radius: 12px;
 
-#cancelar-edicion {
-    background: #eee8f5;
-    color: #51406f;
-}
-
-.botones-edicion button[type="submit"] {
-    background: #865dc9;
-    color: white;
-}
-
-.botones-edicion button:disabled {
-    opacity: 0.6;
-    cursor: wait;
-}
-
-#mensaje-edicion {
-    color: #b34260;
-}
-
-/* ======================================
-   NUEVO ESCRITO - ENCABEZADO
-====================================== */
-
-.encabezado-nuevo-escrito {
-    text-align: center;
-    padding: 28px 10px 20px;
-}
-
-.encabezado-nuevo-escrito h1 {
-    font-size: clamp(30px, 7vw, 43px);
-    color: #35177e;
-    margin: 0 0 12px;
+    font-size: var(--ct-boton, 0.9375rem);
     font-weight: 800;
 }
 
-.encabezado-nuevo-escrito p {
-    font-size: 16px;
-    color: #8b7eaf;
-    margin: 0;
+#cancelar-edicion {
+    background: #EFE7FB;
+
+    border: 1px solid #E0D0F4;
+
+    color: #604586;
 }
 
-/* ======================================
-   NUEVO ESCRITO - TARJETA PRINCIPAL
-====================================== */
-
-.tarjeta-nuevo-escrito {
-    background: linear-gradient(
-        160deg,
-        #fffefd 0%,
-        #fff8f7 65%,
-        #f0e9ff 100%
+.botones-edicion button[type="submit"] {
+    background: var(
+        --ct-degradado-boton,
+        linear-gradient(90deg, #9666DC, #DB7FBB)
     );
 
-    border: 2px solid #ffffff;
-    border-radius: 28px;
-    padding: 23px 20px;
-
-    box-shadow: 0 8px 25px #6551871c;
+    border: none;
+    color: #FFFFFF;
 }
 
-/* ======================================
-   NUEVO ESCRITO - FORMULARIO
-====================================== */
+#mensaje-edicion {
+    color: #A23F5E;
+
+    font-size: var(--ct-secundario, 0.875rem);
+    line-height: 1.6;
+}
+
+#mensaje-edicion:empty {
+    display: none;
+}
+
+
+/* ==========================================
+   15. COMPATIBILIDAD CON TÍTULO ANTIGUO
+========================================== */
+
+.titulo-diario {
+    padding: 20px 10px;
+    text-align: center;
+}
+
+.titulo-diario h1 {
+    margin: 0;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h1, 2rem);
+    font-weight: 900;
+}
+
+
+/* ==========================================
+   16. NUEVO ESCRITO - ENCABEZADO
+========================================== */
+
+.encabezado-nuevo-escrito {
+    padding: 25px 15px 23px;
+
+    text-align: center;
+}
+
+.encabezado-nuevo-escrito h1 {
+    margin: 0 0 10px;
+
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-h1, 2rem);
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.encabezado-nuevo-escrito p {
+    max-width: 590px;
+
+    margin: 0 auto;
+
+    color: var(--ct-texto, #67567F);
+
+    font-size: var(--ct-normal, 1rem);
+    line-height: 1.7;
+}
+
+
+/* ==========================================
+   17. NUEVO ESCRITO - TARJETA
+========================================== */
+
+.tarjeta-nuevo-escrito {
+    width: 100%;
+
+    padding: 25px;
+
+    background: linear-gradient(
+        145deg,
+        #FFFBFF 0%,
+        #F8F2FF 65%,
+        #EDF5FF 100%
+    );
+
+    border: 1px solid
+        var(--diario-borde);
+
+    border-radius: 24px;
+
+    box-shadow: var(--diario-sombra);
+}
+
+
+/* ==========================================
+   18. NUEVO ESCRITO - FORMULARIO
+========================================== */
 
 #form-escrito {
     display: flex;
     flex-direction: column;
+
     gap: 12px;
 }
 
 #form-escrito label {
-    color: #4b3284;
-    font-size: 16px;
-    font-weight: 700;
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-normal, 1rem);
+    font-weight: 750;
 }
 
 #form-escrito input,
 #form-escrito textarea {
     display: block;
+
     width: 100%;
+    min-width: 0;
 
-    border: 2px solid #e3d9f3;
-    border-radius: 18px;
-    padding: 17px;
+    padding: 15px;
 
-    background: #ffffff;
-    color: #32176e;
+    background: #FFFFFF;
 
-    font-family: inherit;
-    font-size: 16px;
+    border: 1px solid #D9C9EF;
+    border-radius: 15px;
 
-    outline: none;
-    transition: border-color 0.2s;
+    color: var(--ct-titulo, #38235F);
+
+    font-size: var(--ct-normal, 1rem);
+
+    line-height: 1.65;
 }
 
-#form-escrito input:focus,
-#form-escrito textarea:focus {
-    border-color: #a783e9;
+#form-escrito input:focus-visible,
+#form-escrito textarea:focus-visible {
+    outline: 3px solid #9666DC;
+    outline-offset: 2px;
 }
 
 #form-escrito input::placeholder,
 #form-escrito textarea::placeholder {
-    color: #9b8eb6;
+    color: #9786AB;
 }
 
-/* ======================================
-   NUEVO ESCRITO - ESPACIO PARA ESCRIBIR
-====================================== */
-
 #form-escrito textarea {
-    min-height: 260px;
+    min-height: 270px;
+
     resize: vertical;
     line-height: 1.7;
 }
 
-/* ======================================
-   NUEVO ESCRITO - ZORRITO DECORATIVO
-====================================== */
+
+/* ==========================================
+   19. NUEVO ESCRITO - ZORRITO
+========================================== */
 
 .decoracion-zorrito {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+
     padding: 10px 0;
 }
 
 .decoracion-zorrito img {
-    width: min(100%, 230px);
+    display: block;
+
+    width: min(100%, 215px);
     height: auto;
+
     object-fit: contain;
 }
 
-/* ======================================
-   NUEVO ESCRITO - MENSAJE DE GUARDADO
-====================================== */
+
+/* ==========================================
+   20. NUEVO ESCRITO - MENSAJE
+========================================== */
 
 #mensaje-escrito {
-    text-align: center;
-    color: #7958b7;
-    font-size: 14px;
     margin: 0;
-    line-height: 1.5;
+
+    color: #7652AA;
+
+    font-size: var(--ct-secundario, 0.875rem);
+
+    text-align: center;
+    line-height: 1.6;
 }
 
 #mensaje-escrito:empty {
     display: none;
 }
 
-/* ======================================
-   NUEVO ESCRITO - BOTÓN GUARDAR
-====================================== */
+
+/* ==========================================
+   21. NUEVO ESCRITO - GUARDAR
+========================================== */
 
 .boton-guardar-escrito {
-    width: 100%;
-    border: none;
-    border-radius: 20px;
-    padding: 17px;
+    display: block;
 
-    background: linear-gradient(
-        135deg,
-        #ff92b8,
-        #f46b9e
+    width: 100%;
+    min-height: 49px;
+
+    padding: 13px 18px;
+
+    background: var(
+        --ct-degradado-boton,
+        linear-gradient(90deg, #9666DC, #DB7FBB)
     );
 
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: bold;
+    border: none;
+    border-radius: 14px;
 
-    cursor: pointer;
-    box-shadow: 0 6px 16px #f46b9e40;
+    color: #FFFFFF;
+
+    font-size: var(--ct-boton, 0.9375rem);
+    font-weight: 850;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 14px rgba(
+            150,
+            102,
+            220,
+            0.15
+        );
 }
 
 .boton-guardar-escrito:hover {
@@ -601,110 +1356,297 @@ body.pagina-diario {
     cursor: wait;
 }
 
-/* ======================================
-   VOLVER A MI DIARIO
-====================================== */
+
+/* ==========================================
+   22. VOLVER AL DIARIO
+========================================== */
 
 .volver-diario {
     display: block;
-    margin: 20px auto;
-    text-align: center;
 
+    width: fit-content;
+
+    margin: 20px auto;
+    padding: 9px 15px;
+
+    color: #6736AA;
+
+    font-size: var(--ct-boton, 0.9375rem);
+    font-weight: 750;
+
+    text-align: center;
     text-decoration: none;
-    color: #8256c7;
-    font-size: 15px;
-    font-weight: bold;
+
+    border-radius: 12px;
 }
 
-/* ======================================
-   ACCESIBILIDAD DE BOTONES Y ENLACES
-====================================== */
+.volver-diario:hover {
+    background: #EBE1FF;
+}
 
-.navegacion-inferior a:focus-visible,
-.acciones-escrito button:focus-visible,
-.boton-nuevo:focus-visible,
-.boton-primer-escrito:focus-visible,
-.boton-guardar-escrito:focus-visible {
-    outline: 3px solid #9b7ede;
+
+/* ==========================================
+   23. ACCESIBILIDAD
+========================================== */
+
+body.pagina-diario :is(
+    a,
+    button,
+    input,
+    textarea
+):focus-visible,
+.boton-guardar-escrito:focus-visible,
+.volver-diario:focus-visible {
+    outline: 3px solid #9666DC;
     outline-offset: 3px;
 }
 
-/* ======================================
-   DISEÑO RESPONSIVE - TABLETS
-====================================== */
 
-@media (max-width: 768px) {
+/* ==========================================
+   24. TABLETAS
+========================================== */
 
-    .contenedor-diario {
-        width: min(100% - 20px, 520px);
+@media (max-width: 850px) {
+
+    body.pagina-diario .diario-aplicacion {
+        width: calc(100% - 20px);
     }
 
-    .tarjeta-nuevo-escrito {
-        padding: 21px 18px;
+    .diario-bienvenida {
+        grid-template-columns:
+            145px minmax(0, 1fr);
+
+        gap: 20px;
+        padding: 21px;
+    }
+
+    .diario-bienvenida-imagen {
+        width: 145px;
+        height: 145px;
+    }
+
+    .lista-escritos {
+        grid-template-columns: 1fr;
+    }
+
+    .diario-seccion-escritos {
+        padding: 20px;
     }
 }
 
-/* ======================================
-   DISEÑO RESPONSIVE - CELULARES
-====================================== */
 
-@media (max-width: 480px) {
+/* ==========================================
+   25. CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+
+    body.pagina-diario .diario-aplicacion {
+        width: calc(100% - 16px);
+        padding-bottom: 110px;
+    }
 
     .contenedor-diario {
         width: calc(100% - 20px);
         padding-bottom: 115px;
     }
 
-    .encabezado-diario {
-        padding: 12px;
+    /* ENCABEZADO */
+
+    body.pagina-diario .encabezado-diario {
+        gap: 10px;
+
+        margin: 9px 0 15px;
+        padding: 11px 13px;
+
+        border-radius: 18px;
     }
 
-    .encabezado-diario h2 {
-        font-size: 15px;
-    }
-
-    .acciones-encabezado a {
-        width: 35px;
-        height: 35px;
+    .diario-logo {
+        gap: 8px;
         font-size: 17px;
     }
 
-    .titulo-diario h1 {
-        font-size: 36px;
+    .diario-logo img {
+        width: 39px;
+        height: 39px;
+    }
+
+    body.pagina-diario
+    .acciones-encabezado .diario-accion,
+    body.pagina-diario
+    .acciones-encabezado a {
+        width: 37px;
+        height: 37px;
+
+        font-size: 18px;
+    }
+
+    /* TARJETA DE BIENVENIDA */
+
+    .diario-bienvenida {
+        grid-template-columns: 1fr;
+
+        justify-items: center;
+
+        min-height: 0;
+
+        gap: 13px;
+
+        padding: 19px 17px;
+
+        border-radius: 21px;
+    }
+
+    .diario-bienvenida-imagen {
+        width: 120px;
+        height: 120px;
+
+        padding: 8px;
+    }
+
+    .diario-bienvenida-texto {
+        align-items: center;
+        text-align: center;
+        gap: 9px;
+    }
+
+    .diario-bienvenida h1 {
+        font-size: var(--ct-h1, 1.6875rem);
+    }
+
+    .diario-bienvenida-texto > p {
+        font-size: var(--ct-secundario, 0.875rem);
+    }
+
+    .diario-frase {
+        padding: 9px 12px;
+
+        font-size: 0.8125rem;
+    }
+
+    /* MIS ESCRITOS */
+
+    .diario-seccion-escritos {
+        padding: 15px;
+        border-radius: 20px;
+    }
+
+    .diario-cabecera-escritos {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        margin-bottom: 17px;
+    }
+
+    .diario-icono-seccion {
+        flex-basis: 43px;
+
+        width: 43px;
+        height: 43px;
+
+        font-size: 21px;
+    }
+
+    .diario-cabecera-escritos h2 {
+        font-size: var(--ct-h2, 1.3125rem);
+    }
+
+    .diario-cabecera-escritos p {
+        font-size: 0.8125rem;
     }
 
     .boton-nuevo {
-        font-size: 20px;
-        padding: 15px;
+        min-height: 41px;
+
+        padding: 9px 13px;
+
+        font-size: 0.8125rem;
+    }
+
+    /* TARJETAS */
+
+    .lista-escritos {
+        grid-template-columns: 1fr;
     }
 
     .tarjeta-escrito {
-        padding: 13px;
+        padding: 14px;
+        gap: 9px;
     }
 
     .titulo-escrito {
-        font-size: 17px;
+        font-size: var(--ct-h3, 1.0625rem);
+    }
+
+    .resumen-escrito {
+        font-size: 0.8125rem;
     }
 
     .zorrito-tarjeta {
         width: 85px;
-        height: 90px;
+        height: 95px;
     }
 
+    .acciones-escrito button {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+
+    /* RECORDATORIO */
+
+    .diario-recordatorio {
+        gap: 11px;
+        padding: 15px;
+    }
+
+    .diario-recordatorio-icono {
+        flex-basis: 42px;
+
+        width: 42px;
+        height: 42px;
+
+        font-size: 21px;
+    }
+
+    .diario-recordatorio h2 {
+        font-size: var(--ct-h2, 1.3125rem);
+    }
+
+    /* ESTADO VACÍO */
+
     .diario-vacio {
-        padding: 25px 14px;
+        min-height: 320px;
+        padding: 23px 15px;
+    }
+
+    .zorrito-vacio {
+        width: min(100%, 175px);
     }
 
     .diario-vacio h2 {
-        font-size: 25px;
+        font-size: var(--ct-h2, 1.3125rem);
     }
 
     .diario-vacio p {
-        font-size: 16px;
+        font-size: 0.875rem;
+    }
+
+    /* EDICIÓN */
+
+    .contenido-edicion {
+        padding: 20px 17px;
+    }
+
+    /* NUEVO ESCRITO */
+
+    .encabezado-nuevo-escrito {
+        padding: 22px 10px 19px;
     }
 
     .tarjeta-nuevo-escrito {
-        padding: 18px 15px;
+        padding: 19px 16px;
     }
 
     #form-escrito textarea {
@@ -712,52 +1654,82 @@ body.pagina-diario {
     }
 
     .decoracion-zorrito img {
-        width: 180px;
+        width: min(100%, 175px);
     }
 
-    .navegacion-inferior {
-        width: calc(100% - 20px);
-        bottom: 8px;
-        padding: 8px;
+    /* NAVEGACIÓN */
+
+    body.pagina-diario .navegacion-inferior {
+        bottom: max(
+            8px,
+            env(safe-area-inset-bottom)
+        );
+
+        width: calc(100% - 16px);
+        padding: 7px;
     }
 
-    .navegacion-inferior a {
-        font-size: 11px;
+    body.pagina-diario .navegacion-inferior a {
+        min-height: 55px;
+
+        font-size: 0.6875rem;
     }
 
-    .icono-menu {
-        font-size: 22px;
-    }
-
-    .contenido-edicion {
-        padding: 20px 16px;
+    .navegacion-inferior a .icono-menu {
+        font-size: 20px;
     }
 }
 
-/* ======================================
-   CELULARES PEQUEÑOS
-====================================== */
 
-@media (max-width: 380px) {
+/* ==========================================
+   26. CELULARES PEQUEÑOS Y ZOOM ALTO
+========================================== */
 
-    .zorrito-tarjeta {
-        width: 75px;
-        height: 80px;
+@media (max-width: 360px) {
+
+    .diario-cabecera-escritos {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .titulo-escrito {
-        font-size: 16px;
+    .boton-nuevo {
+        width: 100%;
+    }
+
+    .zorrito-tarjeta {
+        width: 63px;
+        height: 75px;
+    }
+
+    .acciones-escrito {
+        gap: 6px;
     }
 
     .acciones-escrito button {
-        padding: 8px;
+        font-size: 0.6875rem;
     }
 
     .botones-edicion {
         flex-direction: column;
     }
 
-    .encabezado-nuevo-escrito h1 {
-        font-size: 29px;
+    .diario-recordatorio-icono {
+        display: none;
+    }
+}
+
+
+/* ==========================================
+   27. RESPETAR MOVIMIENTO REDUCIDO
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .tarjeta-escrito *,
+    .contenido-edicion *,
+    .tarjeta-nuevo-escrito * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
     }
 }

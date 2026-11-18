@@ -3155,5 +3155,20 @@ def foto_perfil_usuario():
         if temporal is not None:
             temporal.unlink(missing_ok=True)
 
+
+# ============================================================
+# SEGURIDAD DEL DIARIO PRIVADO - CONTIGO
+# ============================================================
+
+from seguridad_diario import registrar_seguridad_diario
+
+registrar_seguridad_diario(
+    app,
+    conectar_db,
+    validar_csrf_contigo,
+    requiere_sesion
+)
+
+
 if __name__ == "__main__":
     app.run(debug=True)

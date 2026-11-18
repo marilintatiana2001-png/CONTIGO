@@ -1,982 +1,814 @@
 
-"use strict";
+/* ==================================================
+   CONTIGO - RED DE APOYO
+   Compatible con diseño aprobado v3
 
-// ============================================================
-// CONTIGO - RED DE APOYO
-// Contactos de confianza y recursos de ayuda
-// Backend: Flask
-// Base de datos: MariaDB
-// ============================================================
+   - Consultar contactos
+   - Agregar contactos
+   - Editar contactos
+   - Eliminar contactos
+   - Llamar a contactos
+   - Consultar recursos de ayuda
+   - Abrir teléfono y sitios web
 
-// ============================================================
-// ELEMENTOS DE LA PANTALLA
-// ============================================================
+   Flask + MariaDB
+================================================== */
 
-const csrfToken = document.querySelector(
-    'meta[name="csrf-token"]'
-)?.content || "";
+(() => {
+    "use strict";
 
-const listaContactos = document.getElementById(
-    "lista-contactos"
-);
+    const $ = (id) => document.getElementById(id);
 
-const listaRecursos = document.getElementById(
-    "lista-recursos"
-);
+    let contactos = [];
+    let idEditando = null;
+    let idEliminando = null;
+    let tokenCSRF = null;
+    let ocupado = false;
 
-const mensajeEstado = document.getElementById(
-    "mensaje-estado"
-);
+    /* ======================================
+       CREAR ELEMENTOS DE FORMA SEGURA
+    ====================================== */
 
-const modal = document.getElementById(
-    "modal-contacto"
-);
+    function elemento(
+        etiqueta,
+        clase = "",
+        texto = ""
+    ) {
+        const nodo = document.createElement(etiqueta);
 
-const formulario = document.getElementById(
-    "form-contacto"
-);
-
-const campoId = document.getElementById(
-    "id-contacto"
-);
-
-const campoNombre = document.getElementById(
-    "nombre-contacto"
-);
-
-const campoTelefono = document.getElementById(
-    "telefono-contacto"
-);
-
-const campoRelacion = document.getElementById(
-    "relacion-contacto"
-);
-
-const errorFormulario = document.getElementById(
-    "error-formulario"
-);
-
-const tituloModal = document.getElementById(
-    "titulo-modal"
-);
-
-const botonGuardar = document.getElementById(
-    "btn-guardar-contacto"
-);
-
-
-// ============================================================
-// 1. COMUNICACIÓN CON EL BACKEND FLASK
-// ============================================================
-
-async function solicitarAPI(ruta, opciones = {}) {
-
-    const metodo = (
-        opciones.method || "GET"
-    ).toUpperCase();
-
-    const headers = {
-        ...(opciones.headers || {})
-    };
-
-    // Las operaciones que modifican datos
-    // necesitan el token CSRF de CONTIGO.
-
-    if (metodo !== "GET") {
-
-        headers["X-CSRF-Token"] = csrfToken;
-        headers["Content-Type"] = "application/json";
-
-    }
-
-    const respuesta = await fetch(ruta, {
-
-        ...opciones,
-
-        method: metodo,
-
-        headers: headers,
-
-        credentials: "same-origin"
-
-    });
-
-    const datos = await respuesta.json().catch(
-        () => ({})
-    );
-
-    if (!respuesta.ok) {
-
-        if (respuesta.status === 401) {
-
-            throw new Error(
-                "Tu sesión ha terminado. " +
-                "Inicia sesión nuevamente en CONTIGO."
-            );
-
+        if (clase) {
+            nodo.className = clase;
         }
 
-        if (respuesta.status === 403) {
-
-            throw new Error(
-                "No se pudo verificar la sesión. " +
-                "Actualiza la página e intenta nuevamente."
-            );
-
-        }
-
-        throw new Error(
-            datos.mensaje ||
-            `Error al conectar con Flask: ${respuesta.status}`
-        );
-
+        nodo.textContent = texto;
+        return nodo;
     }
 
-    return datos;
-
-}
-
-
-// ============================================================
-// 2. MENSAJES DE CONFIRMACIÓN Y ERROR
-// ============================================================
-
-function mostrarMensaje(texto, esError = false) {
-
-    mensajeEstado.textContent = texto;
-
-    mensajeEstado.classList.toggle(
-        "error",
-        esError
-    );
-
-    mensajeEstado.hidden = false;
-
-}
-
-
-function mostrarErrorFormulario(texto) {
-
-    errorFormulario.textContent = texto;
-
-    errorFormulario.hidden = false;
-
-}
-
-
-// ============================================================
-// 3. CREAR ELEMENTOS HTML DE FORMA SEGURA
-// ============================================================
-
-function crearTexto(etiqueta, contenido, clase = "") {
-
-    const elemento = document.createElement(
-        etiqueta
-    );
-
-    elemento.textContent = contenido ?? "";
-
-    if (clase) {
-        elemento.className = clase;
-    }
-
-    return elemento;
-
-}
-
-
-function crearBoton(texto, clase, accion) {
-
-    const boton = document.createElement("button");
-
-    boton.type = "button";
-
-    boton.className = `boton ${clase}`;
-
-    boton.textContent = texto;
-
-    boton.addEventListener(
-        "click",
-        accion
-    );
-
-    return boton;
-
-}
-
-
-function crearEnlace(texto, clase, destino) {
-
-    const enlace = document.createElement("a");
-
-    enlace.className = `boton ${clase}`;
-
-    enlace.textContent = texto;
-
-    enlace.href = destino;
-
-    return enlace;
-
-}
-
-
-function mostrarVacio(contenedor, icono, texto) {
-
-    const caja = document.createElement("div");
-
-    caja.className = "vacio";
-
-    caja.appendChild(
-        crearTexto(
-            "span",
-            icono,
-            "vacio-icono"
-        )
-    );
-
-    caja.appendChild(
-        crearTexto(
-            "p",
+    function boton(
+        texto,
+        accion,
+        id,
+        clase
+    ) {
+        const nuevo = elemento(
+            "button",
+            `red-accion ${clase}`,
             texto
-        )
-    );
+        );
 
-    contenedor.replaceChildren(caja);
+        nuevo.type = "button";
+        nuevo.dataset.accion = accion;
+        nuevo.dataset.id = String(id);
 
-}
+        return nuevo;
+    }
 
-
-// ============================================================
-// 4. VALIDAR NÚMEROS TELEFÓNICOS DE CONTACTOS
-// ============================================================
-
-function obtenerNumeroLlamada(telefono) {
-
-    if (
-        !telefono ||
-        typeof telefono !== "string"
+    function enlace(
+        texto,
+        url,
+        clase
     ) {
-        return null;
+        const nuevo = elemento(
+            "a",
+            `red-accion ${clase}`,
+            texto
+        );
+
+        nuevo.href = url;
+        return nuevo;
     }
 
-    const original = telefono.trim();
+    /* ======================================
+       API DE FLASK
+    ====================================== */
 
-    const digitos = original.replace(
-        /\D/g,
-        ""
-    );
-
-    if (
-        digitos.length < 7 ||
-        digitos.length > 15
+    async function api(
+        ruta,
+        opciones = {}
     ) {
-        return null;
+        const respuesta = await fetch(ruta, {
+            credentials: "same-origin",
+            ...opciones,
+            headers: {
+                Accept: "application/json",
+                ...(opciones.headers || {})
+            }
+        });
+
+        let datos = {};
+
+        try {
+            datos = await respuesta.json();
+        } catch {
+            throw new Error(
+                "El servidor no devolvió una respuesta válida."
+            );
+        }
+
+        if (!respuesta.ok) {
+            throw new Error(
+                datos.mensaje ||
+                `Error del servidor (${respuesta.status}).`
+            );
+        }
+
+        return datos;
     }
 
-    return original.startsWith("+")
-        ? `+${digitos}`
-        : digitos;
+    async function obtenerCSRF() {
+        if (tokenCSRF) {
+            return tokenCSRF;
+        }
 
-}
+        const datos = await api("/api/csrf");
+        tokenCSRF = datos.csrf_token;
 
+        if (!tokenCSRF) {
+            throw new Error(
+                "No se pudo verificar la sesión."
+            );
+        }
 
-// ============================================================
-// 5. NÚMEROS OFICIALES DE RECURSOS DE AYUDA
-// ============================================================
+        return tokenCSRF;
+    }
 
-function obtenerNumeroRecurso(telefono) {
-
-    if (
-        !telefono ||
-        typeof telefono !== "string"
+    async function escribir(
+        ruta,
+        metodo,
+        cuerpo
     ) {
-        return null;
+        const csrf = await obtenerCSRF();
+
+        const opciones = {
+            method: metodo,
+            headers: {
+                "X-CSRF-Token": csrf
+            }
+        };
+
+        if (cuerpo !== undefined) {
+            opciones.headers["Content-Type"] =
+                "application/json";
+
+            opciones.body =
+                JSON.stringify(cuerpo);
+        }
+
+        return api(ruta, opciones);
     }
 
-    const numero = telefono.trim();
+    /* ======================================
+       MENSAJES
+    ====================================== */
 
-    // Líneas de ayuda cortas que incluimos
-    // en CONTIGO para Colombia:
-    //
-    // 106: apoyo emocional en Bogotá
-    // 141: protección de menores, ICBF
-    // 155: orientación ante violencia de género
-    //
-    // La línea 123 aparece en la sección
-    // independiente de ayuda inmediata.
-
-    if (
-        ["106", "141", "155"].includes(numero)
+    function informar(
+        texto,
+        error = false
     ) {
-        return numero;
+        const aviso = $("red-mensaje");
+
+        aviso.textContent = texto;
+        aviso.className =
+            `red-mensaje ${error ? "error" : "exito"}`;
+
+        aviso.hidden = false;
     }
 
-    // Para otros números de recursos se
-    // utiliza la validación telefónica normal.
-
-    return obtenerNumeroLlamada(numero);
-
-}
-
-
-// ============================================================
-// 6. VALIDAR NÚMEROS DE WHATSAPP
-// ============================================================
-
-function obtenerNumeroWhatsApp(telefono) {
-
-    if (
-        !telefono ||
-        typeof telefono !== "string"
-    ) {
-        return null;
+    function ocultarAviso() {
+        $("red-mensaje").hidden = true;
     }
 
-    const original = telefono.trim();
+    /* ======================================
+       TELÉFONOS Y URL
+    ====================================== */
 
-    // WhatsApp requiere un número
-    // con indicativo internacional.
+    function telefonoSeguro(valor) {
+        const limpio = String(valor || "")
+            .trim()
+            .replace(/[\s().-]/g, "");
 
-    if (!original.startsWith("+")) {
-        return null;
+        const digitos = limpio.replace(/\D/g, "");
+
+        if (
+            !/^\+?\d+$/.test(limpio) ||
+            digitos.length < 7 ||
+            digitos.length > 15
+        ) {
+            return null;
+        }
+
+        return `tel:${limpio}`;
     }
 
-    const digitos = original.replace(
-        /\D/g,
-        ""
-    );
+    function urlSegura(valor) {
+        try {
+            const direccion = new URL(
+                String(valor || "")
+            );
 
-    if (
-        digitos.length < 8 ||
-        digitos.length > 15
-    ) {
-        return null;
+            if (
+                direccion.protocol !== "https:" &&
+                direccion.protocol !== "http:"
+            ) {
+                return null;
+            }
+
+            return direccion.href;
+        } catch {
+            return null;
+        }
     }
 
-    return digitos;
+    /* ======================================
+       MOSTRAR CONTACTOS
+    ====================================== */
 
-}
+    function mostrarContactos() {
+        const lista = $("lista-contactos");
 
+        lista.replaceChildren();
+        lista.setAttribute("aria-busy", "false");
 
-// ============================================================
-// 7. GET - CONSULTAR CONTACTOS DE CONFIANZA
-// ============================================================
-
-async function cargarContactos() {
-
-    try {
-
-        const datos = await solicitarAPI(
-            "/api/red-apoyo/contactos"
-        );
-
-        const contactos = Array.isArray(
-            datos.contactos
-        )
-            ? datos.contactos
-            : [];
-
-        mostrarContactos(contactos);
-
-    } catch (error) {
-
-        mostrarVacio(
-            listaContactos,
-            "⚠️",
-            error.message
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// 8. MOSTRAR LOS CONTACTOS EN TARJETAS
-// ============================================================
-
-function mostrarContactos(contactos) {
-
-    listaContactos.replaceChildren();
-
-    if (contactos.length === 0) {
-
-        mostrarVacio(
-            listaContactos,
-            "🫂",
-            "Todavía no tienes contactos. " +
-            "Agrega a una persona de confianza."
-        );
-
-        return;
-
-    }
-
-    contactos.forEach((contacto) => {
-
-        const tarjeta = document.createElement(
-            "article"
-        );
-
-        tarjeta.className = "tarjeta-contacto";
-
-        // ------------------------------------
-        // Información del contacto
-        // ------------------------------------
-
-        const cabecera = document.createElement(
-            "div"
-        );
-
-        cabecera.className = "contacto-cabecera";
-
-        const avatar = crearTexto(
-            "div",
-            "💜",
-            "avatar-contacto"
-        );
-
-        const datos = document.createElement(
-            "div"
-        );
-
-        datos.className = "contacto-datos";
-
-        datos.appendChild(
-            crearTexto(
-                "h3",
-                contacto.nombre
-            )
-        );
-
-        datos.appendChild(
-            crearTexto(
+        if (contactos.length === 0) {
+            const vacio = elemento(
                 "p",
-                contacto.relacion ||
-                "Contacto de confianza"
-            )
-        );
+                "red-vacio",
+                "💜 Aún no tienes contactos. Agrega a una persona de confianza."
+            );
 
-        if (contacto.telefono) {
+            lista.appendChild(vacio);
+            return;
+        }
 
-            datos.appendChild(
-                crearTexto(
-                    "p",
-                    `📞 ${contacto.telefono}`
+        for (const contacto of contactos) {
+            const tarjeta = elemento(
+                "article",
+                "red-contacto"
+            );
+
+            const cabecera = elemento(
+                "div",
+                "red-contacto-cabecera"
+            );
+
+            const avatar = elemento(
+                "span",
+                "red-avatar",
+                "💜"
+            );
+
+            const informacion = elemento(
+                "div",
+                "red-contacto-info"
+            );
+
+            informacion.append(
+                elemento(
+                    "h3",
+                    "",
+                    contacto.nombre || "Contacto"
+                ),
+                elemento(
+                    "span",
+                    "red-etiqueta",
+                    contacto.relacion ||
+                        "Persona de confianza"
                 )
             );
 
-        }
-
-        cabecera.append(
-            avatar,
-            datos
-        );
-
-        tarjeta.appendChild(cabecera);
-
-        // ------------------------------------
-        // Botones del contacto
-        // ------------------------------------
-
-        const acciones = document.createElement(
-            "div"
-        );
-
-        acciones.className = "acciones-contacto";
-
-        // Llamada telefónica
-
-        const numeroLlamada = obtenerNumeroLlamada(
-            contacto.telefono
-        );
-
-        if (numeroLlamada) {
-
-            acciones.appendChild(
-                crearEnlace(
-                    "📞 Llamar",
-                    "boton-blanco",
-                    `tel:${numeroLlamada}`
-                )
-            );
-
-        }
-
-        // Abrir WhatsApp
-
-        const numeroWhatsapp = obtenerNumeroWhatsApp(
-            contacto.telefono
-        );
-
-        if (numeroWhatsapp) {
-
-            const enlaceWhatsapp = crearEnlace(
-                "💬 WhatsApp",
-                "boton-verde",
-                `https://wa.me/${numeroWhatsapp}`
-            );
-
-            enlaceWhatsapp.target = "_blank";
-
-            enlaceWhatsapp.rel =
-                "noopener noreferrer";
-
-            acciones.appendChild(
-                enlaceWhatsapp
-            );
-
-        }
-
-        // Editar contacto
-
-        acciones.appendChild(
-            crearBoton(
-                "✏️ Editar",
-                "boton-secundario",
-                () => abrirEditarContacto(contacto)
-            )
-        );
-
-        // Eliminar contacto
-
-        acciones.appendChild(
-            crearBoton(
-                "🗑️ Eliminar",
-                "boton-peligro",
-                () => eliminarContacto(contacto)
-            )
-        );
-
-        tarjeta.appendChild(acciones);
-
-        listaContactos.appendChild(tarjeta);
-
-    });
-
-}
-
-
-// ============================================================
-// 9. ABRIR FORMULARIO PARA AGREGAR CONTACTO
-// ============================================================
-
-function abrirNuevoContacto() {
-
-    formulario.reset();
-
-    campoId.value = "";
-
-    tituloModal.textContent =
-        "Agregar contacto";
-
-    botonGuardar.textContent =
-        "Guardar contacto";
-
-    errorFormulario.hidden = true;
-
-    modal.showModal();
-
-    campoNombre.focus();
-
-}
-
-
-// ============================================================
-// 10. ABRIR FORMULARIO PARA EDITAR CONTACTO
-// ============================================================
-
-function abrirEditarContacto(contacto) {
-
-    formulario.reset();
-
-    campoId.value = contacto.id_contacto;
-
-    campoNombre.value =
-        contacto.nombre || "";
-
-    campoTelefono.value =
-        contacto.telefono || "";
-
-    campoRelacion.value =
-        contacto.relacion || "";
-
-    tituloModal.textContent =
-        "Editar contacto";
-
-    botonGuardar.textContent =
-        "Guardar cambios";
-
-    errorFormulario.hidden = true;
-
-    modal.showModal();
-
-    campoNombre.focus();
-
-}
-
-
-// ============================================================
-// 11. POST / PUT - GUARDAR CONTACTO
-// ============================================================
-
-async function guardarContacto(evento) {
-
-    evento.preventDefault();
-
-    errorFormulario.hidden = true;
-
-    const idContacto = campoId.value;
-
-    const datos = {
-
-        nombre: campoNombre.value.trim(),
-
-        telefono: campoTelefono.value.trim(),
-
-        relacion: campoRelacion.value.trim()
-
-    };
-
-    if (!datos.nombre) {
-
-        mostrarErrorFormulario(
-            "Escribe el nombre del contacto."
-        );
-
-        return;
-
-    }
-
-    const editando = Boolean(idContacto);
-
-    const ruta = editando
-        ? `/api/red-apoyo/contactos/${idContacto}`
-        : "/api/red-apoyo/contactos";
-
-    const metodo = editando
-        ? "PUT"
-        : "POST";
-
-    botonGuardar.disabled = true;
-
-    botonGuardar.textContent =
-        "Guardando...";
-
-    try {
-
-        const respuesta = await solicitarAPI(
-            ruta,
-            {
-                method: metodo,
-                body: JSON.stringify(datos)
+            cabecera.append(avatar, informacion);
+            tarjeta.appendChild(cabecera);
+
+            if (contacto.telefono) {
+                tarjeta.appendChild(
+                    elemento(
+                        "p",
+                        "red-contacto-telefono",
+                        "📞 " + contacto.telefono
+                    )
+                );
             }
-        );
 
-        modal.close();
+            const acciones = elemento(
+                "div",
+                "red-contacto-acciones"
+            );
 
-        await cargarContactos();
+            const numero = telefonoSeguro(
+                contacto.telefono
+            );
 
-        mostrarMensaje(
-            respuesta.mensaje
-        );
-
-    } catch (error) {
-
-        mostrarErrorFormulario(
-            error.message
-        );
-
-    } finally {
-
-        botonGuardar.disabled = false;
-
-        botonGuardar.textContent = editando
-            ? "Guardar cambios"
-            : "Guardar contacto";
-
-    }
-
-}
-
-
-// ============================================================
-// 12. DELETE - ELIMINAR CONTACTO
-// ============================================================
-
-async function eliminarContacto(contacto) {
-
-    const confirmado = window.confirm(
-        `¿Deseas eliminar a ${contacto.nombre} ` +
-        "de tu red de apoyo?"
-    );
-
-    if (!confirmado) {
-        return;
-    }
-
-    try {
-
-        const respuesta = await solicitarAPI(
-            `/api/red-apoyo/contactos/${contacto.id_contacto}`,
-            {
-                method: "DELETE"
+            if (numero) {
+                acciones.appendChild(
+                    enlace(
+                        "📞 Llamar",
+                        numero,
+                        "red-accion-primaria"
+                    )
+                );
             }
-        );
 
-        await cargarContactos();
+            acciones.append(
+                boton(
+                    "✏️ Editar",
+                    "editar",
+                    contacto.id_contacto,
+                    "red-accion-editar"
+                ),
+                boton(
+                    "🗑️ Eliminar",
+                    "eliminar",
+                    contacto.id_contacto,
+                    "red-accion-eliminar"
+                )
+            );
 
-        mostrarMensaje(
-            respuesta.mensaje
-        );
-
-    } catch (error) {
-
-        mostrarMensaje(
-            error.message,
-            true
-        );
-
+            tarjeta.appendChild(acciones);
+            lista.appendChild(tarjeta);
+        }
     }
 
-}
+    async function cargarContactos() {
+        const lista = $("lista-contactos");
+        lista.setAttribute("aria-busy", "true");
 
+        try {
+            const datos = await api(
+                "/api/red-apoyo/contactos"
+            );
 
-// ============================================================
-// 13. GET - CONSULTAR RECURSOS DE AYUDA
-// ============================================================
+            contactos = Array.isArray(datos.contactos)
+                ? datos.contactos
+                : [];
 
-async function cargarRecursos() {
+            mostrarContactos();
+        } catch (error) {
+            lista.setAttribute("aria-busy", "false");
 
-    try {
-
-        const datos = await solicitarAPI(
-            "/api/red-apoyo/recursos"
-        );
-
-        const recursos = Array.isArray(
-            datos.recursos
-        )
-            ? datos.recursos
-            : [];
-
-        mostrarRecursos(recursos);
-
-    } catch (error) {
-
-        mostrarVacio(
-            listaRecursos,
-            "⚠️",
-            error.message
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// 14. MOSTRAR RECURSOS DE AYUDA
-// ============================================================
-
-function mostrarRecursos(recursos) {
-
-    listaRecursos.replaceChildren();
-
-    if (recursos.length === 0) {
-
-        mostrarVacio(
-            listaRecursos,
-            "🌷",
-            "Aún no hay recursos registrados. " +
-            "Pronto encontrarás opciones de apoyo aquí."
-        );
-
-        return;
-
-    }
-
-    recursos.forEach((recurso) => {
-
-        const tarjeta = document.createElement(
-            "article"
-        );
-
-        tarjeta.className = "tarjeta-recurso";
-
-        // ------------------------------------
-        // Nombre y descripción
-        // ------------------------------------
-
-        tarjeta.appendChild(
-            crearTexto(
-                "h3",
-                recurso.nombre
-            )
-        );
-
-        if (recurso.tipo) {
-
-            tarjeta.appendChild(
-                crearTexto(
+            lista.replaceChildren(
+                elemento(
                     "p",
-                    `Tipo: ${recurso.tipo}`
+                    "red-vacio",
+                    "No pudimos cargar tus contactos."
                 )
             );
 
+            informar(error.message, true);
+        }
+    }
+
+    /* ======================================
+       MOSTRAR RECURSOS DE AYUDA
+    ====================================== */
+
+    function iconoRecurso(recurso) {
+        const tipo = String(
+            recurso.tipo || ""
+        ).toLowerCase();
+
+        const nombre = String(
+            recurso.nombre || ""
+        ).toLowerCase();
+
+        if (
+            tipo.includes("emergencia") ||
+            nombre.includes("línea") ||
+            nombre.includes("linea")
+        ) {
+            return "📞";
         }
 
-        if (recurso.descripcion) {
+        if (
+            tipo.includes("salud") ||
+            tipo.includes("bienestar")
+        ) {
+            return "💜";
+        }
 
-            tarjeta.appendChild(
-                crearTexto(
+        return "🌷";
+    }
+
+    async function cargarRecursos() {
+        const lista = $("lista-recursos");
+        lista.setAttribute("aria-busy", "true");
+
+        try {
+            const datos = await api(
+                "/api/red-apoyo/recursos"
+            );
+
+            const recursos = Array.isArray(datos.recursos)
+                ? datos.recursos
+                : [];
+
+            lista.replaceChildren();
+
+            if (recursos.length === 0) {
+                lista.appendChild(
+                    elemento(
+                        "p",
+                        "red-vacio",
+                        "Todavía no hay recursos de ayuda disponibles."
+                    )
+                );
+            }
+
+            for (const recurso of recursos) {
+                const tarjeta = elemento(
+                    "article",
+                    "red-recurso"
+                );
+
+                // Encabezado con icono reutilizando
+                // el estilo de las tarjetas.
+
+                const cabecera = elemento(
+                    "div",
+                    "red-contacto-cabecera"
+                );
+
+                const icono = elemento(
+                    "span",
+                    "red-avatar",
+                    iconoRecurso(recurso)
+                );
+
+                const contenido = elemento(
+                    "div",
+                    "red-contacto-info"
+                );
+
+                const titulo = elemento(
+                    "h3",
+                    "",
+                    recurso.nombre || "Recurso de ayuda"
+                );
+
+                const categoria = elemento(
+                    "span",
+                    "red-recurso-tipo",
+                    recurso.tipo || "Orientación"
+                );
+
+                const descripcion = elemento(
                     "p",
-                    recurso.descripcion
-                )
-            );
+                    "red-recurso-descripcion",
+                    recurso.descripcion || ""
+                );
 
-        }
+                contenido.append(
+                    titulo,
+                    categoria,
+                    descripcion
+                );
 
-        // ------------------------------------
-        // Botones del recurso
-        // ------------------------------------
+                cabecera.append(icono, contenido);
+                tarjeta.appendChild(cabecera);
 
-        const acciones = document.createElement(
-            "div"
-        );
+                const acciones = elemento(
+                    "div",
+                    "red-recurso-acciones"
+                );
 
-        acciones.className = "acciones-recurso";
+                const numero = telefonoSeguro(
+                    recurso.telefono
+                );
 
-        // Habilita 106, 141 y 155.
+                if (numero) {
+                    acciones.appendChild(
+                        enlace(
+                            "📞 Llamar",
+                            numero,
+                            "red-accion-primaria"
+                        )
+                    );
+                }
 
-        const telefono = obtenerNumeroRecurso(
-            recurso.telefono
-        );
-
-        if (telefono) {
-
-            acciones.appendChild(
-                crearEnlace(
-                    "📞 Llamar",
-                    "boton-blanco",
-                    `tel:${telefono}`
-                )
-            );
-
-        }
-
-        // Enlace a la página del recurso
-
-        if (recurso.url) {
-
-            try {
-
-                const direccion = new URL(
+                const web = urlSegura(
                     recurso.url
                 );
 
-                if (
-                    direccion.protocol === "https:"
-                ) {
-
-                    const enlace = crearEnlace(
+                if (web) {
+                    const sitio = enlace(
                         "🌐 Sitio web",
-                        "boton-secundario",
-                        direccion.href
+                        web,
+                        "red-accion-editar"
                     );
 
-                    enlace.target = "_blank";
+                    sitio.target = "_blank";
+                    sitio.rel = "noopener noreferrer";
 
-                    enlace.rel =
-                        "noopener noreferrer";
-
-                    acciones.appendChild(
-                        enlace
-                    );
-
+                    acciones.appendChild(sitio);
                 }
 
-            } catch (error) {
+                if (acciones.children.length) {
+                    tarjeta.appendChild(acciones);
+                }
 
-                // Si la URL no es válida,
-                // no mostramos ese botón.
-
+                lista.appendChild(tarjeta);
             }
 
+            lista.setAttribute("aria-busy", "false");
+        } catch (error) {
+            lista.setAttribute("aria-busy", "false");
+
+            lista.replaceChildren(
+                elemento(
+                    "p",
+                    "red-vacio",
+                    "No pudimos cargar los recursos de ayuda."
+                )
+            );
+
+            informar(error.message, true);
+        }
+    }
+
+    /* ======================================
+       FORMULARIO DE CONTACTOS
+    ====================================== */
+
+    function abrirFormulario(contacto = null) {
+        if (ocupado) return;
+
+        idEditando = contacto
+            ? Number(contacto.id_contacto)
+            : null;
+
+        $("formulario-contacto").reset();
+
+        $("contacto-nombre").value =
+            contacto?.nombre || "";
+
+        $("contacto-relacion").value =
+            contacto?.relacion || "";
+
+        $("contacto-telefono").value =
+            contacto?.telefono || "";
+
+        $("titulo-formulario-contacto").textContent =
+            contacto
+                ? "✏️ Editar contacto"
+                : "💜 Agregar contacto";
+
+        $("btn-guardar-contacto").textContent =
+            contacto
+                ? "Guardar cambios"
+                : "💜 Guardar contacto";
+
+        $("caja-eliminar-contacto").hidden = true;
+        $("caja-formulario-contacto").hidden = false;
+
+        ocultarAviso();
+
+        $("caja-formulario-contacto").scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+        $("contacto-nombre").focus({
+            preventScroll: true
+        });
+    }
+
+    function cerrarFormulario() {
+        $("caja-formulario-contacto").hidden = true;
+        $("formulario-contacto").reset();
+        idEditando = null;
+    }
+
+    async function guardarContacto(evento) {
+        evento.preventDefault();
+
+        if (ocupado) return;
+
+        const datos = {
+            nombre: $("contacto-nombre").value.trim(),
+            relacion: $("contacto-relacion").value.trim(),
+            telefono: $("contacto-telefono").value.trim()
+        };
+
+        if (
+            !datos.nombre ||
+            datos.nombre.length > 100
+        ) {
+            informar(
+                "Escribe un nombre de máximo 100 caracteres.",
+                true
+            );
+            return;
         }
 
-        tarjeta.appendChild(acciones);
+        if (datos.relacion.length > 50) {
+            informar(
+                "La relación no debe superar 50 caracteres.",
+                true
+            );
+            return;
+        }
 
-        listaRecursos.appendChild(tarjeta);
+        if (
+            datos.telefono &&
+            !telefonoSeguro(datos.telefono)
+        ) {
+            informar(
+                "Ingresa un teléfono válido.",
+                true
+            );
+            return;
+        }
 
-    });
+        ocupado = true;
 
-}
+        const guardar = $("btn-guardar-contacto");
+        guardar.disabled = true;
+        guardar.textContent = "Guardando...";
 
+        try {
+            const editando = idEditando !== null;
 
-// ============================================================
-// 15. EVENTOS DE LOS BOTONES
-// ============================================================
+            const ruta = editando
+                ? "/api/red-apoyo/contactos/" + idEditando
+                : "/api/red-apoyo/contactos";
 
-// Abrir formulario nuevo
+            const resultado = await escribir(
+                ruta,
+                editando ? "PUT" : "POST",
+                datos
+            );
 
-document.getElementById(
-    "btn-nuevo-contacto"
-).addEventListener(
-    "click",
-    abrirNuevoContacto
-);
+            cerrarFormulario();
+            await cargarContactos();
 
-// Cerrar formulario
+            informar(
+                "✅ " +
+                (resultado.mensaje ||
+                    "Contacto guardado correctamente.")
+            );
 
-document.getElementById(
-    "btn-cerrar-modal"
-).addEventListener(
-    "click",
-    () => modal.close()
-);
+        } catch (error) {
+            informar(error.message, true);
 
-// Cancelar formulario
+        } finally {
+            ocupado = false;
+            guardar.disabled = false;
 
-document.getElementById(
-    "btn-cancelar"
-).addEventListener(
-    "click",
-    () => modal.close()
-);
-
-// Guardar o editar contacto
-
-formulario.addEventListener(
-    "submit",
-    guardarContacto
-);
-
-// Limpiar formulario al cerrarlo
-
-modal.addEventListener(
-    "close",
-    () => {
-
-        formulario.reset();
-
-        errorFormulario.hidden = true;
-
+            guardar.textContent =
+                idEditando !== null
+                    ? "Guardar cambios"
+                    : "💜 Guardar contacto";
+        }
     }
-);
 
+    /* ======================================
+       ELIMINAR CONTACTOS
+    ====================================== */
 
-// ============================================================
-// 16. INICIAR RED DE APOYO
-// ============================================================
+    function solicitarEliminar(contacto) {
+        if (ocupado) return;
 
-async function iniciarRedDeApoyo() {
+        idEliminando = Number(
+            contacto.id_contacto
+        );
 
-    await Promise.all([
-        cargarContactos(),
-        cargarRecursos()
-    ]);
+        cerrarFormulario();
 
-}
+        $("texto-eliminar-contacto").textContent =
+            "¿Quieres eliminar a " +
+            contacto.nombre +
+            " de tu Red de Apoyo?";
 
-iniciarRedDeApoyo();
+        $("caja-eliminar-contacto").hidden = false;
+        ocultarAviso();
+
+        $("caja-eliminar-contacto").scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    }
+
+    function cancelarEliminar() {
+        idEliminando = null;
+        $("caja-eliminar-contacto").hidden = true;
+    }
+
+    async function eliminarContacto() {
+        if (ocupado || idEliminando === null) {
+            return;
+        }
+
+        ocupado = true;
+
+        const boton = $("btn-confirmar-eliminar");
+        boton.disabled = true;
+        boton.textContent = "Eliminando...";
+
+        try {
+            const resultado = await escribir(
+                "/api/red-apoyo/contactos/" + idEliminando,
+                "DELETE"
+            );
+
+            cancelarEliminar();
+            await cargarContactos();
+
+            informar(
+                "✅ " +
+                (resultado.mensaje ||
+                    "Contacto eliminado correctamente.")
+            );
+
+        } catch (error) {
+            informar(error.message, true);
+
+        } finally {
+            ocupado = false;
+            boton.disabled = false;
+            boton.textContent = "Eliminar contacto";
+        }
+    }
+
+    /* ======================================
+       ACTIVAR LOS BOTONES
+    ====================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            $("btn-agregar-contacto").addEventListener(
+                "click",
+                () => abrirFormulario()
+            );
+
+            $("btn-cerrar-formulario").addEventListener(
+                "click",
+                cerrarFormulario
+            );
+
+            $("btn-cancelar-contacto").addEventListener(
+                "click",
+                cerrarFormulario
+            );
+
+            $("formulario-contacto").addEventListener(
+                "submit",
+                guardarContacto
+            );
+
+            $("btn-confirmar-eliminar").addEventListener(
+                "click",
+                eliminarContacto
+            );
+
+            $("btn-cancelar-eliminar").addEventListener(
+                "click",
+                cancelarEliminar
+            );
+
+            $("lista-contactos").addEventListener(
+                "click",
+                (evento) => {
+
+                    const seleccionado =
+                        evento.target.closest(
+                            "[data-accion][data-id]"
+                        );
+
+                    if (!seleccionado || ocupado) {
+                        return;
+                    }
+
+                    const id = Number(
+                        seleccionado.dataset.id
+                    );
+
+                    const contacto = contactos.find(
+                        (item) =>
+                            Number(item.id_contacto) === id
+                    );
+
+                    if (!contacto) return;
+
+                    if (
+                        seleccionado.dataset.accion ===
+                        "editar"
+                    ) {
+                        abrirFormulario(contacto);
+                    }
+
+                    if (
+                        seleccionado.dataset.accion ===
+                        "eliminar"
+                    ) {
+                        solicitarEliminar(contacto);
+                    }
+                }
+            );
+
+            cargarContactos();
+            cargarRecursos();
+        }
+    );
+
+})();

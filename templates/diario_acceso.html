@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Mi Diario Privado | CONTIGO</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/tema-contigo.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/seguridad-diario.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/seguridad-diario.js') }}"
+        defer
+    ></script>
+
+</head>
+
+<body
+    class="contigo-tema candado-pagina"
+    data-pantalla="acceso"
+>
+
+<div class="candado-contenedor">
+
+    <!-- ENCABEZADO -->
+
+    <header class="candado-encabezado">
+
+        <a href="/inicio" class="candado-logo">
+
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito de CONTIGO"
+            >
+
+            <span>CONTIGO 💜</span>
+
+        </a>
+
+        <a href="/inicio" class="candado-volver">
+            ← Inicio
+        </a>
+
+    </header>
+
+    <main class="candado-cuerpo">
+
+        <section class="candado-tarjeta">
+
+            <div
+                class="candado-icono"
+                aria-hidden="true"
+            >
+                🔐
+            </div>
+
+            <h1>Mi Diario Privado</h1>
+
+            <!-- ===========================
+                 CREAR PIN POR PRIMERA VEZ
+            ============================ -->
+
+            {% if configurar %}
+
+            <p class="candado-descripcion">
+                Crea un PIN de 6 números para
+                que solo tú puedas abrir
+                tus escritos.
+            </p>
+
+            <form
+                id="form-crear-pin"
+                class="candado-formulario"
+            >
+
+                <label for="pin-nuevo">
+                    Crea tu PIN
+                </label>
+
+                <input
+                    id="pin-nuevo"
+                    type="password"
+                    inputmode="numeric"
+                    autocomplete="new-password"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    placeholder="6 números"
+                    required
+                >
+
+                <label for="pin-confirmar">
+                    Confirma tu PIN
+                </label>
+
+                <input
+                    id="pin-confirmar"
+                    type="password"
+                    inputmode="numeric"
+                    autocomplete="new-password"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    placeholder="Repite los 6 números"
+                    required
+                >
+
+                <label for="pin-pista">
+                    Pista para recordarlo (opcional)
+                </label>
+
+                <input
+                    id="pin-pista"
+                    type="text"
+                    maxlength="120"
+                    placeholder="Una pista que solo tú entiendas"
+                >
+
+                <p class="candado-ayuda">
+                    Evita fechas de nacimiento,
+                    secuencias como 123456 y
+                    escribir el PIN en la pista.
+                </p>
+
+                <button
+                    type="submit"
+                    class="candado-principal"
+                >
+                    💜 Crear mi PIN
+                </button>
+
+            </form>
+
+            <!-- ===========================
+                 INGRESAR PIN EXISTENTE
+            ============================ -->
+
+            {% else %}
+
+            <p class="candado-descripcion">
+                Tus pensamientos merecen privacidad.
+                Escribe tu PIN para entrar.
+            </p>
+
+            <form
+                id="form-abrir-pin"
+                class="candado-formulario"
+            >
+
+                <label for="pin-acceso">
+                    PIN del diario
+                </label>
+
+                <input
+                    id="pin-acceso"
+                    type="password"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    placeholder="6 números"
+                    required
+                    autofocus
+                >
+
+                <button
+                    type="submit"
+                    class="candado-principal"
+                >
+                    🔓 Desbloquear mi diario
+                </button>
+
+            </form>
+
+            <!-- PISTA OPCIONAL -->
+
+            {% if pista %}
+
+            <details class="candado-pista">
+
+                <summary>
+                    💡 Ver mi pista
+                </summary>
+
+                <p>{{ pista }}</p>
+
+            </details>
+
+            {% endif %}
+
+            <!-- RECUPERACIÓN REAL -->
+
+            <a
+                href="/diario/recuperar"
+                class="candado-enlace"
+            >
+                ¿Olvidaste tu PIN?
+            </a>
+
+            {% endif %}
+
+            <!-- MENSAJES -->
+
+            <p
+                id="candado-mensaje"
+                class="candado-mensaje"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></p>
+
+        </section>
+
+        <p class="candado-pie">
+            🔒 Tu PIN no se muestra ni
+            se guarda como texto.
+            CONTIGO acompaña tu bienestar.
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

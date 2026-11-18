@@ -2,112 +2,384 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/responsive.css') }}"
->
-
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONTIGO | Mi Diario</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/diario.css') }}">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Mi Diario | CONTIGO</title>
+
+    <!-- TEMA GLOBAL -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/tema-contigo.css') }}"
+    >
+
+    <!-- ESTILOS DEL DIARIO -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/diario.css', v='4') }}"
+    >
+
+    <!-- RESPONSIVE -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <!-- ACCESIBILIDAD -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <!-- NOTIFICACIONES -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/notificaciones-global.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/notificaciones-global.js') }}"
+        defer
+    ></script>
+
+    <script
+        src="{{ url_for('static', filename='js/diario.js') }}"
+        defer
+    ></script>
+
 </head>
 
-<body class="pagina-diario">
-    <main class="contenedor-diario">
+<body class="pagina-diario contigo-tema">
 
-        <header class="encabezado-diario">
-            <h2>☀️ Hola, <span>{{ nombre }}</span></h2>
-            <div class="acciones-encabezado">
-                <a href="/notificaciones" title="Notificaciones">🔔</a>
-                <a href="/configuracion" title="Configuración">⚙️</a>
-            </div>
-        </header>
+<div class="diario-aplicacion">
 
-        <section class="titulo-diario">
-            <h1>🌿 Mi Diario ♡</h1>
-        </section>
+    <!-- ======================================
+         ENCABEZADO DE CONTIGO
+    ======================================= -->
 
-        <a href="/diario/nuevo" class="boton-nuevo">
-            ＋ Nuevo escrito
+    <header class="encabezado-diario">
+
+        <a
+            href="{{ url_for('pantalla_inicio') }}"
+            class="diario-logo"
+        >
+
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Logo oficial de CONTIGO"
+            >
+
+            <span>CONTIGO 💜</span>
+
         </a>
 
-        <section class="lista-escritos">
+        <div class="acciones-encabezado">
 
-            {% if escritos %}
+            <a
+                href="/perfil"
+                class="diario-accion"
+                data-contigo-notificaciones
+                aria-label="Mis notificaciones"
+                title="Mis notificaciones"
+            >
+                🔔
+            </a>
 
-                {% for escrito in escritos %}
-                <article class="tarjeta-escrito"
-                         data-id="{{ escrito.id_entrada }}">
+            <a
+                href="/configuracion"
+                class="diario-accion"
+                aria-label="Configuración"
+                title="Configuración"
+            >
+                ⚙️
+            </a>
 
-                    <div class="informacion-escrito">
-                        <p class="fecha-escrito">
-                            {{ escrito.fecha_hora.strftime('%d/%m/%Y') }}
-                        </p>
+        </div>
 
-                        <h3 class="titulo-escrito">
-                            {{ escrito.titulo }}
-                        </h3>
+    </header>
 
-                        <p class="resumen-escrito">
-                            {{ escrito.contenido }}
-                        </p>
+    <main class="contenedor-diario">
 
-                        <div class="acciones-escrito">
-                            <button type="button" class="boton-editar">
-                                ✏️ Editar
-                            </button>
+        <!-- ======================================
+             TARJETA DE BIENVENIDA
+             CONSERVAMOS SU IMAGEN ACTUAL
+        ======================================= -->
 
-                            <button type="button" class="boton-eliminar">
-                                🗑️ Eliminar
-                            </button>
-                        </div>
-                    </div>
+        <section class="diario-bienvenida">
 
-                    <img
-                        src="{{ url_for('static', filename='img/zorrito-diario.png') }}"
-                        alt="Zorrito de CONTIGO"
-                        class="zorrito-tarjeta"
-                    >
-                </article>
-                {% endfor %}
+            <div class="diario-bienvenida-imagen">
 
-            {% else %}
+                <img
+                    src="{{ url_for('static', filename='img/zorrito-diario-encabezado.png') }}"
+                    alt="Zorrito de CONTIGO leyendo su diario"
+                >
 
-                <div class="diario-vacio">
-                    <img
-                        src="{{ url_for('static', filename='img/zorrito-diario.png') }}"
-                        alt="Zorrito de CONTIGO"
-                        class="zorrito-vacio"
-                    >
+            </div>
 
-                    <h2>Aún no has escrito nada</h2>
+            <div class="diario-bienvenida-texto">
 
-                    <p>
-                        Tu diario está listo para guardar tus
-                        pensamientos, emociones y momentos especiales.
-                    </p>
+                <span class="diario-etiqueta">
+                    💜 Tu espacio personal
+                </span>
 
-                    <a href="/diario/nuevo" class="boton-primer-escrito">
-                        💗 Empieza tu primer escrito
-                    </a>
+                <h1>Mi Diario</h1>
+
+                <p>
+                    Hola, {{ nombre }}.
+                    Este es un espacio para expresar
+                    lo que sientes, guardar tus
+                    pensamientos y escribir
+                    a tu propio ritmo.
+                </p>
+
+                <div class="diario-frase">
+                    🌷 Cada palabra que escribes
+                    también es una forma de cuidarte.
                 </div>
 
-            {% endif %}
+            </div>
 
         </section>
 
-        <!-- Ventana para editar -->
-        <section id="panel-edicion" class="panel-edicion" hidden>
+        <!-- ======================================
+             MIS ESCRITOS
+        ======================================= -->
+
+        <section
+            class="diario-seccion-escritos"
+            aria-labelledby="titulo-mis-escritos"
+        >
+
+            <div class="diario-cabecera-escritos">
+
+                <div class="diario-cabecera-titulo">
+
+                    <span
+                        class="diario-icono-seccion"
+                        aria-hidden="true"
+                    >
+                        📖
+                    </span>
+
+                    <div>
+
+                        <h2 id="titulo-mis-escritos">
+                            Mis escritos
+                        </h2>
+
+                        <p>
+                            Tus recuerdos, emociones
+                            y momentos importantes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <a
+                    href="/diario/nuevo"
+                    class="boton-nuevo"
+                >
+                    + Nuevo escrito
+                </a>
+
+            </div>
+
+            <!-- ==================================
+                 LISTA DE ESCRITOS DE MARIADB
+            =================================== -->
+
+            <div class="lista-escritos">
+
+                {% if escritos %}
+
+                    {% for escrito in escritos %}
+
+                    <article
+                        class="tarjeta-escrito"
+                        data-id="{{ escrito.id_entrada }}"
+                    >
+
+                        <div class="informacion-escrito">
+
+                            <!-- FECHA -->
+
+                            <p class="fecha-escrito">
+                                📅
+                                {{ escrito.fecha_hora.day }}/{{ escrito.fecha_hora.month }}/{{ escrito.fecha_hora.year }}
+                            </p>
+
+                            <!-- TÍTULO -->
+
+                            <h3 class="titulo-escrito">{{ escrito.titulo }}</h3>
+
+                            <!-- CONTENIDO SIN ESPACIOS
+                                 AL INICIO -->
+
+                            <p class="resumen-escrito">{{ escrito.contenido | trim }}</p>
+
+                            <!-- BOTONES DE ACCIONES -->
+
+                            <div class="acciones-escrito">
+
+                                <button
+                                    type="button"
+                                    class="boton-editar"
+                                    aria-label="Editar escrito"
+                                >
+                                    ✏️ Editar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="boton-eliminar"
+                                    aria-label="Eliminar escrito"
+                                >
+                                    🗑️ Eliminar
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ==================================
+                             NUEVA IMAGEN:
+                             ZORRITO ESCRIBIENDO
+
+                             SOLO PARA LAS TARJETAS
+                        =================================== -->
+
+                        <img
+                            src="{{ url_for('static', filename='img/zorrito-escribiendo-escritos.png') }}"
+                            alt=""
+                            aria-hidden="true"
+                            class="zorrito-tarjeta"
+                        >
+
+                    </article>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <!-- ==================================
+                         DIARIO VACÍO
+                         IMAGEN ORIGINAL
+                    =================================== -->
+
+                    <div class="diario-vacio">
+
+                        <img
+                            src="{{ url_for('static', filename='img/zorrito-diario.png') }}"
+                            alt="Zorrito de CONTIGO"
+                            class="zorrito-vacio"
+                        >
+
+                        <h2>
+                            Aún no has escrito nada
+                        </h2>
+
+                        <p>
+                            Tu diario está esperando
+                            tus pensamientos, emociones
+                            y momentos especiales.
+                            Puedes comenzar cuando
+                            te sientas preparado.
+                        </p>
+
+                        <a
+                            href="/diario/nuevo"
+                            class="boton-primer-escrito"
+                        >
+                            💗 Empieza tu primer escrito
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+        <!-- ======================================
+             RECORDATORIO DE BIENESTAR
+        ======================================= -->
+
+        <section class="diario-recordatorio">
+
+            <span
+                class="diario-recordatorio-icono"
+                aria-hidden="true"
+            >
+                🌸
+            </span>
+
+            <div>
+
+                <h2>
+                    Un espacio solo para ti
+                </h2>
+
+                <p>
+                    No necesitas encontrar las palabras
+                    perfectas. Aquí puedes expresarte
+                    con libertad y sin juzgarte.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- ======================================
+             EDITAR ESCRITO
+             MISMAS FUNCIONES Y CAMPOS
+        ======================================= -->
+
+        <section
+            id="panel-edicion"
+            class="panel-edicion"
+            aria-labelledby="titulo-edicion"
+            hidden
+        >
+
             <div class="contenido-edicion">
-                <h2>✏️ Editar mi escrito</h2>
+
+                <h2 id="titulo-edicion">
+                    ✏️ Editar mi escrito
+                </h2>
+
+                <p class="diario-edicion-descripcion">
+                    Puedes modificar el título
+                    y el contenido de tu escrito.
+                </p>
 
                 <form id="form-edicion">
-                    <input type="hidden" id="editar-id">
 
-                    <label for="editar-titulo">Título</label>
+                    <input
+                        type="hidden"
+                        id="editar-id"
+                    >
+
+                    <label for="editar-titulo">
+                        Título
+                    </label>
+
                     <input
                         type="text"
                         id="editar-titulo"
@@ -115,54 +387,101 @@
                         required
                     >
 
-                    <label for="editar-contenido">Mi escrito</label>
+                    <label for="editar-contenido">
+                        Mi escrito
+                    </label>
+
                     <textarea
                         id="editar-contenido"
                         rows="8"
                         required
                     ></textarea>
 
-                    <p id="mensaje-edicion" role="status"></p>
+                    <p
+                        id="mensaje-edicion"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
 
                     <div class="botones-edicion">
-                        <button type="button" id="cancelar-edicion">
+
+                        <button
+                            type="button"
+                            id="cancelar-edicion"
+                        >
                             Cancelar
                         </button>
 
                         <button type="submit">
-                            Guardar cambios
+                            💜 Guardar cambios
                         </button>
+
                     </div>
+
                 </form>
+
             </div>
+
         </section>
 
     </main>
 
-    <!-- Menú inferior -->
-    <nav class="navegacion-inferior" aria-label="Navegación principal">
+    <!-- ======================================
+         NAVEGACIÓN INFERIOR
+    ======================================= -->
+
+    <nav
+        class="navegacion-inferior"
+        aria-label="Navegación principal"
+    >
+
         <a href="/inicio">
-            <span class="icono-menu">🏠</span>
+
+            <span class="icono-menu">
+                🏠
+            </span>
+
             <span>Inicio</span>
+
         </a>
 
-        <a href="/diario" class="activo">
-            <span class="icono-menu">📓</span>
-            <span>Diario</span>
+        <a
+            href="/diario"
+            class="activo"
+            aria-current="page"
+        >
+
+            <span class="icono-menu">
+                📖
+            </span>
+
+            <span>Mi Diario</span>
+
         </a>
 
         <a href="/red-apoyo">
-            <span class="icono-menu">👥</span>
-            <span>Red Apoyo</span>
+
+            <span class="icono-menu">
+                🫂
+            </span>
+
+            <span>Red de Apoyo</span>
+
         </a>
 
         <a href="/perfil">
-            <span class="icono-menu">👤</span>
+
+            <span class="icono-menu">
+                👤
+            </span>
+
             <span>Perfil</span>
+
         </a>
+
     </nav>
 
-    <script src="{{ url_for('static', filename='js/diario.js') }}"></script>
+</div>
+
 </body>
 </html>
-
