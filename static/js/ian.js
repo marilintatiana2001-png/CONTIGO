@@ -2,11 +2,16 @@
 /* ==========================================
    CONTIGO - COMPAÑERO EMOCIONAL IAN
    CHAT CON INTELIGENCIA ARTIFICIAL
+   HISTORIAL CONTROLADO Y SEGURO
 ========================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
 
     "use strict";
+
+    // ======================================
+    // ELEMENTOS DEL CHAT
+    // ======================================
 
     const formulario =
         document.getElementById("formulario-ian");
@@ -37,13 +42,26 @@ document.addEventListener("DOMContentLoaded", () => {
         !nuevoChat
     ) {
         console.error(
-            "CONTIGO: faltan elementos de la pantalla IAN."
+            "CONTIGO: faltan elementos de IAN."
         );
         return;
     }
 
     const csrf =
         document.body.dataset.csrf || "";
+
+    // ======================================
+    // CONFIGURACIÓN DEL HISTORIAL
+    // ======================================
+
+    // Debe coincidir con el límite de app.py.
+    const MAX_HISTORIAL = 12;
+
+    // app.py rechaza solicitudes mayores
+    // de 16000 bytes. Dejamos un margen.
+    const MAX_BYTES_SOLICITUD = 14000;
+
+    const codificador = new TextEncoder();
 
     const saludo = (
         "¡Hola! Me alegra que estés aquí. 💜 " +
@@ -52,15 +70,14 @@ document.addEventListener("DOMContentLoaded", () => {
         "te sientes hoy?"
     );
 
-    // Conversación temporal: no se guarda
-    // en MariaDB ni en localStorage.
+    // El historial solo existe mientras
+    // esta página permanece abierta.
     let historial = [];
 
     let enviando = false;
 
-
     // ======================================
-    // AGREGAR BURBUJA AL CHAT
+    // AGREGAR MENSAJE AL CHAT
     // ======================================
 
     function agregarMensaje(rol, contenido) {
@@ -109,8 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const texto =
             document.createElement("p");
 
-        // textContent evita insertar HTML
-        // enviado por otros usuarios o por la IA.
+        // Evitar insertar código HTML
+        // proveniente de respuestas externas.
         texto.textContent = contenido;
 
         burbuja.appendChild(texto);
@@ -124,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return texto;
     }
-
 
     // ======================================
     // ESTADO DE ENVÍO
@@ -146,20 +162,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
             enviar.textContent = "…";
 
-            estado.textContent =
-                "IAN está preparando una respuesta…";
+            if (estado) {
+                estado.textContent =
+                    "IAN está preparando una respuesta…";
+            }
 
         } else {
 
             enviar.textContent = "➤";
 
-            estado.textContent = "";
+            if (estado) {
+                estado.textContent = "";
+            }
         }
     }
 
+    // ======================================
+    // PREPARAR HISTORIAL PARA FLASK
+    // ======================================
+
+    function prepararSolicitud(texto) {
+
+        // Seleccionar los últimos 12 mensajes.
+        const mensajesAnteriores =
+            historial.slice(-MAX_HISTORIAL);
+
+        const solicitud = {
+            mensaje: texto,
+            historial: mensajesAnteriores
+        };
+
+        let cuerpo = JSON.stringify(solicitud);
+
+        // Si la solicitud es demasiado grande,
+        // retirar mensajes antiguos primero.
+        // No se recorta el mensaje actual.
+        while (
+            mensajesAnteriores.length > 0 &&
+            codificador.encode(cuerpo).length >
+                MAX_BYTES_SOLICITUD
+        ) {
+
+            mensajesAnteriores.shift();
+
+            cuerpo = JSON.stringify(solicitud);
+        }
+
+        return cuerpo;
+    }
 
     // ======================================
-    // ENVIAR MENSAJE A FLASK
+    // ENVIAR MENSAJE
     // ======================================
 
     async function enviarMensaje(texto) {
@@ -168,9 +221,16 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        if (typeof texto !== "string") {
+            return;
+        }
+
         texto = texto.trim();
 
-        if (!texto || texto.length > 1500) {
+        if (
+            !texto ||
+            texto.length > 1500
+        ) {
             return;
         }
 
@@ -180,13 +240,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         cambiarEstado(true);
 
-        // Burbuja temporal de escritura
         const respuestaVisual = agregarMensaje(
             "assistant",
-            "Estoy aquí, dame un momento… 💜"
+            "Estoy preparando una respuesta… 💜"
         );
 
         try {
+
+            // Preparar historial sin superar
+            // el tamaño aceptado por Flask.
+            const cuerpo =
+                prepararSolicitud(texto);
 
             const respuestaHTTP = await fetch(
                 "/api/ian/chat",
@@ -203,13 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     credentials: "same-origin",
 
-                    body: JSON.stringify({
-
-                        mensaje: texto,
-
-                        historial:
-                            historial.slice(-10)
-                    })
+                    body: cuerpo
                 }
             );
 
@@ -220,8 +278,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const datos =
-                await respuestaHTTP.json();
+            let datos;
+
+            try {
+
+                datos = await respuestaHTTP.json();
+
+            } catch {
+
+                throw new Error(
+                    "El servidor no devolvió " +
+                    "una respuesta válida."
+                );
+            }
 
             if (!respuestaHTTP.ok) {
 
@@ -241,10 +310,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
 
+            // Mostrar la respuesta real de IAN
             respuestaVisual.textContent =
                 datos.respuesta;
 
-            // Guardar contexto de esta pantalla
+            // Guardar ambos mensajes solo
+            // cuando la respuesta fue exitosa.
             historial.push(
                 {
                     role: "user",
@@ -256,15 +327,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             );
 
-            // Conservar solo el contexto reciente
-            if (historial.length > 12) {
+            // Mantener el mismo límite
+            // que utiliza app.py.
+            if (
+                historial.length > MAX_HISTORIAL
+            ) {
 
                 historial =
-                    historial.slice(-12);
+                    historial.slice(-MAX_HISTORIAL);
             }
 
         } catch (error) {
 
+            // Los errores no se agregan
+            // al historial de la conversación.
             respuestaVisual.textContent =
                 "No pude responder en este momento. " +
                 "💜 " + error.message;
@@ -285,7 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
     // ======================================
     // FORMULARIO
     // ======================================
@@ -299,7 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
             enviarMensaje(campo.value);
         }
     );
-
 
     // ======================================
     // ENTER PARA ENVIAR
@@ -319,12 +393,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 evento.preventDefault();
 
                 if (!enviando) {
+
                     formulario.requestSubmit();
                 }
             }
         }
     );
-
 
     // ======================================
     // SUGERENCIAS DE CONVERSACIÓN
@@ -340,15 +414,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 "click",
                 () => {
 
+                    if (enviando) {
+                        return;
+                    }
+
                     campo.value =
-                        boton.dataset.sugerencia;
+                        boton.dataset.sugerencia || "";
 
                     campo.focus();
                 }
             );
         });
     }
-
 
     // ======================================
     // NUEVA CONVERSACIÓN
@@ -362,24 +439,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            // Borrar historial temporal.
             historial = [];
 
             contenedor.replaceChildren();
 
-            agregarMensaje("assistant", saludo);
+            agregarMensaje(
+                "assistant",
+                saludo
+            );
 
             campo.value = "";
 
-            estado.textContent =
-                "Comenzaste una nueva conversación.";
+            if (estado) {
+
+                estado.textContent =
+                    "Comenzaste una nueva conversación.";
+            }
 
             campo.focus();
         }
     );
 
-
     console.log(
-        "CONTIGO: pantalla de IAN cargada."
+        "CONTIGO: IAN cargado correctamente."
     );
 
 });

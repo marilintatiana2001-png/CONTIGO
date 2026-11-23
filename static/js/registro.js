@@ -1,117 +1,181 @@
 
-const formularioRegistro = document.getElementById("form-registro");
-const mensajeRegistro = document.getElementById("mensaje-registro");
+/* ==========================================
+   CONTIGO - REGISTRO DE USUARIOS
+   INTEGRACIÓN CON PREFERENCIAS DE IAN
+========================================== */
 
-formularioRegistro.addEventListener("submit", async function(evento) {
-    evento.preventDefault();
+const formularioRegistro = document.getElementById(
+    "form-registro"
+);
 
-    const nombre = document.getElementById("nombre").value.trim();
-    const correo = document.getElementById("correo").value.trim();
-    const fechaNacimiento = document.getElementById("fecha_nacimiento").value;
-    const contrasena = document.getElementById("contrasena").value;
-    const confirmar = document.getElementById("confirmar_contrasena").value;
+const mensajeRegistro = document.getElementById(
+    "mensaje-registro"
+);
 
-    const botonRegistro = formularioRegistro.querySelector(
-        'button[type="submit"]'
-    );
+formularioRegistro.addEventListener(
+    "submit",
+    async function (evento) {
 
-    // Comprobar que las contraseñas coincidan
-    if (contrasena !== confirmar) {
-        mensajeRegistro.textContent =
-            "Las contraseñas no coinciden. Inténtalo nuevamente.";
-        mensajeRegistro.style.color = "#B34260";
-        return;
-    }
+        evento.preventDefault();
 
-    // Preparar los datos para Flask
-    const datosUsuario = {
-        nombre: nombre,
-        correo: correo,
-        fecha_nacimiento: fechaNacimiento,
-        contrasena: contrasena,
-        confirmar_contrasena: confirmar
-    };
+        // ======================================
+        // DATOS PERSONALES DEL REGISTRO
+        // ======================================
 
-    mensajeRegistro.textContent = "Estamos creando tu cuenta...";
-    mensajeRegistro.style.color = "#51406F";
-    botonRegistro.disabled = true;
+        const nombre = document.getElementById(
+            "nombre"
+        ).value.trim();
 
-    try {
-        // Enviar los datos al servidor Flask
-        const respuesta = await fetch("/api/registro", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(datosUsuario)
-        });
+        const correo = document.getElementById(
+            "correo"
+        ).value.trim();
 
-        const resultado = await respuesta.json();
+        const fechaNacimiento = document.getElementById(
+            "fecha_nacimiento"
+        ).value;
 
-        mensajeRegistro.textContent = resultado.mensaje;
+        const contrasena = document.getElementById(
+            "contrasena"
+        ).value;
 
-        if (respuesta.ok) {
-            mensajeRegistro.style.color = "#397D68";
-            formularioRegistro.reset();
-        } else {
+        const confirmar = document.getElementById(
+            "confirmar_contrasena"
+        ).value;
+
+        // ======================================
+        // PREFERENCIAS PARA IAN
+        // ======================================
+
+        const paisResidencia = document.getElementById(
+            "pais_residencia"
+        ).value.trim();
+
+        const generoIan = document.getElementById(
+            "genero_ian"
+        ).value;
+
+        const tratamientoIan = document.getElementById(
+            "tratamiento_ian"
+        ).value;
+
+        const personalizacionIan = document.getElementById(
+            "personalizacion_ian"
+        ).checked;
+
+        // ======================================
+        // BOTÓN DE REGISTRO
+        // ======================================
+
+        const botonRegistro = formularioRegistro.querySelector(
+            'button[type="submit"]'
+        );
+
+        // ======================================
+        // VALIDAR CONTRASEÑAS
+        // ======================================
+
+        if (contrasena !== confirmar) {
+
+            mensajeRegistro.textContent =
+                "Las contraseñas no coinciden. Inténtalo nuevamente.";
+
             mensajeRegistro.style.color = "#B34260";
+
+            return;
         }
 
-    } catch (error) {
+        // ======================================
+        // PREPARAR LOS DATOS PARA FLASK
+        // ======================================
+
+        const datosUsuario = {
+
+            // Datos de la cuenta
+            nombre: nombre,
+            correo: correo,
+            fecha_nacimiento: fechaNacimiento,
+            contrasena: contrasena,
+            confirmar_contrasena: confirmar,
+
+            // Preferencias de IAN
+            pais_residencia: paisResidencia,
+            genero_ian: generoIan,
+            tratamiento_ian: tratamientoIan,
+            personalizacion_ian: personalizacionIan
+
+        };
+
+        // ======================================
+        // MOSTRAR ESTADO DEL REGISTRO
+        // ======================================
+
         mensajeRegistro.textContent =
-            "No pudimos conectar con el servidor. Inténtalo nuevamente.";
-        mensajeRegistro.style.color = "#B34260";
+            "Estamos creando tu cuenta...";
 
-    } finally {
-        botonRegistro.disabled = false;
-    }
-const formulario = document.getElementById("form-registro");
-const mensaje = document.getElementById("mensaje-registro");
+        mensajeRegistro.style.color = "#51406F";
 
-formulario.addEventListener("submit", async function (evento) {
-    evento.preventDefault();
+        botonRegistro.disabled = true;
 
-    const boton = formulario.querySelector('button[type="submit"]');
+        // ======================================
+        // ENVIAR DATOS A FLASK
+        // ======================================
 
-    const datos = {
-        nombre: document.getElementById("nombre").value.trim(),
-        correo: document.getElementById("correo").value.trim(),
-        fecha_nacimiento: document.getElementById("fecha_nacimiento").value,
-        contrasena: document.getElementById("contrasena").value,
-        confirmar_contrasena: document.getElementById("confirmar_contrasena").value
-    };
+        try {
 
-    if (datos.contrasena !== datos.confirmar_contrasena) {
-        mensaje.textContent = "Las contraseñas no coinciden.";
-        return;
-    }
+            const respuesta = await fetch(
+                "/api/registro",
+                {
+                    method: "POST",
 
-    boton.disabled = true;
-    mensaje.textContent = "Estamos creando tu cuenta...";
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-    try {
-        const respuesta = await fetch("/api/registro", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(datos)
-        });
+                    credentials: "same-origin",
 
-        const resultado = await respuesta.json();
+                    body: JSON.stringify(datosUsuario)
+                }
+            );
 
-        mensaje.textContent = resultado.mensaje;
+            const resultado = await respuesta.json();
 
-        if (respuesta.ok) {
-            formulario.reset();
+            mensajeRegistro.textContent =
+                resultado.mensaje ||
+                "No pudimos completar el registro.";
+
+            // ==================================
+            // REGISTRO EXITOSO
+            // ==================================
+
+            if (respuesta.ok) {
+
+                mensajeRegistro.style.color = "#397D68";
+
+                formularioRegistro.reset();
+
+            } else {
+
+                mensajeRegistro.style.color = "#B34260";
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Error al registrar usuario:",
+                error
+            );
+
+            mensajeRegistro.textContent =
+                "No pudimos conectar con el servidor. Inténtalo nuevamente.";
+
+            mensajeRegistro.style.color = "#B34260";
+
+        } finally {
+
+            botonRegistro.disabled = false;
+
         }
 
-    } catch (error) {
-        mensaje.textContent =
-            "No pudimos conectar con el servidor. Intenta nuevamente.";
-    } finally {
-        boton.disabled = false;
     }
-});
-
-});
+);

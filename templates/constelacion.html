@@ -2,15 +2,7 @@
 <!DOCTYPE html>
 <html lang="es">
 
-
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/responsive.css') }}"
->
-
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,15 +10,220 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        CONTIGO | Cielo de Bienestar
-    </title>
+    <title>CONTIGO | Cielo de Bienestar</title>
 
-    <!-- CSS DE LA CONSTELACIÓN -->
+    <!-- CSS DEL CIELO -->
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/constelacion.css') }}"
     >
+
+    <!-- DISEÑO RESPONSIVE -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <!-- ESTILOS DE LA NUEVA TARJETA FINAL -->
+    <style>
+
+        .cierre-cielo {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 250px)
+                minmax(0, 1fr);
+
+            align-items: center;
+
+            gap: 28px;
+
+            margin-top: 26px;
+
+            padding: 28px;
+
+            background:
+                linear-gradient(
+                    115deg,
+                    #FFFBFF 0%,
+                    #F5EEFF 55%,
+                    #EDF5FF 100%
+                );
+
+            border: 1px solid #E3D5F7;
+            border-radius: 27px;
+
+            box-shadow:
+                0 8px 24px rgba(
+                    69, 45, 111, 0.08
+                );
+        }
+
+        .cierre-cielo-imagen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+
+            padding: 9px;
+
+            background: #FFFBFF;
+
+            border: 1px solid #E3D5F7;
+            border-radius: 23px;
+        }
+
+        .cierre-cielo-imagen img {
+            display: block;
+
+            width: 100%;
+            height: auto;
+
+            max-height: 265px;
+
+            object-fit: contain;
+
+            border-radius: 17px;
+        }
+
+        .cierre-cielo-contenido {
+            min-width: 0;
+            text-align: left;
+        }
+
+        .cierre-cielo-etiqueta {
+            display: inline-flex;
+            align-items: center;
+
+            margin-bottom: 12px;
+
+            padding: 7px 14px;
+
+            background: #FFFFFF;
+
+            border: 1px solid #E3D5F7;
+            border-radius: 999px;
+
+            color: #7950B6;
+
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .cierre-cielo-contenido h2 {
+            margin: 0 0 15px;
+
+            color: #38235F;
+
+            font-size: clamp(
+                24px,
+                3vw,
+                31px
+            );
+
+            font-weight: 900;
+            line-height: 1.25;
+        }
+
+        .cierre-cielo-contenido p {
+            margin: 0 0 13px;
+
+            color: #67567F;
+
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .cierre-cielo-boton {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            min-height: 48px;
+
+            margin-top: 12px;
+            padding: 12px 18px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #9666DC,
+                    #DB7FBB
+                );
+
+            border: none;
+            border-radius: 15px;
+
+            color: #FFFFFF;
+
+            font-size: 16px;
+            font-weight: 800;
+
+            text-align: center;
+            text-decoration: none;
+
+            box-shadow:
+                0 5px 14px rgba(
+                    150, 102, 220, 0.13
+                );
+
+            transition:
+                transform 0.2s,
+                filter 0.2s;
+        }
+
+        .cierre-cielo-boton:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.04);
+        }
+
+        .cierre-cielo-boton:focus-visible {
+            outline: 3px solid #9666DC;
+            outline-offset: 3px;
+        }
+
+        /* TABLETAS Y CELULARES */
+
+        @media (max-width: 680px) {
+
+            .cierre-cielo {
+                grid-template-columns: 1fr;
+
+                gap: 17px;
+
+                padding: 22px 17px;
+
+                text-align: center;
+            }
+
+            .cierre-cielo-imagen {
+                width: min(100%, 270px);
+                margin: 0 auto;
+            }
+
+            .cierre-cielo-contenido {
+                text-align: center;
+            }
+
+            .cierre-cielo-contenido h2 {
+                font-size: 25px;
+            }
+
+            .cierre-cielo-contenido p {
+                font-size: 15px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .cierre-cielo-boton {
+                transition: none;
+            }
+        }
+
+    </style>
 
 </head>
 
@@ -35,16 +232,11 @@
     data-csrf="{{ csrf_contigo }}"
 >
 
-    <!-- ====================================
-         CONTENEDOR PRINCIPAL
-    ===================================== -->
-
     <main class="contenedor-cielo">
 
-
-        <!-- =================================
+        <!-- =====================================
              ENCABEZADO
-        ================================== -->
+        ====================================== -->
 
         <header class="encabezado-cielo">
 
@@ -55,7 +247,6 @@
 
             <div class="acciones-encabezado">
 
-                <!-- NOTIFICACIONES -->
                 <a
                     href="{{ url_for('notificaciones') }}"
                     aria-label="Notificaciones"
@@ -64,7 +255,6 @@
                     🔔
                 </a>
 
-                <!-- CONFIGURACIÓN -->
                 <a
                     href="{{ url_for('configuracion') }}"
                     aria-label="Configuración"
@@ -77,10 +267,9 @@
 
         </header>
 
-
-        <!-- =================================
+        <!-- =====================================
              VOLVER AL INICIO
-        ================================== -->
+        ====================================== -->
 
         <a
             href="{{ url_for('pantalla_inicio') }}"
@@ -89,10 +278,9 @@
             ← Volver a Inicio
         </a>
 
-
-        <!-- =================================
-             BIENVENIDA
-        ================================== -->
+        <!-- =====================================
+             BIENVENIDA DEL CIELO
+        ====================================== -->
 
         <section class="bienvenida-cielo">
 
@@ -124,23 +312,20 @@
 
         </section>
 
-
-        <!-- =================================
-             RESUMEN DE PROGRESO
-        ================================== -->
+        <!-- =====================================
+             RESUMEN DEL PROGRESO
+        ====================================== -->
 
         <section
             class="resumen-cielo"
             aria-label="Mi progreso"
         >
 
-            <!-- ESTRELLAS -->
+            <!-- ESTRELLAS GANADAS -->
 
             <div>
 
-                <strong
-                    id="total-estrellas"
-                >
+                <strong id="total-estrellas">
                     {{ cielo.estrellas_total }}
                 </strong>
 
@@ -150,14 +335,11 @@
 
             </div>
 
-
-            <!-- CONSTELACIONES -->
+            <!-- CONSTELACIONES DESCUBIERTAS -->
 
             <div>
 
-                <strong
-                    id="total-figuras"
-                >
+                <strong id="total-figuras">
                     {{ cielo.constelaciones }}
                 </strong>
 
@@ -169,14 +351,13 @@
 
         </section>
 
-
-        <!-- =================================
+        <!-- =====================================
              CIELO INTERACTIVO
-        ================================== -->
+        ====================================== -->
 
         <section class="tarjeta-cielo">
 
-            <!-- TÍTULO -->
+            <!-- TÍTULO DE LA FIGURA -->
 
             <div class="titulo-zona-cielo">
 
@@ -191,8 +372,7 @@
 
             </div>
 
-
-            <!-- ESCENARIO NOCTURNO -->
+            <!-- ESCENARIO DE ESTRELLAS -->
 
             <div class="escenario-cielo">
 
@@ -203,21 +383,15 @@
                     role="img"
                     aria-label="Constelación formada por estrellas"
                 >
-
                     <!--
-                        Las estrellas y las líneas
-                        serán creadas automáticamente
-                        por constelacion.js
+                        constelacion.js crea
+                        las líneas y estrellas.
                     -->
-
                 </svg>
 
             </div>
 
-
-            <!-- =================================
-                 PROGRESO DE LA FIGURA
-            ================================== -->
+            <!-- PROGRESO DE LA FIGURA -->
 
             <div class="progreso-cielo">
 
@@ -227,7 +401,6 @@
                     {{ cielo.estrellas_meta }}
                     estrellas
                 </span>
-
 
                 <!-- BARRA DE PROGRESO -->
 
@@ -245,8 +418,7 @@
 
                 </div>
 
-
-                <!-- ESTADO -->
+                <!-- MENSAJE DE ESTADO -->
 
                 <p
                     id="estado-figura"
@@ -258,10 +430,7 @@
 
             </div>
 
-
-            <!-- =================================
-                 ELEGIR FIGURA
-            ================================== -->
+            <!-- ELEGIR CONSTELACIÓN -->
 
             <button
                 type="button"
@@ -272,8 +441,7 @@
                 Elegir esta constelación 💜
             </button>
 
-
-            <!-- MENSAJE DEL SISTEMA -->
+            <!-- MENSAJES DEL SISTEMA -->
 
             <p
                 id="mensaje-cielo"
@@ -283,10 +451,9 @@
 
         </section>
 
-
-        <!-- =================================
+        <!-- =====================================
              GALERÍA DE CONSTELACIONES
-        ================================== -->
+        ====================================== -->
 
         <section class="coleccion-cielo">
 
@@ -303,24 +470,24 @@
                 con cada actividad.
             </p>
 
-
             <!--
-                JavaScript insertará aquí:
+                JavaScript mostrará las
+                14 constelaciones:
 
-                - Corazón
-                - Mariposa
-                - Flor
-                - Luna
-                - Leo
-                - Aries
-                - Tauro
-                - Cáncer
-                - Escorpio
-                - Piscis
-                - Capricornio
-                - Sagitario
-                - Conejito lunar
-                - Dragón de luz
+                Corazón de cariño
+                Mariposa de cambio
+                Flor de esperanza
+                Luna de calma
+                Leo
+                Aries
+                Tauro
+                Cáncer
+                Escorpio
+                Piscis
+                Capricornio
+                Sagitario
+                Conejito lunar
+                Dragón de luz
             -->
 
             <div
@@ -330,56 +497,72 @@
 
         </section>
 
+        <!-- =====================================
+             NUEVA TARJETA FINAL
 
-        <!-- =================================
-             MENSAJE FINAL
-        ================================== -->
+             ZORRITO REALIZANDO UNA ACTIVIDAD
+             SIN LOS TRES EMOJIS ANTERIORES
+        ====================================== -->
 
-        <section class="bienvenida-cielo">
+        <section
+            class="cierre-cielo"
+            aria-labelledby="titulo-cierre-cielo"
+        >
 
-            <div
-                class="adorno-cielo"
-                aria-hidden="true"
-            >
-                🦊 ⭐ 💜
+            <!-- ILUSTRACIÓN DEL ZORRITO -->
+
+            <div class="cierre-cielo-imagen">
+
+                <img
+                    src="{{ url_for('static', filename='img/zorro_kawaii_escribiendo_constelaciones.png') }}"
+                    alt="Zorrito azul de CONTIGO escribiendo en un libro de constelaciones, rodeado de estrellas y corazones pastel"
+                    loading="lazy"
+                >
+
             </div>
 
-            <h2>
-                Tu cielo cuenta tu historia
-            </h2>
+            <!-- MENSAJE MOTIVACIONAL -->
 
-            <p>
-                No importa cuántas estrellas
-                hayas encendido hoy.
+            <div class="cierre-cielo-contenido">
 
-                Lo importante es que cada
-                pequeño momento de cuidado
-                también merece ser recordado.
-            </p>
+                <div class="cierre-cielo-etiqueta">
+                    💜 Cada pequeño paso importa
+                </div>
 
-            <p>
-                Sigue construyendo tu propio
-                universo, a tu ritmo.
-            </p>
+                <h2 id="titulo-cierre-cielo">
+                    Tu cielo cuenta tu historia
+                </h2>
 
-            <a
-                href="{{ url_for('pantalla_inicio') }}"
-                class="boton-elegir"
-                style="
-                    display: block;
-                    margin-top: 18px;
-                    text-decoration: none;
-                "
-            >
-                💗 Realizar otra actividad
-            </a>
+                <p>
+                    No importa cuántas estrellas
+                    hayas encendido hoy.
+
+                    Lo importante es que cada
+                    pequeño momento de cuidado
+                    también merece ser recordado.
+                </p>
+
+                <p>
+                    Sigue construyendo tu propio
+                    universo, a tu ritmo.
+                </p>
+
+                <!-- BOTÓN PARA CONTINUAR -->
+
+                <a
+                    href="{{ url_for('pantalla_inicio') }}"
+                    class="cierre-cielo-boton"
+                >
+                    💗 Realizar otra actividad
+                </a>
+
+            </div>
 
         </section>
 
-
-        <!-- =================================
+        <!-- =====================================
              NOTA INFORMATIVA
-        ================================== -->
+        ====================================== -->
 
         <p class="nota-cielo">
 
@@ -394,13 +577,11 @@
 
         </p>
 
-
     </main>
 
-
-    <!-- ====================================
-         MENÚ INFERIOR DE CONTIGO
-    ===================================== -->
+    <!-- =====================================
+         MENÚ INFERIOR
+    ====================================== -->
 
     <nav
         class="navegacion-inferior"
@@ -424,7 +605,6 @@
 
         </a>
 
-
         <!-- MI DIARIO -->
 
         <a href="{{ url_for('diario') }}">
@@ -438,7 +618,6 @@
             </span>
 
         </a>
-
 
         <!-- RED DE APOYO -->
 
@@ -454,8 +633,7 @@
 
         </a>
 
-
-        <!-- MI PERFIL -->
+        <!-- PERFIL -->
 
         <a href="{{ url_for('perfil') }}">
 
@@ -471,26 +649,22 @@
 
     </nav>
 
-
-    <!-- ====================================
-         DATOS DEL CIELO DESDE MARIADB
-    ===================================== -->
+    <!-- =====================================
+         DATOS REALES DESDE MARIADB
+    ====================================== -->
 
     <script
         id="datos-cielo"
         type="application/json"
     >{{ cielo | tojson }}</script>
 
-
-    <!-- ====================================
-         JAVASCRIPT INTERACTIVO
-    ===================================== -->
+    <!-- =====================================
+         JAVASCRIPT EXISTENTE
+    ====================================== -->
 
     <script
         src="{{ url_for('static', filename='js/constelacion.js') }}"
     ></script>
 
-
 </body>
-
 </html>

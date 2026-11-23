@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Recuperar contraseña | CONTIGO</title>
+
+    <!-- Paleta oficial -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/tema-contigo.css') }}"
+    >
+
+    <!-- Estilos de recuperación -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/recuperar-contrasena.css') }}"
+    >
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+    <script
+        src="{{ url_for('static', filename='js/recuperar-contrasena.js') }}"
+        defer
+    ></script>
+
+</head>
+
+<body class="recuperacion-pagina contigo-tema">
+
+<div class="recuperacion-app">
+
+    <!-- Encabezado -->
+
+    <header class="recuperacion-encabezado">
+
+        <a href="/" class="recuperacion-logo">
+
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Zorrito oficial de CONTIGO"
+            >
+
+            <span>CONTIGO 💜</span>
+
+        </a>
+
+        <a href="/" class="recuperacion-volver">
+            ← Iniciar sesión
+        </a>
+
+    </header>
+
+    <main class="recuperacion-contenido">
+
+        <section class="recuperacion-tarjeta">
+
+            <div
+                class="recuperacion-icono"
+                aria-hidden="true"
+            >
+                ✉️
+            </div>
+
+            <h1>Recuperar mi contraseña</h1>
+
+            <p class="recuperacion-descripcion">
+                Te ayudaremos a recuperar el acceso
+                a CONTIGO sin perder tus recuerdos,
+                escritos ni actividades.
+            </p>
+
+            <!-- Indicadores de los pasos -->
+
+            <div
+                class="recuperacion-pasos"
+                aria-label="Pasos para recuperar la contraseña"
+            >
+
+                <span id="indicador-1" class="actual">
+                    1. Correo
+                </span>
+
+                <span id="indicador-2">
+                    2. Código
+                </span>
+
+                <span id="indicador-3">
+                    3. Contraseña
+                </span>
+
+            </div>
+
+            <!-- ==================================
+                 PASO 1: CORREO ELECTRÓNICO
+            =================================== -->
+
+            <form
+                id="form-recuperar-correo"
+                class="recuperacion-formulario"
+            >
+
+                <label for="recuperar-correo">
+                    Correo electrónico de tu cuenta
+                </label>
+
+                <input
+                    id="recuperar-correo"
+                    name="correo"
+                    type="email"
+                    autocomplete="email"
+                    maxlength="150"
+                    placeholder="Ingresa tu correo"
+                    required
+                >
+
+                <p class="recuperacion-ayuda">
+                    Si tienes una cuenta registrada
+                    en CONTIGO, recibirás un código
+                    de verificación en tu correo.
+                </p>
+
+                <button
+                    type="submit"
+                    class="recuperacion-principal"
+                >
+                    💌 Enviar código
+                </button>
+
+            </form>
+
+            <!-- ==================================
+                 PASO 2: VERIFICAR CÓDIGO
+            =================================== -->
+
+            <form
+                id="form-recuperar-codigo"
+                class="recuperacion-formulario"
+                hidden
+            >
+
+                <label for="recuperar-codigo">
+                    Código recibido por correo
+                </label>
+
+                <input
+                    id="recuperar-codigo"
+                    name="codigo"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    placeholder="6 números"
+                    required
+                >
+
+                <p class="recuperacion-ayuda">
+                    El código vence en 10 minutos.
+                    Revisa también la carpeta de spam.
+                    No compartas el código con nadie.
+                </p>
+
+                <button
+                    type="submit"
+                    class="recuperacion-principal"
+                >
+                    ✅ Verificar código
+                </button>
+
+                <button
+                    id="btn-volver-correo"
+                    type="button"
+                    class="recuperacion-secundario"
+                >
+                    ← Volver al correo
+                </button>
+
+            </form>
+
+            <!-- ==================================
+                 PASO 3: NUEVA CONTRASEÑA
+            =================================== -->
+
+            <form
+                id="form-recuperar-cambiar"
+                class="recuperacion-formulario"
+                hidden
+            >
+
+                <label for="recuperar-clave">
+                    Nueva contraseña
+                </label>
+
+                <input
+                    id="recuperar-clave"
+                    name="contrasena"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    maxlength="128"
+                    placeholder="Mínimo 8 caracteres"
+                    required
+                >
+
+                <label for="recuperar-confirmar">
+                    Confirma tu nueva contraseña
+                </label>
+
+                <input
+                    id="recuperar-confirmar"
+                    name="confirmar"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    maxlength="128"
+                    placeholder="Repite tu contraseña"
+                    required
+                >
+
+                <p class="recuperacion-ayuda">
+                    Usa una contraseña diferente
+                    de las anteriores y que no sea
+                    fácil de adivinar.
+                </p>
+
+                <button
+                    type="submit"
+                    class="recuperacion-principal"
+                >
+                    💜 Guardar nueva contraseña
+                </button>
+
+            </form>
+
+            <!-- Mensajes dentro de CONTIGO -->
+
+            <p
+                id="mensaje-recuperacion"
+                class="recuperacion-mensaje"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></p>
+
+            <a
+                href="/"
+                class="recuperacion-enlace"
+            >
+                ← Volver a iniciar sesión
+            </a>
+
+        </section>
+
+        <p class="recuperacion-pie">
+            🔒 Tu seguridad y privacidad
+            son importantes para CONTIGO.
+        </p>
+
+    </main>
+
+</div>
+
+</body>
+</html>

@@ -62,6 +62,13 @@
         defer
     ></script>
 
+<!-- CONFIRMACIÓN PERSONALIZADA DE ELIMINACIÓN -->
+<script
+    src="{{ url_for('static', filename='js/diario-confirmar-eliminar.js') }}"
+    defer
+></script>
+
+
 </head>
 
 <body class="pagina-diario contigo-tema">
@@ -191,12 +198,54 @@
 
                 </div>
 
-                <a
-                    href="/diario/nuevo"
-                    class="boton-nuevo"
-                >
-                    + Nuevo escrito
-                </a>
+                
+<!-- ==========================================
+     ACCIONES DE MI DIARIO
+     PIN DE SEGURIDAD OPCIONAL
+========================================== -->
+
+<div
+    class="diario-acciones-principales"
+    style="
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    "
+>
+
+    <!-- CONFIGURAR PRIVACIDAD Y PIN -->
+
+    <a
+        href="{{ url_for('configurar_seguridad_diario') }}"
+        class="boton-seguridad-diario"
+        style="
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 18px;
+            background: #f4effa;
+            color: #69518c;
+            border: 1px solid #ded2ec;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+        "
+    >
+        🔒 Privacidad y PIN
+    </a>
+
+    <!-- CONSERVAR NUEVO ESCRITO -->
+
+    <a
+        href="/diario/nuevo"
+        class="boton-nuevo"
+    >
+        + Nuevo escrito
+    </a>
+
+</div>
+
 
             </div>
 
@@ -482,6 +531,67 @@
     </nav>
 
 </div>
+
+
+<!-- ==========================================
+     CONTIGO - CONFIRMAR ELIMINACIÓN
+========================================== -->
+
+<dialog
+    id="modal-eliminar-diario"
+    class="modal-eliminar-diario"
+    aria-labelledby="titulo-modal-eliminar"
+    aria-describedby="descripcion-modal-eliminar"
+    data-csrf="{{ csrf_contigo }}"
+>
+
+    <div class="modal-eliminar-icono" aria-hidden="true">
+        🗑️
+    </div>
+
+    <h2 id="titulo-modal-eliminar">
+        ¿Eliminar este escrito?
+    </h2>
+
+    <p id="descripcion-modal-eliminar">
+        Estás a punto de eliminar
+        <strong id="nombre-escrito-eliminar"></strong>
+        de tu diario.
+    </p>
+
+    <p class="modal-eliminar-advertencia">
+        Esta acción no se puede deshacer.
+    </p>
+
+    <p
+        id="error-eliminar-diario"
+        class="modal-eliminar-error"
+        role="alert"
+        hidden
+    ></p>
+
+    <div class="modal-eliminar-botones">
+
+        <button
+            type="button"
+            id="cancelar-eliminar-diario"
+            class="modal-boton-cancelar"
+        >
+            Cancelar
+        </button>
+
+        <button
+            type="button"
+            id="confirmar-eliminar-diario"
+            class="modal-boton-confirmar"
+        >
+            Sí, eliminar
+        </button>
+
+    </div>
+
+</dialog>
+
 
 </body>
 </html>

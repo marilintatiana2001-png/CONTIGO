@@ -2,13 +2,6 @@
 <!DOCTYPE html>
 <html lang="es">
 
-
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/responsive.css') }}"
->
-
-
 <head>
     <meta charset="UTF-8">
 
@@ -17,38 +10,75 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>CONTIGO | Habla con IAN</title>
+    <title>Habla con IAN | CONTIGO</title>
 
+    <!-- TEMA GLOBAL DE CONTIGO -->
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='css/ian.css') }}"
+        href="{{ url_for('static', filename='css/tema-contigo.css') }}"
     >
+
+    <!-- DISEÑO RESPONSIVE -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <!-- ESTILOS DE IAN -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/ian.css', v='2') }}"
+    >
+
+    <!-- JAVASCRIPT EXISTENTE -->
+    <script
+        src="{{ url_for('static', filename='js/ian.js') }}"
+        defer
+    ></script>
+
 </head>
 
-<body class="pagina-ian"
-      data-csrf="{{ csrf_contigo }}">
+<body
+    class="pagina-ian contigo-tema"
+    data-csrf="{{ csrf_contigo }}"
+>
 
     <main class="contenedor-ian">
 
-        <!-- ENCABEZADO DE CONTIGO -->
+        <!-- =====================================
+             ENCABEZADO DE CONTIGO
+        ====================================== -->
+
         <header class="encabezado-ian">
 
-            <div>
+            <div class="saludo-ian">
                 ☀️ Hola,
                 <strong>{{ nombre }}</strong>
             </div>
 
             <div class="acciones-ian">
 
-                <a href="/notificaciones"
-                   aria-label="Notificaciones">🔔</a>
+                <a
+                    href="/notificaciones"
+                    aria-label="Notificaciones"
+                    title="Notificaciones"
+                >
+                    🔔
+                </a>
 
-                <a href="/configuracion"
-                   aria-label="Configuración">⚙️</a>
+                <a
+                    href="/configuracion"
+                    aria-label="Configuración"
+                    title="Configuración"
+                >
+                    ⚙️
+                </a>
 
             </div>
 
         </header>
+
+        <!-- VOLVER A INICIO -->
 
         <a
             href="{{ url_for('pantalla_inicio') }}"
@@ -57,54 +87,85 @@
             ← Volver al Inicio
         </a>
 
-        <!-- CHAT -->
-        <section class="tarjeta-chat">
+        <!-- =====================================
+             TARJETA PRINCIPAL DEL CHAT
+        ====================================== -->
 
-            <!-- IDENTIDAD DE IAN -->
+        <section
+            class="tarjeta-chat"
+            aria-labelledby="titulo-ian"
+        >
+
+            <!-- CABECERA DEL CHAT -->
+
             <div class="cabecera-chat">
 
-                <img
-                    src="{{ url_for('static', filename='img/ian.png') }}"
-                    alt="IAN, el robot compañero emocional"
-                    class="imagen-ian"
-                >
+                <div class="contenedor-imagen-ian">
+
+                    <img
+                        src="{{ url_for('static', filename='img/ian.png') }}"
+                        alt="IAN, robot compañero emocional de CONTIGO"
+                        class="imagen-ian"
+                    >
+
+                </div>
 
                 <div class="informacion-ian">
 
-                    <h1>Habla con IAN</h1>
+                    <h1 id="titulo-ian">
+                        Habla con IAN
+                    </h1>
 
                     <p>
-                        🤖 Tu compañero emocional
+                        💜 Tu compañero emocional
                     </p>
 
                     <small>
-                        Un espacio para expresar lo que sientes
+                        Un espacio para expresar
+                        lo que sientes.
                     </small>
 
                 </div>
+
+                <!-- NUEVA CONVERSACIÓN -->
 
                 <button
                     type="button"
                     id="nueva-conversacion"
                     class="boton-nuevo"
                     title="Comenzar otra conversación"
+                    aria-label="Comenzar un nuevo chat"
                 >
-                    <span aria-hidden="true">↻</span>
-                    <span>Nuevo chat</span>
+
+                    <span aria-hidden="true">
+                        ↻
+                    </span>
+
+                    <span>
+                        Nuevo chat
+                    </span>
+
                 </button>
 
             </div>
 
-            <!-- AVISO -->
+            <!-- =====================================
+                 AVISO SOBRE IAN
+            ====================================== -->
+
             <div class="aviso-ian">
 
                 💜 IAN es una inteligencia artificial
                 de acompañamiento emocional.
-                No reemplaza a un profesional de salud mental.
+                No reemplaza la atención de
+                profesionales de salud mental.
 
             </div>
 
-            <!-- MENSAJES -->
+            <!-- =====================================
+                 CONVERSACIÓN
+            ====================================== -->
+
             <div
                 id="mensajes-ian"
                 class="mensajes-ian"
@@ -114,9 +175,14 @@
                 aria-relevant="additions"
             >
 
+                <!-- MENSAJE DE BIENVENIDA -->
+
                 <div class="fila-mensaje fila-ian">
 
-                    <div class="avatar-mensaje">
+                    <div
+                        class="avatar-mensaje"
+                        aria-hidden="true"
+                    >
                         🤖
                     </div>
 
@@ -124,14 +190,11 @@
 
                         <strong>IAN</strong>
 
-                        <p>
-                            ¡Hola! Me alegra que estés aquí. 💜
+                        <p>¡Hola! Me alegra que estés aquí. 💜</p>
 
-                            No tienes que encontrar las palabras
-                            perfectas.
+                        <p>No tienes que encontrar las palabras perfectas.</p>
 
-                            ¿Quieres contarme cómo te sientes hoy?
-                        </p>
+                        <p>¿Quieres contarme cómo te sientes hoy?</p>
 
                     </div>
 
@@ -139,31 +202,43 @@
 
             </div>
 
-            <!-- IDEAS PARA EMPEZAR -->
+            <!-- =====================================
+                 SUGERENCIAS RÁPIDAS
+            ====================================== -->
+
             <div
                 id="sugerencias-ian"
                 class="sugerencias-ian"
                 aria-label="Ideas para comenzar a hablar"
             >
 
-                <button type="button"
-                        data-sugerencia="Hoy me siento triste y quiero hablar.">
+                <button
+                    type="button"
+                    data-sugerencia="Hoy me siento triste y quiero hablar."
+                >
                     🌧️ Me siento triste
                 </button>
 
-                <button type="button"
-                        data-sugerencia="Estoy sintiendo ansiedad y necesito hablar.">
+                <button
+                    type="button"
+                    data-sugerencia="Estoy sintiendo ansiedad y necesito hablar."
+                >
                     🌿 Tengo ansiedad
                 </button>
 
-                <button type="button"
-                        data-sugerencia="Necesito desahogarme. ¿Puedes escucharme?">
+                <button
+                    type="button"
+                    data-sugerencia="Necesito desahogarme. ¿Puedes escucharme?"
+                >
                     💬 Quiero desahogarme
                 </button>
 
             </div>
 
-            <!-- FORMULARIO PARA ENVIAR -->
+            <!-- =====================================
+                 FORMULARIO PARA ESCRIBIR
+            ====================================== -->
+
             <form
                 id="formulario-ian"
                 class="formulario-ian"
@@ -178,6 +253,7 @@
 
                 <textarea
                     id="texto-ian"
+                    name="mensaje"
                     rows="2"
                     maxlength="1500"
                     placeholder="Cuéntame, ¿qué pasa por tu mente? 💜"
@@ -188,77 +264,130 @@
                     id="enviar-ian"
                     type="submit"
                     aria-label="Enviar mensaje"
+                    title="Enviar mensaje"
                 >
                     ➤
                 </button>
 
             </form>
 
+            <!-- ESTADO DEL ENVÍO -->
+
             <p
                 id="estado-ian"
                 class="estado-ian"
                 role="status"
+                aria-live="polite"
             ></p>
 
+            <!-- PRIVACIDAD -->
+
             <p class="nota-privacidad">
-                En esta versión los mensajes no se guardan
-                en MariaDB, pero se envían al servicio de IA
-                para generar las respuestas. Evita compartir
-                datos personales innecesarios.
+
+                🔒 En esta versión los mensajes
+                no se guardan en MariaDB,
+                pero se envían al servicio de IA
+                para generar las respuestas.
+
+                Evita compartir datos
+                personales innecesarios.
+
             </p>
 
         </section>
 
-        <!-- APOYO HUMANO -->
+        <!-- =====================================
+             APOYO HUMANO
+        ====================================== -->
+
         <section class="apoyo-ian">
 
-            <h2>🌷 Recuerda que también puedes pedir ayuda</h2>
+            <div
+                class="apoyo-icono"
+                aria-hidden="true"
+            >
+                🌷
+            </div>
 
-            <p>
-                Hablar con alguien de confianza es importante.
-                Si estás en peligro inmediato en Colombia,
-                llama al 123.
-            </p>
+            <div class="apoyo-contenido">
 
-            <a href="{{ url_for('red_apoyo') }}">
-                👥 Ir a mi Red de Apoyo
-            </a>
+                <h2>
+                    Recuerda que también
+                    puedes pedir ayuda
+                </h2>
+
+                <p>
+                    Hablar con alguien de confianza
+                    también es una forma de cuidarte.
+
+                    Si estás en peligro inmediato
+                    en Colombia, llama al 123.
+                </p>
+
+                <a href="{{ url_for('red_apoyo') }}">
+                    🫂 Ir a mi Red de Apoyo
+                </a>
+
+            </div>
 
         </section>
 
     </main>
 
-    <!-- MENÚ INFERIOR ORIGINAL -->
+    <!-- =====================================
+         NAVEGACIÓN INFERIOR
+
+         IAN ES UNA PANTALLA INDEPENDIENTE.
+         NINGÚN ELEMENTO ESTÁ MARCADO
+         COMO SELECCIONADO.
+    ====================================== -->
+
     <nav
         class="navegacion-inferior"
         aria-label="Navegación principal"
     >
 
-        <a href="/inicio" class="activo">
-            <span class="icono-menu">🏠</span>
+        <a href="/inicio">
+
+            <span class="icono-menu">
+                🏠
+            </span>
+
             <span>Inicio</span>
+
         </a>
 
         <a href="/diario">
-            <span class="icono-menu">📓</span>
-            <span>Diario</span>
+
+            <span class="icono-menu">
+                📖
+            </span>
+
+            <span>Mi Diario</span>
+
         </a>
 
         <a href="/red-apoyo">
-            <span class="icono-menu">👥</span>
-            <span>Red Apoyo</span>
+
+            <span class="icono-menu">
+                🫂
+            </span>
+
+            <span>Red de Apoyo</span>
+
         </a>
 
         <a href="/perfil">
-            <span class="icono-menu">👤</span>
+
+            <span class="icono-menu">
+                👤
+            </span>
+
             <span>Perfil</span>
+
         </a>
 
     </nav>
-
-    <script
-        src="{{ url_for('static', filename='js/ian.js') }}"
-    ></script>
 
 </body>
 </html>

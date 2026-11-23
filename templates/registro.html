@@ -1,30 +1,210 @@
-
+ 
 <!DOCTYPE html>
 <html lang="es">
 
-
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/responsive.css') }}"
->
-
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>CONTIGO | Crear cuenta</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/estilos.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <style>
+        /* Preferencias de IAN dentro del registro */
+
+        .preferencias-ian {
+            margin: 22px 0;
+            padding: 20px;
+            border: 1px solid #e5d9f3;
+            border-radius: 17px;
+            background: #f8f4ff;
+        }
+
+        .preferencias-ian h3 {
+            margin: 0 0 9px;
+            font-size: 18px;
+            color: #483068;
+        }
+
+        .preferencias-ian p {
+            margin: 0 0 18px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #6b5d7d;
+        }
+
+        .preferencias-ian label:not(.etiqueta-permiso) {
+            display: block;
+            margin: 15px 0 7px;
+        }
+
+        .preferencias-ian select,
+        .preferencias-ian input[type="text"] {
+            display: block;
+            width: 100%;
+            min-height: 45px;
+            padding: 11px 13px;
+            border: 1px solid #d9cbea;
+            border-radius: 11px;
+            background: #ffffff;
+            color: #43315e;
+            font: inherit;
+        }
+
+        .preferencias-ian select:focus,
+        .preferencias-ian input:focus {
+            outline: 2px solid #c8a9eb;
+            outline-offset: 1px;
+        }
+
+        .preferencias-ian .texto-ayuda {
+            display: block;
+            margin: 7px 0 15px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #786b89;
+        }
+
+        .autorizacion-ian {
+            margin-top: 22px;
+            padding: 15px;
+            background: #ffffff;
+            border: 1px solid #e7dff1;
+            border-radius: 13px;
+        }
+
+        .etiqueta-permiso {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            cursor: pointer;
+        }
+
+        .etiqueta-permiso input {
+            width: 18px;
+            height: 18px;
+            margin: 3px 0 0;
+            flex-shrink: 0;
+            accent-color: #9867ce;
+        }
+
+        .etiqueta-permiso span {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #483068;
+        }
+
+        .autorizacion-ian .aviso-privacidad {
+            margin: 11px 0 0;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #6f647c;
+        }
+
+        @media (max-width: 600px) {
+            .preferencias-ian {
+                padding: 16px;
+            }
+        }
+
+/* ==========================================
+   CONTIGO - CORREGIR AUTORIZACIÓN DE IAN
+   ========================================== */
+
+.contenedor-login .autorizacion-ian {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #e7dff1;
+    border-radius: 14px;
+    box-sizing: border-box;
+}
+
+/* Colocar casilla y texto uno junto al otro */
+
+.contenedor-login .autorizacion-ian .etiqueta-permiso {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+/* Evitar que estilos.css agrande el checkbox */
+
+.contenedor-login .autorizacion-ian
+.etiqueta-permiso input[type="checkbox"] {
+    display: block;
+    width: 19px;
+    min-width: 19px;
+    max-width: 19px;
+    height: 19px;
+    min-height: 19px;
+    max-height: 19px;
+    flex: 0 0 19px;
+    margin: 3px 0 0;
+    padding: 0;
+    border-radius: 5px;
+    accent-color: #a174d3;
+    cursor: pointer;
+}
+
+/* Texto de autorización */
+
+.contenedor-login .autorizacion-ian
+.etiqueta-permiso span {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #483068;
+    overflow-wrap: break-word;
+}
+
+/* Aviso de privacidad */
+
+.contenedor-login .autorizacion-ian
+.aviso-privacidad {
+    display: block;
+    width: 100%;
+    margin: 14px 0 0;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #70647e;
+    text-align: left;
+}
+
+    </style>
+
 </head>
 
 <body>
 
     <main class="contenedor-login">
 
-        <!-- Logo oficial -->
+        <!-- LOGO OFICIAL DE CONTIGO -->
+
         <img
             src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
             alt="Zorrito oficial de CONTIGO"
@@ -41,9 +221,12 @@
 
         <form id="form-registro">
 
+            <!-- NOMBRE COMPLETO -->
+
             <label for="nombre">
                 Nombre completo
             </label>
+
             <input
                 type="text"
                 id="nombre"
@@ -54,9 +237,12 @@
                 required
             >
 
+            <!-- CORREO -->
+
             <label for="correo">
                 Correo electrónico
             </label>
+
             <input
                 type="email"
                 id="correo"
@@ -67,9 +253,12 @@
                 required
             >
 
+            <!-- FECHA DE NACIMIENTO -->
+
             <label for="fecha_nacimiento">
                 Fecha de nacimiento
             </label>
+
             <input
                 type="date"
                 id="fecha_nacimiento"
@@ -77,36 +266,197 @@
                 autocomplete="bday"
             >
 
+            <!-- PREFERENCIAS PARA IAN -->
+
+            <section
+                class="preferencias-ian"
+                aria-labelledby="titulo-preferencias-ian"
+            >
+
+                <h3 id="titulo-preferencias-ian">
+                    💜 Personaliza tu experiencia con IAN
+                </h3>
+
+                <p>
+                    IAN es tu compañero de bienestar emocional.
+                    Puedes compartir algunas preferencias para
+                    que sus respuestas se adapten mejor a ti.
+                    Estos campos son opcionales.
+                </p>
+
+                <!-- PAÍS DE RESIDENCIA -->
+
+                <label for="pais_residencia">
+                    País de residencia
+                </label>
+
+                <input
+                    type="text"
+                    id="pais_residencia"
+                    name="pais_residencia"
+                    maxlength="60"
+                    autocomplete="country-name"
+                    placeholder="Ejemplo: Colombia"
+                >
+
+                <small class="texto-ayuda">
+                    Ayuda a IAN a ofrecerte recursos
+                    adecuados para tu país.
+                </small>
+
+                <!-- GÉNERO -->
+
+                <label for="genero_ian">
+                    Género (opcional)
+                </label>
+
+                <select
+                    id="genero_ian"
+                    name="genero_ian"
+                >
+                    <option value="">
+                        Prefiero no indicarlo
+                    </option>
+
+                    <option value="mujer">
+                        Mujer
+                    </option>
+
+                    <option value="hombre">
+                        Hombre
+                    </option>
+
+                    <option value="no_binario">
+                        No binario
+                    </option>
+
+                    <option value="otro">
+                        Otra identidad
+                    </option>
+
+                    <option value="prefiero_no_decir">
+                        Prefiero no decirlo
+                    </option>
+                </select>
+
+                <!-- TRATAMIENTO DE IAN -->
+
+                <label for="tratamiento_ian">
+                    ¿Cómo prefieres que IAN se dirija a ti?
+                </label>
+
+                <select
+                    id="tratamiento_ian"
+                    name="tratamiento_ian"
+                >
+                    <option value="">
+                        Sin preferencia
+                    </option>
+
+                    <option value="femenino">
+                        En femenino (acompañada)
+                    </option>
+
+                    <option value="masculino">
+                        En masculino (acompañado)
+                    </option>
+
+                    <option value="neutro">
+                        Evitar expresiones con género
+                    </option>
+                </select>
+
+                <small class="texto-ayuda">
+                    IAN respetará la forma en que
+                    prefieres que se dirija a ti.
+                </small>
+
+                <!-- AUTORIZACIÓN DE PERSONALIZACIÓN -->
+
+                <div class="autorizacion-ian">
+
+                    <label class="etiqueta-permiso">
+
+                        <input
+                            type="checkbox"
+                            id="personalizacion_ian"
+                            name="personalizacion_ian"
+                            value="si"
+                        >
+
+                        <span>
+                            <strong>
+                                Autorizo que IAN utilice
+                                mis datos para personalizar
+                                sus respuestas.
+                            </strong>
+                        </span>
+
+                    </label>
+
+                    <p class="aviso-privacidad">
+                        Si autorizas la personalización,
+                        IAN podrá utilizar tu primer nombre,
+                        edad calculada, país, género declarado
+                        y tratamiento preferido. Estos datos
+                        podrán enviarse a GroqCloud para
+                        generar respuestas personalizadas.
+                        No se enviará tu fecha de nacimiento
+                        completa. La autorización es opcional
+                        y podrás cambiarla posteriormente.
+                        Los mensajes que envíes a IAN seguirán
+                        procesándose mediante GroqCloud
+                        aunque no autorices la personalización.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- CONTRASEÑA -->
+
             <label for="contrasena">
                 Contraseña
             </label>
+
             <input
                 type="password"
                 id="contrasena"
                 name="contrasena"
                 minlength="8"
+                maxlength="128"
                 autocomplete="new-password"
                 placeholder="Mínimo 8 caracteres"
                 required
             >
 
+            <!-- CONFIRMAR CONTRASEÑA -->
+
             <label for="confirmar_contrasena">
                 Confirmar contraseña
             </label>
+
             <input
                 type="password"
                 id="confirmar_contrasena"
                 name="confirmar_contrasena"
                 minlength="8"
+                maxlength="128"
                 autocomplete="new-password"
                 placeholder="Repite tu contraseña"
                 required
             >
 
-            <p id="mensaje-registro"
-               class="mensaje-registro"
-               role="status"
-               aria-live="polite"></p>
+            <!-- MENSAJES DEL REGISTRO -->
+
+            <p
+                id="mensaje-registro"
+                class="mensaje-registro"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+            <!-- CREAR CUENTA -->
 
             <button type="submit">
                 Crear cuenta
@@ -116,6 +466,7 @@
 
         <p class="registro">
             ¿Ya tienes una cuenta?
+
             <a href="{{ url_for('inicio') }}">
                 Inicia sesión
             </a>
@@ -123,7 +474,11 @@
 
     </main>
 
-    <script src="{{ url_for('static', filename='js/registro.js') }}"></script>
+    <!-- JAVASCRIPT DEL REGISTRO -->
+
+    <script
+        src="{{ url_for('static', filename='js/registro.js') }}"
+    ></script>
 
 </body>
 </html>

@@ -1,239 +1,462 @@
 
-/* ==========================================
+/* =====================================================
    CONTIGO - CHAT EMOCIONAL IAN
-========================================== */
+   DISEÑO PASTEL UNIFICADO
 
-* {
-    box-sizing: border-box;
-}
+   Mismo estilo visual que:
+   - Inicio
+   - Mi Diario
+   - Red de Apoyo
+   - Mi Perfil
+
+   Mantiene las funciones de ian.js.
+===================================================== */
+
+
+/* =====================================================
+   1. VARIABLES Y FONDO GENERAL
+===================================================== */
 
 body.pagina-ian {
+
+    --ian-lavanda: #F4F0FF;
+    --ian-azul: #EDF5FF;
+    --ian-rosa: #FCEBF5;
+
+    --ian-blanco: #FFFBFF;
+    --ian-lila: #F5EEFF;
+
+    --ian-morado: #9666DC;
+    --ian-rosa-boton: #DB7FBB;
+
+    --ian-titulo: #38235F;
+    --ian-texto: #67567F;
+    --ian-borde: #E3D5F7;
+
+    --ian-sombra:
+        0 7px 22px rgba(
+            69, 45, 111, 0.07
+        );
+
     margin: 0;
     min-height: 100vh;
 
-    font-family: "Segoe UI", Arial, sans-serif;
+    padding-bottom: 118px;
 
-    color: #32206b;
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-size: 16px;
+    line-height: 1.6;
+
+    color: var(--ian-titulo);
 
     background:
         radial-gradient(
-            circle at 15% 10%,
-            #e7dcff,
-            transparent 38%
-        ),
-        radial-gradient(
-            circle at 88% 82%,
-            #def5ed,
-            transparent 38%
+            circle at 8% 12%,
+            rgba(195, 173, 239, 0.14),
+            transparent 40%
         ),
         linear-gradient(
-            140deg,
-            #f9f1ff,
-            #fff8f6
+            125deg,
+            #F4F0FF 0%,
+            #EDF5FF 64%,
+            #FCEBF5 100%
         );
 }
 
-.contenedor-ian {
-    width: min(calc(100% - 24px), 760px);
-
-    margin: auto;
-    padding: 16px 0 125px;
+body.pagina-ian *,
+body.pagina-ian *::before,
+body.pagina-ian *::after {
+    box-sizing: border-box;
 }
 
-/* ENCABEZADO */
+body.pagina-ian [hidden] {
+    display: none !important;
+}
+
+body.pagina-ian button,
+body.pagina-ian textarea {
+    font-family: inherit;
+}
+
+
+/* =====================================================
+   2. CONTENEDOR PRINCIPAL
+===================================================== */
+
+.contenedor-ian {
+
+    width: min(
+        calc(100% - 24px),
+        980px
+    );
+
+    margin: 0 auto;
+
+    padding: 18px 0 28px;
+}
+
+
+/* =====================================================
+   3. ENCABEZADO DE CONTIGO
+===================================================== */
 
 .encabezado-ian {
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
 
-    padding: 16px 19px;
+    gap: 15px;
 
+    padding: 17px 22px;
+
+    background: #FFFBFF;
+
+    border: 1px solid var(--ian-borde);
     border-radius: 23px;
-    background: #fffbff;
 
-    font-size: 17px;
-    font-weight: 600;
+    box-shadow: var(--ian-sombra);
+}
 
-    box-shadow: 0 6px 19px #58438a1c;
+.saludo-ian {
+    color: var(--ian-titulo);
+
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.4;
 }
 
 .encabezado-ian strong {
-    color: #9060d6;
+
+    color: #9666DC;
+    font-weight: 850;
+
+    overflow-wrap: anywhere;
 }
 
+
+/* =====================================================
+   4. NOTIFICACIONES Y CONFIGURACIÓN
+===================================================== */
+
 .acciones-ian {
+
     display: flex;
-    gap: 8px;
+    align-items: center;
+
+    gap: 9px;
+    flex-shrink: 0;
 }
 
 .acciones-ian a {
+
     display: grid;
     place-items: center;
 
-    width: 37px;
-    height: 37px;
+    width: 44px;
+    height: 44px;
 
+    background: #F3EAFE;
+
+    border: 1px solid #E9DBFA;
     border-radius: 50%;
-    background: #f0e8fc;
+
+    font-size: 22px;
 
     text-decoration: none;
-    font-size: 19px;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
 }
+
+.acciones-ian a:hover {
+
+    background: #EADDFF;
+    transform: translateY(-2px);
+}
+
+
+/* =====================================================
+   5. VOLVER AL INICIO
+===================================================== */
 
 .volver-ian {
-    display: inline-block;
 
-    margin: 20px 6px 13px;
+    display: inline-flex;
+    align-items: center;
 
-    color: #7852bd;
-    font-weight: 700;
+    margin: 16px 5px 13px;
+
+    color: #7950B6;
+
     font-size: 14px;
+    font-weight: 750;
+
     text-decoration: none;
 }
 
-/* TARJETA DEL CHAT */
-
-.tarjeta-chat {
-    overflow: hidden;
-
-    border: 2px solid #ffffff;
-    border-radius: 29px;
-
-    background: #fffaff;
-
-    box-shadow: 0 10px 30px #6d55912b;
+.volver-ian:hover {
+    text-decoration: underline;
 }
 
-/* CABECERA DE IAN */
+
+/* =====================================================
+   6. TARJETA PRINCIPAL DEL CHAT
+===================================================== */
+
+.tarjeta-chat {
+
+    width: 100%;
+
+    overflow: hidden;
+
+    background: #FFFBFF;
+
+    border: 1px solid var(--ian-borde);
+    border-radius: 27px;
+
+    box-shadow: var(--ian-sombra);
+}
+
+
+/* =====================================================
+   7. CABECERA DEL CHAT
+===================================================== */
 
 .cabecera-chat {
+
     display: flex;
     align-items: center;
-    gap: 15px;
 
-    padding: 18px;
+    gap: 18px;
 
-    background: linear-gradient(
-        110deg,
-        #e9dfff,
-        #fff0f8,
-        #e5f6f1
-    );
+    padding: 20px 24px;
+
+    background:
+        linear-gradient(
+            110deg,
+            #F1E8FF 0%,
+            #F9F1FF 53%,
+            #EDF5FF 100%
+        );
+
+    border-bottom: 1px solid var(--ian-borde);
+}
+
+
+/* =====================================================
+   8. IMAGEN OFICIAL DE IAN
+===================================================== */
+
+.contenedor-imagen-ian {
+
+    display: grid;
+    place-items: center;
+
+    width: 100px;
+    height: 100px;
+
+    flex-shrink: 0;
+
+    background: rgba(255, 255, 255, 0.52);
+
+    border: 1px solid var(--ian-borde);
+    border-radius: 20px;
+
+    overflow: hidden;
 }
 
 .imagen-ian {
-    width: 82px;
-    height: 82px;
 
-    border-radius: 18px;
+    display: block;
+
+    width: 92px;
+    height: 92px;
+
     object-fit: contain;
-
-    background: #ffffff80;
 }
 
+
+/* =====================================================
+   9. INFORMACIÓN DE IAN
+===================================================== */
+
 .informacion-ian {
+
     flex: 1;
     min-width: 0;
 }
 
 .informacion-ian h1 {
-    margin: 0 0 7px;
 
-    color: #352078;
+    margin: 0 0 5px;
 
-    font-size: 25px;
+    color: var(--ian-titulo);
+
+    font-size: 29px;
+    font-weight: 900;
+
+    line-height: 1.2;
 }
 
 .informacion-ian p {
+
     margin: 0 0 5px;
 
-    color: #7a55c5;
+    color: #7950B6;
 
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 750;
 }
 
 .informacion-ian small {
-    color: #84759d;
-    font-size: 12px;
+
+    display: block;
+
+    color: var(--ian-texto);
+
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-/* BOTÓN NUEVO CHAT */
+
+/* =====================================================
+   10. BOTÓN NUEVO CHAT
+===================================================== */
 
 .boton-nuevo {
+
     display: flex;
     flex-direction: column;
+
     align-items: center;
+    justify-content: center;
+
     gap: 3px;
 
-    padding: 9px;
+    min-width: 90px;
+    min-height: 75px;
 
-    border: 1px solid #d8c7ef;
-    border-radius: 14px;
+    padding: 10px 13px;
 
-    color: #69469c;
-    background: #ffffffaa;
+    background: #FFFBFF;
 
-    font: inherit;
-    font-size: 11px;
-    font-weight: 700;
+    border: 1px solid #D8C4F4;
+    border-radius: 16px;
+
+    color: #69409D;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    text-align: center;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
 }
 
 .boton-nuevo span:first-child {
-    font-size: 23px;
+
+    font-size: 27px;
+    line-height: 1;
 }
 
-/* AVISO INFORMATIVO */
+.boton-nuevo:hover {
+
+    background: #F3EAFE;
+    transform: translateY(-2px);
+}
+
+
+/* =====================================================
+   11. AVISO INFORMATIVO
+===================================================== */
 
 .aviso-ian {
-    margin: 14px 16px 0;
-    padding: 12px 15px;
 
+    margin: 15px 20px 8px;
+
+    padding: 12px 17px;
+
+    background: #F5EEFF;
+
+    border: 1px solid #E9DDFB;
     border-radius: 15px;
 
-    background: #f4effc;
-    color: #72628f;
+    color: #67567F;
 
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6;
+
     text-align: center;
 }
 
-/* ÁREA DE MENSAJES */
+
+/* =====================================================
+   12. ÁREA DE MENSAJES
+
+   CORRECCIÓN MÁS IMPORTANTE:
+
+   Ya NO utilizamos una altura fija.
+
+   Con un solo mensaje, el chat ocupa
+   únicamente el espacio necesario.
+
+   Cuando llegan más mensajes,
+   crece hasta alcanzar el máximo
+   y entonces activa el desplazamiento.
+===================================================== */
 
 .mensajes-ian {
+
     display: flex;
     flex-direction: column;
-    gap: 20px;
 
-    height: min(54vh, 470px);
-    min-height: 300px;
+    align-items: stretch;
 
-    padding: 22px 17px;
+    gap: 16px;
+
+    width: 100%;
+
+    height: auto;
+    min-height: 0;
+
+    max-height: min(48vh, 440px);
+
+    padding: 20px 22px 14px;
 
     overflow-y: auto;
+    overflow-x: hidden;
+
     overscroll-behavior: contain;
 
-    background:
-        radial-gradient(
-            circle at 80% 15%,
-            #f6e4fb90,
-            transparent 40%
-        ),
-        #fffaff;
+    background: #FFFBFF;
+
+    scrollbar-width: thin;
+    scrollbar-color: #D3BCEF transparent;
 }
 
-/* FILAS DE MENSAJES */
+
+/* =====================================================
+   13. FILAS DE MENSAJES
+===================================================== */
 
 .fila-mensaje {
+
     display: flex;
     align-items: flex-end;
-    gap: 9px;
 
+    gap: 10px;
+
+    width: 100%;
     max-width: 100%;
 }
 
@@ -245,370 +468,976 @@ body.pagina-ian {
     justify-content: flex-end;
 }
 
-/* AVATAR */
+
+/* =====================================================
+   14. AVATAR DE LOS MENSAJES
+===================================================== */
 
 .avatar-mensaje {
+
     display: grid;
     place-items: center;
 
-    width: 33px;
-    height: 33px;
+    width: 38px;
+    height: 38px;
 
     flex-shrink: 0;
 
-    background: #eee6ff;
+    background: #F1E8FF;
+
+    border: 1px solid #E7D9FC;
     border-radius: 50%;
 
-    font-size: 20px;
+    font-size: 21px;
 }
 
-/* BURBUJAS */
+
+/* =====================================================
+   15. BURBUJAS DEL CHAT
+===================================================== */
 
 .burbuja-mensaje {
-    max-width: min(83%, 470px);
 
-    padding: 14px 17px;
+    width: fit-content;
+
+    max-width: min(78%, 580px);
+
+    padding: 15px 19px;
 
     border-radius: 20px;
 
-    box-shadow: 0 3px 12px #4b387217;
+    box-shadow:
+        0 3px 12px rgba(
+            69, 45, 111, 0.06
+        );
 
     overflow-wrap: anywhere;
+
+    text-align: left;
 }
 
 .burbuja-mensaje strong {
+
     display: block;
 
-    margin-bottom: 7px;
+    margin-bottom: 9px;
 
-    color: #7952c3;
-    font-size: 13px;
+    color: #7950B6;
+
+    font-size: 14px;
+    font-weight: 850;
+
+    text-align: left;
 }
 
 .burbuja-mensaje p {
+
     margin: 0;
 
-    font-size: 14px;
-    line-height: 1.7;
+    font-size: 16px;
+    line-height: 1.65;
 
-    white-space: pre-wrap;
+    text-align: left;
+
+    white-space: pre-line;
 }
+
+.burbuja-mensaje p + p {
+
+    margin-top: 12px;
+}
+
+
+/* =====================================================
+   16. MENSAJES DE IAN
+===================================================== */
 
 .burbuja-ian {
-    border-bottom-left-radius: 5px;
 
-    color: #514175;
+    background: #F0E8FF;
 
-    background: #eee6ff;
+    border: 1px solid #E6D9FC;
+
+    border-bottom-left-radius: 6px;
+
+    color: #49366F;
 }
+
+
+/* =====================================================
+   17. MENSAJES DEL USUARIO
+===================================================== */
 
 .burbuja-usuario {
-    border-bottom-right-radius: 5px;
 
-    color: #ffffff;
+    background:
+        linear-gradient(
+            135deg,
+            #A67ADF,
+            #875BD2
+        );
 
-    background: linear-gradient(
-        135deg,
-        #ab87e8,
-        #875bd2
-    );
+    border-bottom-right-radius: 6px;
+
+    color: #FFFFFF;
 }
 
-/* SUGERENCIAS */
+.burbuja-usuario strong,
+.burbuja-usuario p {
+
+    color: #FFFFFF;
+}
+
+
+/* =====================================================
+   18. SUGERENCIAS PARA CONVERSAR
+===================================================== */
 
 .sugerencias-ian {
+
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
 
-    padding: 13px 15px;
+    gap: 9px;
+
+    padding: 12px 22px 15px;
+
+    background: #FFFBFF;
 }
 
 .sugerencias-ian button {
-    padding: 9px 12px;
 
-    border: 1px solid #e1d4f3;
-    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    color: #7a5cb3;
-    background: #f7f0ff;
+    min-height: 40px;
 
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
+    padding: 9px 14px;
+
+    background: #F5EEFF;
+
+    border: 1px solid #E3D5F7;
+    border-radius: 999px;
+
+    color: #7750B1;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    line-height: 1.4;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
 }
 
 .sugerencias-ian button:hover {
-    background: #ece0ff;
+
+    background: #E9DCFF;
+
+    transform: translateY(-2px);
 }
 
-/* ESCRIBIR MENSAJE */
+
+/* =====================================================
+   19. FORMULARIO DE MENSAJES
+===================================================== */
 
 .formulario-ian {
+
     display: flex;
     align-items: flex-end;
-    gap: 10px;
 
-    margin: 0 15px;
-    padding: 10px;
+    gap: 11px;
 
-    border: 2px solid #e4d6f7;
-    border-radius: 21px;
+    margin: 0 21px;
 
-    background: #ffffff;
+    padding: 11px;
+
+    background: #FFFFFF;
+
+    border: 2px solid #E3D5F7;
+    border-radius: 20px;
+
+    transition: border-color 0.2s;
 }
 
 .formulario-ian:focus-within {
-    border-color: #a98ae1;
+
+    border-color: #A67BE1;
 }
 
-.formulario-ian textarea {
-    flex: 1;
-    min-width: 0;
-    min-height: 55px;
 
-    padding: 13px 10px;
+/* =====================================================
+   20. CAMPO PARA ESCRIBIR
+===================================================== */
+
+.formulario-ian textarea {
+
+    display: block;
+
+    flex: 1;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 51px;
+    max-height: 180px;
+
+    padding: 12px 11px;
 
     resize: vertical;
 
-    border: none;
-    outline: none;
-
     background: transparent;
 
-    font: inherit;
-    font-size: 14px;
-    line-height: 1.5;
+    border: 0;
+    outline: none;
 
-    color: #473477;
+    color: #49366F;
+
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 .formulario-ian textarea::placeholder {
-    color: #aa9bbb;
+
+    color: #A18CB7;
 }
 
-/* BOTÓN ENVIAR */
+
+/* =====================================================
+   21. BOTÓN ENVIAR
+===================================================== */
 
 #enviar-ian {
+
     display: grid;
     place-items: center;
 
-    width: 48px;
-    height: 48px;
+    width: 49px;
+    height: 49px;
 
     flex-shrink: 0;
 
+    background:
+        linear-gradient(
+            135deg,
+            #9666DC,
+            #DB7FBB
+        );
+
     border: none;
-    border-radius: 16px;
+    border-radius: 15px;
 
-    background: linear-gradient(
-        135deg,
-        #aa82ed,
-        #8754cd
-    );
+    color: #FFFFFF;
 
-    color: white;
-    font-size: 22px;
+    font-size: 24px;
 
     cursor: pointer;
+
+    transition:
+        filter 0.2s,
+        transform 0.2s;
+}
+
+#enviar-ian:hover {
+
+    filter: brightness(1.05);
+
+    transform: translateY(-2px);
 }
 
 #enviar-ian:disabled {
-    opacity: 0.5;
+
+    opacity: 0.55;
     cursor: wait;
 }
 
-.estado-ian {
-    min-height: 17px;
-    margin: 8px 20px 0;
 
-    color: #896aab;
-    font-size: 12px;
+/* =====================================================
+   22. ESTADO DE IAN
+===================================================== */
+
+.estado-ian {
+
+    min-height: 0;
+
+    margin: 7px 22px 0;
+
+    color: #80669D;
+
+    font-size: 13px;
+
     text-align: center;
+    line-height: 1.5;
 }
+
+.estado-ian:empty {
+    display: none;
+}
+
+
+/* =====================================================
+   23. NOTA DE PRIVACIDAD
+===================================================== */
 
 .nota-privacidad {
-    margin: 9px 20px 17px;
 
-    color: #9487a9;
-    font-size: 11px;
+    margin: 12px 22px 19px;
+
+    color: #84769D;
+
+    font-size: 12px;
+
+    line-height: 1.65;
+
     text-align: center;
-    line-height: 1.6;
 }
 
-/* APOYO HUMANO */
+
+/* =====================================================
+   24. TARJETA DE APOYO HUMANO
+===================================================== */
 
 .apoyo-ian {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 17px;
+
     margin-top: 18px;
-    padding: 21px;
 
-    border: 1px solid #ffffff;
-    border-radius: 23px;
+    padding: 24px;
 
-    background: linear-gradient(
-        135deg,
-        #e4f5ee,
-        #f6edff
-    );
+    background:
+        linear-gradient(
+            115deg,
+            #EDF5FF 0%,
+            #F5EEFF 55%,
+            #FCEBF5 100%
+        );
 
-    box-shadow: 0 5px 16px #57418c17;
+    border: 1px solid var(--ian-borde);
+    border-radius: 24px;
+
+    box-shadow: var(--ian-sombra);
+}
+
+.apoyo-icono {
+
+    display: grid;
+    place-items: center;
+
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    background: #FFFBFF;
+
+    border: 1px solid #E3D5F7;
+    border-radius: 15px;
+
+    font-size: 25px;
+}
+
+.apoyo-contenido {
+
+    flex: 1;
+    min-width: 0;
 }
 
 .apoyo-ian h2 {
-    margin: 0 0 10px;
 
-    font-size: 19px;
-    color: #3e297b;
+    margin: 0 0 9px;
+
+    color: var(--ian-titulo);
+
+    font-size: 21px;
+    font-weight: 850;
+
+    line-height: 1.35;
 }
 
 .apoyo-ian p {
+
     margin: 0 0 13px;
 
-    color: #74648e;
-    font-size: 13px;
-    line-height: 1.6;
+    color: var(--ian-texto);
+
+    font-size: 15px;
+    line-height: 1.65;
 }
 
 .apoyo-ian a {
-    color: #8053c5;
-    font-size: 14px;
-    font-weight: 700;
+
+    color: #7950B6;
+
+    font-size: 15px;
+    font-weight: 800;
+
     text-decoration: none;
 }
 
-/* ETIQUETAS PARA LECTORES DE PANTALLA */
+.apoyo-ian a:hover {
+
+    text-decoration: underline;
+}
+
+
+/* =====================================================
+   25. ETIQUETAS PARA LECTORES DE PANTALLA
+===================================================== */
 
 .etiqueta-accesible {
+
     position: absolute;
 
     width: 1px;
     height: 1px;
 
+    padding: 0;
+    margin: -1px;
+
     overflow: hidden;
+
     clip-path: inset(50%);
+
     white-space: nowrap;
+    border: 0;
 }
 
-/* MENÚ INFERIOR ORIGINAL */
 
-.navegacion-inferior {
+/* =====================================================
+   26. MENÚ INFERIOR
+   MISMO DISEÑO DE INICIO
+===================================================== */
+
+body.pagina-ian .navegacion-inferior {
+
     position: fixed;
-
-    bottom: 10px;
-    left: 50%;
-
-    transform: translateX(-50%);
 
     z-index: 100;
 
-    width: min(
-        calc(100% - 24px),
-        520px
-    );
+    bottom: 12px;
+    left: 50%;
 
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
 
-    padding: 10px;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
 
-    border-radius: 25px;
-    background: #fffaf6;
+    align-items: stretch;
 
-    box-shadow: 0 4px 25px #5941812b;
+    gap: 6px;
+
+    width: min(
+        calc(100% - 24px),
+        540px
+    );
+
+    padding: 7px;
+    margin: 0;
+
+    background: rgba(
+        255, 255, 255, 0.97
+    );
+
+    border: 1px solid #E3D5F7;
+    border-radius: 23px;
+
+    box-shadow:
+        0 10px 28px rgba(
+            61, 41, 99, 0.15
+        );
+
+    transform: translateX(-50%);
 }
 
-.navegacion-inferior a {
+body.pagina-ian .navegacion-inferior a {
+
     display: flex;
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
-    gap: 5px;
 
-    min-height: 60px;
+    gap: 4px;
 
-    border-radius: 14px;
+    min-width: 0;
+    min-height: 58px;
 
+    padding: 7px 5px;
+
+    border-radius: 16px;
+
+    color: #67567F;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    text-align: center;
     text-decoration: none;
-
-    color: #82769f;
-    font-size: 12px;
 }
 
-.icono-menu {
-    font-size: 23px;
+body.pagina-ian .navegacion-inferior a:hover {
+
+    background: #F1E8FF;
 }
 
-.navegacion-inferior a.activo {
-    color: #6534c2;
+body.pagina-ian .navegacion-inferior a.activo {
 
-    background: #eee4ff;
-    font-weight: bold;
+    background: #E9DDFF;
+
+    color: #5D329B;
+    font-weight: 850;
 }
 
-/* ACCESIBILIDAD */
+body.pagina-ian .icono-menu {
 
-button:focus-visible,
-a:focus-visible {
-    outline: 3px solid #a181dd;
+    display: block;
+
+    font-size: 21px;
+
+    line-height: 1.2;
+}
+
+
+/* =====================================================
+   27. ACCESIBILIDAD
+===================================================== */
+
+body.pagina-ian :is(
+    button,
+    a
+):focus-visible {
+
+    outline: 3px solid #9666DC;
     outline-offset: 3px;
 }
 
-/* CELULARES */
+body.pagina-ian
+.formulario-ian textarea:focus-visible {
 
-@media (max-width: 520px) {
+    outline: none;
+}
+
+
+/* =====================================================
+   28. TABLETAS
+===================================================== */
+
+@media (max-width: 768px) {
 
     .contenedor-ian {
-        width: calc(100% - 14px);
-        padding-top: 9px;
+
+        width: calc(100% - 20px);
     }
 
     .cabecera-chat {
-        gap: 9px;
-        padding: 13px;
+
+        padding: 17px;
+
+        gap: 14px;
+    }
+
+    .contenedor-imagen-ian {
+
+        width: 85px;
+        height: 85px;
     }
 
     .imagen-ian {
+
+        width: 80px;
+        height: 80px;
+    }
+
+    .informacion-ian h1 {
+
+        font-size: 25px;
+    }
+
+    .mensajes-ian {
+
+        max-height: min(48vh, 400px);
+    }
+}
+
+
+/* =====================================================
+   29. CELULARES
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .contenedor-ian {
+
+        width: calc(100% - 16px);
+
+        padding-top: 9px;
+    }
+
+    /* ENCABEZADO */
+
+    .encabezado-ian {
+
+        gap: 9px;
+
+        padding: 12px 13px;
+
+        border-radius: 19px;
+    }
+
+    .saludo-ian {
+
+        font-size: 16px;
+    }
+
+    .acciones-ian {
+
+        gap: 7px;
+    }
+
+    .acciones-ian a {
+
+        width: 37px;
+        height: 37px;
+
+        font-size: 19px;
+    }
+
+    .volver-ian {
+
+        margin: 13px 5px 11px;
+
+        font-size: 13px;
+    }
+
+    /* TARJETA */
+
+    .tarjeta-chat {
+
+        border-radius: 21px;
+    }
+
+    /* CABECERA */
+
+    .cabecera-chat {
+
+        gap: 10px;
+
+        padding: 14px 12px;
+    }
+
+    .contenedor-imagen-ian {
+
+        width: 66px;
+        height: 66px;
+
+        border-radius: 14px;
+    }
+
+    .imagen-ian {
+
         width: 62px;
         height: 62px;
     }
 
     .informacion-ian h1 {
+
         font-size: 20px;
+
+        margin-bottom: 3px;
+    }
+
+    .informacion-ian p {
+
+        font-size: 12px;
+
+        margin-bottom: 2px;
     }
 
     .informacion-ian small {
-        font-size: 10px;
-    }
 
-    .mensajes-ian {
-        min-height: 310px;
-        padding: 15px 11px;
-    }
-
-    .burbuja-mensaje {
-        max-width: 85%;
-        padding: 12px;
-    }
-
-    .burbuja-mensaje p {
-        font-size: 13px;
+        font-size: 11px;
     }
 
     .boton-nuevo {
+
+        min-width: 69px;
+        min-height: 61px;
+
+        padding: 7px;
+
         font-size: 10px;
     }
 
+    .boton-nuevo span:first-child {
+
+        font-size: 23px;
+    }
+
+    /* AVISO */
+
+    .aviso-ian {
+
+        margin: 11px 11px 5px;
+
+        padding: 11px 12px;
+
+        font-size: 12px;
+    }
+
+    /* MENSAJES */
+
+    .mensajes-ian {
+
+        height: auto;
+        min-height: 0;
+
+        max-height: min(43vh, 360px);
+
+        gap: 13px;
+
+        padding: 15px 11px 11px;
+    }
+
+    .avatar-mensaje {
+
+        width: 32px;
+        height: 32px;
+
+        font-size: 18px;
+    }
+
+    .fila-mensaje {
+
+        gap: 7px;
+    }
+
+    .burbuja-mensaje {
+
+        max-width: 84%;
+
+        padding: 12px 13px;
+
+        border-radius: 16px;
+    }
+
+    .burbuja-mensaje p {
+
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .burbuja-mensaje strong {
+
+        font-size: 12px;
+    }
+
+    /* SUGERENCIAS */
+
+    .sugerencias-ian {
+
+        gap: 7px;
+
+        padding: 10px 11px 12px;
+    }
+
     .sugerencias-ian button {
+
+        min-height: 36px;
+
+        padding: 8px 11px;
+
+        font-size: 12px;
+    }
+
+    /* FORMULARIO */
+
+    .formulario-ian {
+
+        gap: 7px;
+
+        margin: 0 11px;
+
+        padding: 8px;
+
+        border-radius: 16px;
+    }
+
+    .formulario-ian textarea {
+
+        min-height: 48px;
+
+        padding: 10px 8px;
+
+        font-size: 14px;
+    }
+
+    #enviar-ian {
+
+        width: 43px;
+        height: 43px;
+
+        border-radius: 13px;
+
+        font-size: 21px;
+    }
+
+    /* PRIVACIDAD */
+
+    .estado-ian {
+
+        margin: 7px 12px 0;
+    }
+
+    .nota-privacidad {
+
+        margin: 11px 13px 15px;
+
+        font-size: 11px;
+    }
+
+    /* APOYO HUMANO */
+
+    .apoyo-ian {
+
+        gap: 11px;
+
+        padding: 17px 14px;
+
+        border-radius: 20px;
+    }
+
+    .apoyo-icono {
+
+        width: 40px;
+        height: 40px;
+
+        font-size: 20px;
+    }
+
+    .apoyo-ian h2 {
+
+        font-size: 17px;
+    }
+
+    .apoyo-ian p {
+
+        font-size: 13px;
+    }
+
+    .apoyo-ian a {
+
+        font-size: 13px;
+    }
+
+    /* MENÚ */
+
+    body.pagina-ian .navegacion-inferior {
+
+        bottom: max(
+            8px,
+            env(safe-area-inset-bottom)
+        );
+
+        width: calc(100% - 16px);
+
+        padding: 7px;
+    }
+
+    body.pagina-ian .navegacion-inferior a {
+
+        min-height: 55px;
+
+        padding: 7px 3px;
+
+        font-size: 11px;
+    }
+
+    body.pagina-ian .icono-menu {
+
+        font-size: 20px;
+    }
+}
+
+
+/* =====================================================
+   30. CELULARES PEQUEÑOS
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .saludo-ian {
+
+        font-size: 14px;
+    }
+
+    .cabecera-chat {
+
+        gap: 7px;
+    }
+
+    .contenedor-imagen-ian {
+
+        width: 53px;
+        height: 53px;
+    }
+
+    .imagen-ian {
+
+        width: 50px;
+        height: 50px;
+    }
+
+    .informacion-ian h1 {
+
+        font-size: 18px;
+    }
+
+    .informacion-ian small {
+
+        font-size: 10px;
+    }
+
+    .boton-nuevo {
+
+        min-width: 60px;
+
+        font-size: 9px;
+    }
+
+    .burbuja-mensaje {
+
+        max-width: 86%;
+    }
+
+    .sugerencias-ian button {
+
         font-size: 11px;
     }
 }
 
+
+/* =====================================================
+   31. MOVIMIENTO REDUCIDO
+===================================================== */
+
 @media (prefers-reduced-motion: reduce) {
 
-    * {
+    body.pagina-ian * {
+
         scroll-behavior: auto !important;
+
+        animation: none !important;
+
+        transition: none !important;
     }
 }

@@ -2,44 +2,86 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/responsive.css') }}"
->
-
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>CONTIGO | Iniciar sesión</title>
 
-    <!-- Hoja de estilos -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/estilos.css') }}">
+    <!-- Diseño original del inicio de sesión -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/estilos.css') }}"
+    >
+
+    <!-- Adaptación a celulares -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/responsive.css') }}"
+    >
+
+    <style>
+        /* Mensajes integrados en CONTIGO */
+
+        #mensaje-login {
+            margin: 16px 0;
+            padding: 12px 15px;
+
+            background: #FFF0F3;
+            border: 1px solid #F4C9D7;
+            border-radius: 13px;
+
+            color: #963D59;
+
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        #mensaje-login[hidden] {
+            display: none !important;
+        }
+
+        #form-login button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+    </style>
+
+    <script
+        src="{{ url_for('static', filename='js/login.js', v='recuperacion-1') }}"
+        defer
+    ></script>
+
 </head>
 
 <body>
 
     <main class="contenedor-login">
 
-        <!-- Nombre de la aplicación -->
-        <h1>CONTIGO </h1>
+        <!-- Nombre de CONTIGO -->
 
-        <!-- Logo original de CONTIGO -->
+        <h1>CONTIGO</h1>
+
+        <!-- Zorrito oficial -->
+
         <img
             src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
             alt="Zorrito oficial de CONTIGO abrazando un corazón"
             class="logo-contigo"
         >
 
-        <!-- Inicio de sesión -->
         <h2>Iniciar sesión</h2>
+
+        <!-- Formulario de ingreso -->
 
         <form id="form-login">
 
-            <!-- Correo electrónico -->
             <label for="correo">
                 Correo electrónico
             </label>
@@ -50,10 +92,10 @@
                 name="correo"
                 placeholder="Ingresa tu correo"
                 autocomplete="email"
+                maxlength="150"
                 required
             >
 
-            <!-- Contraseña -->
             <label for="contrasena">
                 Contraseña
             </label>
@@ -67,32 +109,39 @@
                 required
             >
 
-            <!-- Recuperar contraseña -->
-            <a href="#" class="olvidar-contrasena">
+            <!-- Recuperación de contraseña -->
+
+            <a
+                href="{{ url_for('pantalla_recuperar_contrasena') }}"
+                class="olvidar-contrasena"
+            >
                 ¿Olvidaste tu contraseña?
             </a>
 
-            <!-- Botón de ingreso -->
+            <!-- Mensaje sin ventanas del navegador -->
+
+            <p
+                id="mensaje-login"
+                role="alert"
+                aria-live="polite"
+                hidden
+            ></p>
+
             <button type="submit">
                 Iniciar sesión
             </button>
 
         </form>
 
-        <!-- Registro de nuevos usuarios -->
         <p class="registro">
             ¿No tienes una cuenta?
+
             <a href="{{ url_for('registro') }}">
                 Regístrate aquí
             </a>
         </p>
 
     </main>
-
-    <!-- JavaScript -->
-    <script
-        src="{{ url_for('static', filename='js/login.js') }}">
-    </script>
 
 </body>
 </html>

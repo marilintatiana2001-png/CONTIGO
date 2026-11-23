@@ -259,3 +259,416 @@ textarea {
     }
 
 }
+
+
+/* ======================================================
+   CONTIGO - DISEÑO RESPONSIVE GLOBAL
+   Adaptación para computador, tableta y celular
+   ====================================================== */
+
+/* 1. CONFIGURACIÓN GENERAL */
+
+:root {
+    --contigo-ancho-desktop: 960px;
+    --contigo-ancho-tablet: 720px;
+    --contigo-margen: 20px;
+}
+
+html {
+    width: 100%;
+    max-width: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Imágenes y videos adaptables */
+
+img,
+video,
+canvas {
+    max-width: 100%;
+}
+
+img,
+video {
+    height: auto;
+}
+
+/* Evitar que el texto se salga de las tarjetas */
+
+main,
+section,
+article {
+    min-width: 0;
+}
+
+main :is(h1, h2, h3, p) {
+    overflow-wrap: break-word;
+}
+
+/* Formularios */
+
+input,
+textarea,
+select {
+    max-width: 100%;
+    min-width: 0;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* Tablas grandes */
+table {
+    max-width: 100%;
+}
+
+/* ======================================================
+   2. ANCHO DE LAS PANTALLAS DE CONTIGO
+   ====================================================== */
+
+/* Inicio y Cielo de Bienestar */
+
+body.pagina-inicio .contenedor-inicio,
+body.pagina-cielo .contenedor-cielo {
+    width: calc(100% - 40px);
+    max-width: var(--contigo-ancho-desktop);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Diario emocional */
+
+body.pagina-diario .contenedor-diario {
+    width: calc(100% - 40px);
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Perfil */
+
+.perfil-contenido,
+.perfil-encabezado {
+    width: calc(100% - 40px);
+    max-width: var(--contigo-ancho-desktop);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Contenedores de otras secciones */
+
+.contenedor-bienestar,
+.contenedor-apoyo,
+.contenedor-configuracion,
+.contenedor-notificaciones,
+.contenedor-principal {
+    width: calc(100% - 40px);
+    max-width: var(--contigo-ancho-desktop);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ======================================================
+   3. TARJETAS Y CONTENIDO
+   ====================================================== */
+
+body.pagina-inicio .tarjeta-inicio,
+body.pagina-cielo .bienvenida-cielo,
+body.pagina-cielo .tarjeta-cielo,
+body.pagina-cielo .coleccion-cielo {
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-cielo .escenario-cielo {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Constelación centrada */
+
+body.pagina-cielo #mapa-estrellas {
+    display: block;
+    width: min(100%, 520px);
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ======================================================
+   4. NAVEGACIÓN INFERIOR
+   ====================================================== */
+
+.navegacion-inferior,
+.perfil-navegacion-inferior {
+    position: fixed;
+    left: 50%;
+    right: auto;
+    bottom: 0;
+
+    width: min(100%, 960px);
+    max-width: 100%;
+
+    transform: translateX(-50%);
+    z-index: 100;
+
+    border-radius: 20px 20px 0 0;
+}
+
+.navegacion-inferior a,
+.perfil-navegacion-inferior a {
+    min-width: 0;
+    text-align: center;
+}
+
+/* ======================================================
+   5. COMPUTADORES GRANDES
+   Desde 1200px
+   ====================================================== */
+
+@media (min-width: 1200px) {
+
+    body.pagina-inicio .contenedor-inicio,
+    body.pagina-cielo .contenedor-cielo,
+    .perfil-contenido,
+    .perfil-encabezado {
+        max-width: 960px;
+    }
+
+    body.pagina-cielo .galeria-figuras {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+    body.pagina-cielo .escenario-cielo {
+        min-height: 360px;
+    }
+}
+
+/* ======================================================
+   6. TABLETAS
+   Entre 601px y 1024px
+   ====================================================== */
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+    body.pagina-inicio .contenedor-inicio,
+    body.pagina-cielo .contenedor-cielo,
+    body.pagina-diario .contenedor-diario,
+    .perfil-contenido,
+    .perfil-encabezado,
+    .contenedor-bienestar,
+    .contenedor-apoyo,
+    .contenedor-configuracion,
+    .contenedor-notificaciones,
+    .contenedor-principal {
+        width: calc(100% - 36px);
+        max-width: 760px;
+    }
+
+    body.pagina-cielo .galeria-figuras {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    body.pagina-cielo .escenario-cielo {
+        min-height: 290px;
+    }
+
+    body.pagina-cielo #mapa-estrellas {
+        width: min(100%, 470px);
+    }
+}
+
+/* ======================================================
+   7. CELULARES
+   Hasta 600px
+   ====================================================== */
+
+@media (max-width: 600px) {
+
+    body.pagina-inicio .contenedor-inicio,
+    body.pagina-cielo .contenedor-cielo,
+    body.pagina-diario .contenedor-diario,
+    .perfil-contenido,
+    .perfil-encabezado,
+    .contenedor-bienestar,
+    .contenedor-apoyo,
+    .contenedor-configuracion,
+    .contenedor-notificaciones,
+    .contenedor-principal {
+        width: calc(100% - 24px);
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Encabezados más compactos */
+
+    body.pagina-inicio .encabezado-inicio,
+    body.pagina-cielo .encabezado-cielo,
+    body.pagina-diario .encabezado-diario,
+    .perfil-encabezado {
+        max-width: 100%;
+        gap: 10px;
+    }
+
+    /* Títulos */
+
+    body.pagina-cielo .bienvenida-cielo h1 {
+        font-size: clamp(1.4rem, 6vw, 1.8rem);
+    }
+
+    /* Tarjetas */
+
+    body.pagina-cielo .bienvenida-cielo,
+    body.pagina-cielo .tarjeta-cielo,
+    body.pagina-cielo .coleccion-cielo {
+        padding: 20px 15px;
+        border-radius: 20px;
+    }
+
+    /* Resumen de progreso */
+
+    body.pagina-cielo .resumen-cielo {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    body.pagina-cielo .resumen-cielo > div {
+        min-width: 0;
+        padding: 14px 8px;
+    }
+
+    body.pagina-cielo .resumen-cielo strong {
+        font-size: 1.7rem;
+    }
+
+    body.pagina-cielo .resumen-cielo span {
+        font-size: 0.78rem;
+    }
+
+    /* Cielo */
+
+    body.pagina-cielo .escenario-cielo {
+        min-height: 210px;
+        border-radius: 18px;
+    }
+
+    body.pagina-cielo #mapa-estrellas {
+        width: 100%;
+        max-width: 400px;
+        padding: 7px;
+    }
+
+    /* Galería */
+
+    body.pagina-cielo .galeria-figuras {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    body.pagina-cielo .tarjeta-figura {
+        min-width: 0;
+        padding: 10px;
+    }
+
+    /* Formularios dentro del contenido */
+
+    main input:not([type="checkbox"]):not([type="radio"]),
+    main textarea,
+    main select {
+        max-width: 100%;
+    }
+
+    /* Navegación */
+
+    .navegacion-inferior,
+    .perfil-navegacion-inferior {
+        width: 100%;
+        border-radius: 18px 18px 0 0;
+        padding-bottom:
+            calc(9px + env(safe-area-inset-bottom));
+    }
+
+    .navegacion-inferior a,
+    .perfil-navegacion-inferior a {
+        flex: 1 1 0;
+        min-width: 0;
+        font-size: 0.72rem;
+    }
+
+    /* Espacio para no tapar el contenido */
+
+    body.pagina-inicio,
+    body.pagina-cielo,
+    body.pagina-diario {
+        padding-bottom:
+            calc(105px + env(safe-area-inset-bottom));
+    }
+}
+
+/* ======================================================
+   8. CELULARES PEQUEÑOS
+   Hasta 375px
+   ====================================================== */
+
+@media (max-width: 375px) {
+
+    body.pagina-inicio .contenedor-inicio,
+    body.pagina-cielo .contenedor-cielo,
+    body.pagina-diario .contenedor-diario,
+    .perfil-contenido {
+        width: calc(100% - 18px);
+    }
+
+    body.pagina-cielo .tarjeta-figura {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    body.pagina-cielo .resumen-cielo span {
+        font-size: 0.73rem;
+    }
+
+    .navegacion-inferior a,
+    .perfil-navegacion-inferior a {
+        font-size: 0.66rem;
+    }
+}
+
+/* ======================================================
+   9. ACCESIBILIDAD
+   ====================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

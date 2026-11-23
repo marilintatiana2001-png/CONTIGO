@@ -1,12 +1,3 @@
-
-"""
-CONTIGO - Seguridad de Mi Diario.
-
-Protege el acceso al diario y a sus API.
-Permite recuperar el PIN con correo, código
-de verificación y contraseña de la cuenta.
-"""
-
 import os
 import re
 import secrets
@@ -112,6 +103,10 @@ def registrar_seguridad_diario(
     # PROTEGER TODAS LAS RUTAS DEL DIARIO
     # ==========================================
 
+    # ==========================================
+    # PIN OPCIONAL PARA MI DIARIO
+    # ==========================================
+
     @app.before_request
     def proteger_diario_por_pin():
 
@@ -128,19 +123,38 @@ def registrar_seguridad_diario(
             )
             or (
                 ruta.startswith("/api/diario/")
-                and not ruta.startswith(
-                    "/api/diario-pin/"
-                )
+                and not ruta.startswith("/api/diario-pin/")
             )
         )
 
         if protegida:
 
-            if float(
-                session.get(
-                    "diario_abierto_hasta",
-                    0
+            # Comprobar si el usuario activó un PIN
+            try:
+                candado = leer_seguridad(
+                    session["id_usuario"]
                 )
+
+            except Error:
+                app.logger.exception(
+                    "No se pudo verificar la seguridad del diario"
+                )
+
+                if ruta.startswith("/api/"):
+                    return jsonify({
+                        "mensaje": "No pudimos verificar la seguridad del diario."
+                    }), 503
+
+                return "No pudimos verificar la seguridad del diario.", 503
+
+            # Si NO tiene PIN, permitir acceso directo
+            if candado is None:
+                cerrar_acceso()
+                return None
+
+            # Si tiene PIN, comprobar desbloqueo
+            if float(
+                session.get("diario_abierto_hasta", 0)
             ) > time.time():
 
                 abrir_acceso()
@@ -148,25 +162,20 @@ def registrar_seguridad_diario(
 
             cerrar_acceso()
 
+            # Bloquear API cuando el PIN está activado
             if ruta.startswith("/api/"):
 
                 return jsonify({
-                    "mensaje": (
-                        "Desbloquea Mi Diario "
-                        "antes de continuar."
-                    ),
-                    "redirigir": url_for(
-                        "pantalla_pin_diario"
-                    )
+                    "mensaje": "Desbloquea Mi Diario antes de continuar.",
+                    "redirigir": url_for("pantalla_pin_diario")
                 }), 423
 
+            # Mostrar pantalla para introducir el PIN
             return redirect(
                 url_for("pantalla_pin_diario")
             )
 
-        # Salir a otras pantallas vuelve
-        # a cerrar el candado.
-
+        # Al salir del diario se cierra el desbloqueo
         otras_pantallas = (
             "/",
             "/inicio",
@@ -188,6 +197,7 @@ def registrar_seguridad_diario(
             cerrar_acceso()
 
         return None
+
 
     # Evitar que se guarden páginas privadas
     # en la caché del navegador.
@@ -253,6 +263,210 @@ def registrar_seguridad_diario(
                 if fila else ""
             ) or ""
         )
+
+
+    # ====================================================
+    # CONFIGURAR PIN OPCIONAL DE MI DIARIO
+    # ====================================================
+
+    @app.route("/diario/seguridad", methods=["GET"])
+    @requiere_sesion
+    def configurar_seguridad_diario():
+
+        try:
+            fila = leer_seguridad(
+                session["id_usuario"]
+            )
+
+        except Error:
+            app.logger.exception(
+                "Error consultando seguridad del diario"
+            )
+
+            return (
+                "No pudimos cargar la configuración.",
+                503
+            )
+
+        return render_template(
+            "diario_seguridad.html",
+            tiene_pin=fila is not None
+        )
+
+    # ====================================================
+    # DESACTIVAR PIN DE MI DIARIO
+    # ====================================================
+
+    @app.route(
+        "/api/diario-pin/desactivar",
+        methods=["POST"]
+    )
+    @requiere_sesion
+    def desactivar_pin_diario():
+
+        error = csrf_valido()
+
+        if error:
+            return error
+
+        datos = request.get_json(silent=True)
+
+        if not isinstance(datos, dict):
+            return jsonify({
+                "mensaje": "Datos inválidos."
+            }), 400
+
+        pin = datos.get("pin")
+        contrasena = datos.get("contrasena")
+
+        if (
+            not validar_pin(pin)
+            or not isinstance(contrasena, str)
+            or not contrasena
+        ):
+            return jsonify({
+                "mensaje": (
+                    "Ingresa el PIN actual y "
+                    "la contraseña de CONTIGO."
+                )
+            }), 400
+
+        conexion = None
+        cursor = None
+
+        try:
+            conexion = db()
+            cursor = conexion.cursor(dictionary=True)
+
+            usuario_id = session["id_usuario"]
+
+            cursor.execute("""
+                SELECT pin_hash, intentos, bloqueado_hasta
+                FROM seguridad_diario
+                WHERE id_usuario = %s
+                FOR UPDATE
+            """, (usuario_id,))
+
+            candado = cursor.fetchone()
+
+            if candado is None:
+                return jsonify({
+                    "mensaje": "Tu diario no tiene un PIN activo."
+                }), 409
+
+            if (
+                candado["bloqueado_hasta"]
+                and candado["bloqueado_hasta"] > ahora()
+            ):
+                return jsonify({
+                    "mensaje": (
+                        "El PIN está bloqueado temporalmente. "
+                        "Espera 5 minutos."
+                    )
+                }), 429
+
+            cursor.execute("""
+                SELECT contrasena
+                FROM usuarios
+                WHERE id_usuario = %s
+            """, (usuario_id,))
+
+            usuario = cursor.fetchone()
+
+            pin_correcto = check_password_hash(
+                candado["pin_hash"],
+                pin
+            )
+
+            contrasena_correcta = bool(
+                usuario and check_password_hash(
+                    usuario["contrasena"],
+                    contrasena
+                )
+            )
+
+            if not (
+                pin_correcto
+                and contrasena_correcta
+            ):
+
+                intentos = int(
+                    candado["intentos"] or 0
+                ) + 1
+
+                bloqueo = (
+                    ahora() + timedelta(minutes=5)
+                    if intentos >= 5
+                    else None
+                )
+
+                cursor.execute("""
+                    UPDATE seguridad_diario
+                    SET intentos = %s,
+                        bloqueado_hasta = %s
+                    WHERE id_usuario = %s
+                """, (
+                    0 if bloqueo else intentos,
+                    bloqueo,
+                    usuario_id
+                ))
+
+                conexion.commit()
+
+                return jsonify({
+                    "mensaje": (
+                        "PIN o contraseña incorrectos. "
+                        + (
+                            "Espera 5 minutos."
+                            if bloqueo
+                            else "Intenta nuevamente."
+                        )
+                    )
+                }), 429 if bloqueo else 403
+
+            # Eliminar solamente la protección.
+            # NO se eliminan los escritos del diario.
+
+            cursor.execute("""
+                DELETE FROM seguridad_diario
+                WHERE id_usuario = %s
+            """, (usuario_id,))
+
+            conexion.commit()
+
+            cerrar_acceso()
+
+            return jsonify({
+                "mensaje": (
+                    "PIN desactivado correctamente. "
+                    "Tus escritos se conservaron."
+                ),
+                "redirigir": url_for("diario")
+            }), 200
+
+        except Error:
+
+            if conexion is not None:
+                conexion.rollback()
+
+            app.logger.exception(
+                "Error al desactivar el PIN"
+            )
+
+            return jsonify({
+                "mensaje": (
+                    "No pudimos desactivar el PIN."
+                )
+            }), 503
+
+        finally:
+
+            if cursor is not None:
+                cursor.close()
+
+            if conexion is not None:
+                conexion.close()
+
 
     # ==========================================
     # PANTALLA PARA RECUPERAR PIN

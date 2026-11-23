@@ -1,889 +1,1278 @@
 
-/* =====================================
-   CONTIGO - PANTALLA PRINCIPAL
-===================================== */
+/* ==========================================================
+   CONTIGO - PANTALLA DE INICIO
+   DISEÑO UNIFICADO
 
-* {
-    margin: 0;
-    padding: 0;
+   Compatible con:
+   - inicio.html
+   - Registro de emociones
+   - IAN
+   - Constelación de Bienestar
+   - Notificaciones
+   - Menú inferior
+
+   PALETA:
+   Lavanda:  #F4F0FF
+   Azul:     #EDF5FF
+   Rosa:     #FCEBF5
+   Blanco:   #FFFBFF
+   Morado:   #9666DC
+   Rosa btn: #DB7FBB
+========================================================== */
+
+
+/* ==========================================================
+   1. VARIABLES DE DISEÑO
+========================================================== */
+
+body.pagina-inicio {
+
+    --inicio-lavanda: #F4F0FF;
+    --inicio-azul: #EDF5FF;
+    --inicio-rosa: #FCEBF5;
+
+    --inicio-blanco: #FFFBFF;
+    --inicio-lila: #F5EEFF;
+    --inicio-lila-fuerte: #E8DAFF;
+
+    --inicio-morado: #9666DC;
+    --inicio-rosa-boton: #DB7FBB;
+
+    --inicio-titulo: #38235F;
+    --inicio-texto: #67567F;
+
+    --inicio-borde: #E3D5F7;
+
+    --inicio-degradado-boton:
+        linear-gradient(
+            90deg,
+            #9666DC,
+            #DB7FBB
+        );
+
+    --inicio-sombra:
+        0 7px 22px rgba(
+            69,
+            45,
+            111,
+            0.07
+        );
+}
+
+
+/* ==========================================================
+   2. ESTILOS GENERALES
+========================================================== */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 body.pagina-inicio {
-    font-family: "Segoe UI", Arial, sans-serif;
-    color: #29205c;
+    margin: 0;
+
+    min-height: 100vh;
+
+    padding: 18px 14px 125px;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-size: 16px;
+    line-height: 1.6;
+
+    color: var(--inicio-titulo);
 
     background:
         radial-gradient(
-            circle at 12% 12%,
-            #e9e3f4 0%,
-            transparent 38%
-        ),
-        radial-gradient(
-            circle at 88% 28%,
-            #dcefe7 0%,
-            transparent 38%
+            circle at 8% 12%,
+            rgba(195, 173, 239, 0.14),
+            transparent 40%
         ),
         linear-gradient(
-            145deg,
-            #59139e,
-            #0b92a1,
-            #541dad
+            125deg,
+            #F4F0FF 0%,
+            #EDF5FF 64%,
+            #FCEBF5 100%
         );
-
-    min-height: 100vh;
-    padding: 25px 15px;
 }
 
-.contenedor-inicio {
-    width: 100%;
-    max-width: 850px;
-    margin: 0 auto;
+body.pagina-inicio button,
+body.pagina-inicio input,
+body.pagina-inicio textarea,
+body.pagina-inicio select {
+    font-family: inherit;
+}
+
+body.pagina-inicio img {
+    max-width: 100%;
+}
+
+body.pagina-inicio [hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================================
+   3. CONTENEDOR PRINCIPAL
+========================================================== */
+
+body.pagina-inicio .contenedor-inicio {
 
     display: flex;
     flex-direction: column;
-    gap: 17px;
+
+    width: 100%;
+    max-width: 1120px;
+
+    margin: 0 auto;
+
+    gap: 18px;
 }
 
-/* =====================================
-   ENCABEZADO
-===================================== */
 
-.encabezado-inicio {
-    background: linear-gradient(
-        120deg,
-        #fffaf6,
-        #f8f1ff
-    );
+/* ==========================================================
+   4. ENCABEZADO
+========================================================== */
 
-    border: 1px solid #ffffff;
-    border-radius: 28px;
-    padding: 19px 24px;
+body.pagina-inicio .encabezado-inicio {
 
     display: flex;
+    align-items: center;
     justify-content: space-between;
+
+    gap: 15px;
+
+    width: 100%;
+
+    padding: 17px 22px;
+
+    background: #FFFBFF;
+
+    border: 1px solid
+        var(--inicio-borde);
+
+    border-radius: 23px;
+
+    box-shadow: var(--inicio-sombra);
+}
+
+/* Saludo */
+
+body.pagina-inicio .encabezado-inicio h2 {
+
+    margin: 0;
+
+    color: var(--inicio-titulo);
+
+    font-size: 23px;
+    font-weight: 850;
+
+    line-height: 1.35;
+}
+
+body.pagina-inicio #nombre-usuario {
+
+    color: #9666DC;
+
+    font-weight: 850;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================================================
+   5. CAMPANITA Y CONFIGURACIÓN
+========================================================== */
+
+body.pagina-inicio .acciones-encabezado {
+
+    display: flex;
     align-items: center;
-    gap: 12px;
 
-    box-shadow: 0 6px 20px #51406f16;
+    gap: 9px;
+
+    flex-shrink: 0;
 }
 
-.encabezado-inicio h2 {
-    font-size: 24px;
-    font-weight: 750;
-}
-
-#nombre-usuario {
-    color: #946bd8;
-}
-
-.acciones-encabezado {
-    display: flex;
-    gap: 10px;
-}
-
-.acciones-encabezado a {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: #f1e9f8;
+body.pagina-inicio .acciones-encabezado a {
 
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: center;
 
-    font-size: 24px;
+    width: 44px;
+    height: 44px;
+
+    background: #F3EAFE;
+
+    border: 1px solid #E9DBFA;
+    border-radius: 50%;
+
+    color: #633C99;
+
+    font-size: 22px;
+
     text-decoration: none;
 
-    transition: transform 0.2s;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
-.acciones-encabezado a:hover {
-    transform: scale(1.08);
+body.pagina-inicio .acciones-encabezado a:hover {
+
+    background: #EADDFF;
+
+    transform: translateY(-2px);
 }
 
-/* =====================================
-   BIENVENIDA
-===================================== */
 
-.bienvenida-inicio {
-    background: linear-gradient(
-        115deg,
-        #f1e7ff,
-        #fff8f2 60%,
-        #e6f3eb
-    );
+/* ==========================================================
+   6. TARJETA DE BIENVENIDA
+========================================================== */
 
-    border: 1px solid #ffffff;
-    border-radius: 30px;
-    padding: 24px;
+body.pagina-inicio .bienvenida-inicio {
 
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
 
-    min-height: 245px;
-    box-shadow: 0 7px 22px #51406f16;
+    width: 100%;
+
+    min-height: 230px;
+
+    gap: 28px;
+
+    padding: 24px 30px;
+
+    background:
+        linear-gradient(
+            110deg,
+            #FFFBFF 0%,
+            #F3ECFF 52%,
+            #E9F4FF 100%
+        );
+
+    border: 1px solid
+        var(--inicio-borde);
+
+    border-radius: 27px;
+
+    box-shadow: var(--inicio-sombra);
+
     overflow: hidden;
 }
 
-.mascota-inicio {
-    width: 42%;
-    max-width: 300px;
-    height: 230px;
+
+/* ==========================================================
+   7. IMAGEN OFICIAL DEL ZORRITO
+========================================================== */
+
+body.pagina-inicio .mascota-inicio {
+
+    display: block;
+
+    width: 34%;
+    max-width: 245px;
+
+    height: 205px;
+
+    flex-shrink: 0;
 
     object-fit: contain;
-    flex-shrink: 0;
+
+    border-radius: 18px;
 }
 
-.texto-bienvenida {
+
+/* ==========================================================
+   8. TEXTO DE BIENVENIDA
+========================================================== */
+
+body.pagina-inicio .texto-bienvenida {
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
     flex: 1;
     min-width: 0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
     text-align: center;
 }
 
-.texto-bienvenida h1 {
-    color: #936dd7;
-    font-size: clamp(30px, 4vw, 43px);
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    line-height: 1.25;
+body.pagina-inicio .texto-bienvenida h1 {
+
     margin: 0;
-}
 
-/* =====================================
-   EMOCIONES
-===================================== */
+    max-width: 530px;
 
-.seccion-emociones {
-    background: linear-gradient(
-        150deg,
-        #fffaf6,
-        #fdf5ff 55%,
-        #f5f0ff
+    color: #9666DC;
+
+    font-size: clamp(
+        27px,
+        3.6vw,
+        36px
     );
 
-    border: 1px solid #ffffff;
-    border-radius: 30px;
-    padding: 30px 24px;
+    font-weight: 900;
 
-    box-shadow: 0 7px 22px #51406f14;
+    letter-spacing: 0.3px;
+
+    line-height: 1.25;
 }
 
-/* Pregunta principal */
+body.pagina-inicio .texto-bienvenida h2 {
 
-.pregunta-emocional {
-    text-align: center;
-    color: #51406f;
+    margin: 0 0 8px;
 
-    font-size: clamp(26px, 4vw, 34px);
-    font-weight: 800;
+    color: var(--inicio-titulo);
+
+    font-size: 23px;
+}
+
+body.pagina-inicio .texto-bienvenida p {
+
+    margin: 0;
+
+    color: var(--inicio-texto);
+
+    font-size: 16px;
+
+    line-height: 1.6;
+}
+
+
+/* ==========================================================
+   9. TARJETA DE EMOCIONES
+========================================================== */
+
+body.pagina-inicio .seccion-emociones {
+
+    width: 100%;
+
+    padding: 29px 26px;
+
+    background: #FFFBFF;
+
+    border: 1px solid
+        var(--inicio-borde);
+
+    border-radius: 26px;
+
+    box-shadow: var(--inicio-sombra);
+}
+
+
+/* ==========================================================
+   10. TÍTULOS DE EMOCIONES
+========================================================== */
+
+body.pagina-inicio .pregunta-emocional {
+
+    margin: 0 0 24px;
+
+    color: var(--inicio-titulo);
+
+    font-size: clamp(
+        25px,
+        3vw,
+        32px
+    );
+
+    font-weight: 900;
+
     line-height: 1.3;
 
-    margin-bottom: 28px;
+    text-align: center;
 }
 
-/* Subtítulo */
+body.pagina-inicio .titulo-estado {
 
-.titulo-estado {
-    color: #51406f;
-    font-size: 21px;
-    font-weight: 750;
-    margin-bottom: 20px;
+    margin: 0 0 19px;
+
+    color: #493275;
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    line-height: 1.4;
 }
 
-/* Contenedor de emociones */
 
-.lista-emociones {
+/* ==========================================================
+   11. LISTADO DE EMOCIONES
+========================================================== */
+
+body.pagina-inicio .lista-emociones {
+
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-}
 
-/* Botones de emociones */
-
-.lista-emociones button {
-    border: 1px solid #51406f14;
-    border-radius: 35px;
-
-    padding: 14px 19px;
-
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.4;
-
-    color: #30244f;
-    cursor: pointer;
-
-    background: #e9dcff;
-    box-shadow: 0 3px 8px #51406f12;
-
-    transition:
-        transform 0.2s,
-        box-shadow 0.2s,
-        border-color 0.2s;
-}
-
-/* Colores de emociones */
-
-.lista-emociones button:nth-child(7n + 1) {
-    background: #eadcff;
-}
-
-.lista-emociones button:nth-child(7n + 2) {
-    background: #d7eaff;
-}
-
-.lista-emociones button:nth-child(7n + 3) {
-    background: #e4e1f1;
-}
-
-.lista-emociones button:nth-child(7n + 4) {
-    background: #ffe0eb;
-}
-
-.lista-emociones button:nth-child(7n + 5) {
-    background: #ffdce0;
-}
-
-.lista-emociones button:nth-child(7n + 6) {
-    background: #ffe8c8;
-}
-
-.lista-emociones button:nth-child(7n) {
-    background: #d9f0e4;
-}
-
-/* Efectos de los botones */
-
-.lista-emociones button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 7px 16px #51406f26;
-    border-color: #9b7ede;
-}
-
-.lista-emociones button:focus-visible {
-    outline: 3px solid #9b7ede;
-    outline-offset: 3px;
-}
-
-.lista-emociones button:active {
-    transform: scale(0.97);
-}
-
-/* Texto inferior */
-
-.ayuda-emociones {
-    text-align: center;
-    color: #796b9a;
-
-    font-size: 15px;
-    font-weight: 600;
-
-    margin-top: 22px;
-}
-
-/* =====================================
-   TARJETAS IAN Y CONSTELACIÓN
-===================================== */
-
-.tarjeta-inicio {
-    display: flex;
     align-items: center;
-    gap: 24px;
+    justify-content: center;
 
-    padding: 20px;
-    min-height: 205px;
+    gap: 11px;
 
-    border-radius: 29px;
-    border: 1px solid #ffffff;
-
-    box-shadow: 0 7px 22px #51406f16;
-    overflow: hidden;
-
-    transition: box-shadow 0.2s;
+    width: 100%;
 }
 
-.tarjeta-inicio:hover {
-    box-shadow: 0 10px 26px #51406f24;
-}
 
-/* Fondo de IAN */
+/* ==========================================================
+   12. BOTONES DE EMOCIONES
+========================================================== */
 
-.tarjeta-ian {
-    background: linear-gradient(
-        115deg,
-        #e8ddff,
-        #f5e7fb,
-        #fceff7
-    );
-}
+body.pagina-inicio .lista-emociones button {
 
-/* Fondo de constelación */
-
-.tarjeta-cielo {
-    background: linear-gradient(
-        115deg,
-        #ded5fb,
-        #f3e7fc,
-        #fff0ed
-    );
-}
-
-/* Imágenes */
-
-.imagen-tarjeta {
-    width: 35%;
-    max-width: 235px;
-    height: 175px;
-
-    border-radius: 22px;
-    flex-shrink: 0;
-}
-
-.imagen-ian {
-    object-fit: contain;
-}
-
-.imagen-cielo {
-    object-fit: cover;
-}
-
-/* Contenido */
-
-.contenido-tarjeta {
-    flex: 1;
-    min-width: 0;
-}
-
-.contenido-tarjeta h2 {
-    font-size: 25px;
-    font-weight: 750;
-    line-height: 1.3;
-
-    margin-bottom: 12px;
-    color: #29205c;
-}
-
-/* Descripciones más grandes */
-
-.contenido-tarjeta p {
-    font-size: 19px;
-    font-weight: 500;
-    line-height: 1.5;
-
-    color: #51406f;
-    margin-bottom: 18px;
-}
-
-/* Botones */
-
-.boton-tarjeta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    padding: 13px 23px;
-    border-radius: 35px;
+    min-height: 44px;
 
-    color: white;
-    text-decoration: none;
+    padding: 11px 17px;
 
-    font-size: 16px;
-    font-weight: 700;
+    background: #EADFFF;
+
+    border: 1px solid rgba(
+        90,
+        62,
+        139,
+        0.09
+    );
+
+    border-radius: 999px;
+
+    color: #38235F;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 750;
+
+    line-height: 1.35;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 3px 9px rgba(
+            69,
+            45,
+            111,
+            0.06
+        );
 
     transition:
-        transform 0.2s,
-        opacity 0.2s;
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
 
-.boton-tarjeta:hover {
+
+/* ==========================================================
+   13. COLORES DE LAS EMOCIONES
+   Conservamos variedad pastel
+========================================================== */
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n + 1) {
+
+    background: #EADFFF;
+}
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n + 2) {
+
+    background: #DCEBFF;
+}
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n + 3) {
+
+    background: #E5E3F2;
+}
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n + 4) {
+
+    background: #FFE4ED;
+}
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n + 5) {
+
+    background: #FFE0E3;
+}
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n + 6) {
+
+    background: #FFE9CB;
+}
+
+body.pagina-inicio
+.lista-emociones button:nth-child(7n) {
+
+    background: #DAF0E5;
+}
+
+
+/* ==========================================================
+   14. INTERACCIÓN DE EMOCIONES
+========================================================== */
+
+body.pagina-inicio .lista-emociones button:hover {
+
     transform: translateY(-2px);
-    opacity: 0.9;
+
+    box-shadow:
+        0 7px 15px rgba(
+            69,
+            45,
+            111,
+            0.12
+        );
+
+    border-color: #A988E5;
 }
 
-/* Botón IAN */
+body.pagina-inicio
+.lista-emociones button:focus-visible {
 
-.boton-ian {
-    background: #8960d2;
+    outline: 3px solid #9666DC;
+
+    outline-offset: 3px;
 }
 
-/* Botón constelación */
+body.pagina-inicio
+.lista-emociones button:active {
 
-.boton-cielo {
-    background: #e87ca7;
+    transform: scale(0.97);
 }
 
-/* =====================================
-   MENÚ INFERIOR
-===================================== */
 
-.navegacion-inferior {
-    background: #fffaf6;
+/* ==========================================================
+   15. TEXTO DE AYUDA DE EMOCIONES
+========================================================== */
 
-    border: 1px solid #ffffff;
-    border-radius: 29px;
+body.pagina-inicio .ayuda-emociones {
 
-    padding: 16px 12px;
+    margin: 21px 0 0;
 
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
+    color: #806AA0;
 
-    box-shadow: 0 7px 22px #51406f16;
+    font-size: 14px;
+
+    font-weight: 650;
+
+    line-height: 1.5;
+
+    text-align: center;
 }
 
-.navegacion-inferior a {
+
+/* ==========================================================
+   16. TARJETAS DE IAN Y CONSTELACIÓN
+========================================================== */
+
+body.pagina-inicio .tarjeta-inicio {
+
     display: flex;
-    flex-direction: column;
+    align-items: center;
+
+    gap: 25px;
+
+    width: 100%;
+
+    min-height: 195px;
+
+    padding: 22px 26px;
+
+    border: 1px solid
+        var(--inicio-borde);
+
+    border-radius: 25px;
+
+    box-shadow: var(--inicio-sombra);
+
+    overflow: hidden;
+
+    transition:
+        box-shadow 0.2s ease;
+}
+
+body.pagina-inicio .tarjeta-inicio:hover {
+
+    box-shadow:
+        0 11px 25px rgba(
+            69,
+            45,
+            111,
+            0.11
+        );
+}
+
+
+/* ==========================================================
+   17. TARJETA DE IAN
+========================================================== */
+
+body.pagina-inicio .tarjeta-ian {
+
+    background:
+        linear-gradient(
+            115deg,
+            #F1E8FF 0%,
+            #F9F1FF 55%,
+            #EDF5FF 100%
+        );
+}
+
+
+/* ==========================================================
+   18. TARJETA DE CONSTELACIÓN
+========================================================== */
+
+body.pagina-inicio .tarjeta-cielo {
+
+    background:
+        linear-gradient(
+            115deg,
+            #EDF3FF 0%,
+            #F4EEFF 55%,
+            #FCEBF5 100%
+        );
+}
+
+
+/* ==========================================================
+   19. IMÁGENES DE LAS TARJETAS
+========================================================== */
+
+body.pagina-inicio .imagen-tarjeta {
+
+    display: block;
+
+    width: 31%;
+    max-width: 210px;
+
+    height: 160px;
+
+    flex-shrink: 0;
+
+    border-radius: 18px;
+}
+
+body.pagina-inicio .imagen-ian {
+
+    object-fit: contain;
+}
+
+body.pagina-inicio .imagen-cielo {
+
+    object-fit: cover;
+}
+
+
+/* ==========================================================
+   20. CONTENIDO DE LAS TARJETAS
+========================================================== */
+
+body.pagina-inicio .contenido-tarjeta {
+
+    flex: 1;
+    min-width: 0;
+}
+
+body.pagina-inicio .contenido-tarjeta h2 {
+
+    margin: 0 0 10px;
+
+    color: var(--inicio-titulo);
+
+    font-size: 23px;
+
+    font-weight: 850;
+
+    line-height: 1.3;
+}
+
+body.pagina-inicio .contenido-tarjeta p {
+
+    margin: 0 0 17px;
+
+    color: var(--inicio-texto);
+
+    font-size: 16px;
+
+    font-weight: 500;
+
+    line-height: 1.65;
+}
+
+
+/* ==========================================================
+   21. BOTONES DE IAN Y CONSTELACIÓN
+========================================================== */
+
+body.pagina-inicio .boton-tarjeta {
+
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
 
-    padding: 12px 5px;
-    border-radius: 16px;
+    min-height: 43px;
+
+    padding: 10px 19px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #9666DC,
+            #DB7FBB
+        );
+
+    border: 0;
+    border-radius: 13px;
+
+    color: #FFFFFF;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    line-height: 1.4;
 
     text-align: center;
     text-decoration: none;
 
-    color: #918ca7;
-    font-size: 15px;
-    font-weight: 600;
-
-    transition: background 0.2s;
+    transition:
+        filter 0.2s ease,
+        transform 0.2s ease;
 }
 
-.navegacion-inferior a:hover {
-    background: #f1e7fc;
+body.pagina-inicio .boton-tarjeta:hover {
+
+    filter: brightness(1.04);
+
+    transform: translateY(-2px);
 }
 
+body.pagina-inicio .boton-ian {
+
+    background:
+        linear-gradient(
+            90deg,
+            #9666DC,
+            #BA7DE1
+        );
+}
+
+body.pagina-inicio .boton-cielo {
+
+    background:
+        linear-gradient(
+            90deg,
+            #A270E0,
+            #DB7FBB
+        );
+}
+
+
+/* ==========================================================
+   22. MENÚ INFERIOR
+   Unificado con Mi Diario y Red de Apoyo
+========================================================== */
+
+body.pagina-inicio .navegacion-inferior {
+
+    position: fixed;
+
+    z-index: 100;
+
+    bottom: 12px;
+    left: 50%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    align-items: stretch;
+
+    gap: 6px;
+
+    width: min(
+        calc(100% - 24px),
+        540px
+    );
+
+    margin: 0;
+
+    padding: 7px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.97
+    );
+
+    border: 1px solid
+        var(--inicio-borde);
+
+    border-radius: 23px;
+
+    box-shadow:
+        0 10px 28px rgba(
+            61,
+            41,
+            99,
+            0.15
+        );
+
+    transform: translateX(-50%);
+}
+
+
+/* ==========================================================
+   23. ENLACES DEL MENÚ INFERIOR
+========================================================== */
+
+body.pagina-inicio .navegacion-inferior a {
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    min-width: 0;
+    min-height: 58px;
+
+    padding: 7px 5px;
+
+    border-radius: 16px;
+
+    color: #67567F;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    text-align: center;
+    text-decoration: none;
+}
+
+body.pagina-inicio .navegacion-inferior a:hover {
+
+    background: #F1E8FF;
+}
+
+body.pagina-inicio
 .navegacion-inferior a.activo {
-    color: #7952c3;
-    font-weight: 800;
-    background: #f2e9ff;
+
+    background: #E9DDFF;
+
+    color: #5D329B;
+
+    font-weight: 850;
 }
 
-/* Iconos originales */
+body.pagina-inicio .icono-menu {
 
-.icono-menu {
-    font-size: 28px;
+    display: block;
+
+    font-size: 21px;
+
     line-height: 1.2;
 }
 
-/* =====================================
-   DISEÑO RESPONSIVE - TABLET
-===================================== */
 
-@media (max-width: 768px) {
+/* ==========================================================
+   24. ACCESIBILIDAD
+========================================================== */
 
-    .bienvenida-inicio {
-        gap: 16px;
-        padding: 18px;
+body.pagina-inicio :is(
+    a,
+    button
+):focus-visible {
+
+    outline: 3px solid #9666DC;
+
+    outline-offset: 3px;
+}
+
+
+/* ==========================================================
+   25. ADAPTACIÓN PARA TABLETAS
+========================================================== */
+
+@media (max-width: 850px) {
+
+    body.pagina-inicio {
+
+        padding: 15px 10px 125px;
     }
 
-    .mascota-inicio {
-        height: 205px;
+    body.pagina-inicio .contenedor-inicio {
+
+        gap: 15px;
     }
 
-    .texto-bienvenida h1 {
-        font-size: 32px;
+    body.pagina-inicio .bienvenida-inicio {
+
+        padding: 20px;
+
+        gap: 18px;
     }
 
-    .seccion-emociones {
-        padding: 25px 18px;
+    body.pagina-inicio .mascota-inicio {
+
+        max-width: 205px;
+
+        height: 185px;
     }
 
-    .lista-emociones button {
-        font-size: 16px;
-        padding: 12px 15px;
+    body.pagina-inicio .seccion-emociones {
+
+        padding: 24px 20px;
     }
 
-    .contenido-tarjeta h2 {
-        font-size: 22px;
+    body.pagina-inicio .lista-emociones {
+
+        gap: 10px;
     }
 
-    .contenido-tarjeta p {
-        font-size: 17px;
+    body.pagina-inicio .lista-emociones button {
+
+        font-size: 14px;
+
+        padding: 10px 14px;
+    }
+
+    body.pagina-inicio .contenido-tarjeta h2 {
+
+        font-size: 21px;
+    }
+
+    body.pagina-inicio .contenido-tarjeta p {
+
+        font-size: 15px;
     }
 }
 
-/* =====================================
-   DISEÑO RESPONSIVE - CELULAR
-===================================== */
 
-@media (max-width: 480px) {
+/* ==========================================================
+   26. ADAPTACIÓN PARA CELULARES
+========================================================== */
+
+@media (max-width: 600px) {
 
     body.pagina-inicio {
-        padding: 12px 9px;
+
+        padding: 9px 8px 115px;
     }
 
-    .contenedor-inicio {
+    body.pagina-inicio .contenedor-inicio {
+
         gap: 12px;
     }
 
-    /* Encabezado */
+    /* ENCABEZADO */
 
-    .encabezado-inicio {
-        padding: 13px 15px;
-        border-radius: 22px;
+    body.pagina-inicio .encabezado-inicio {
+
+        padding: 12px 13px;
+
+        gap: 8px;
+
+        border-radius: 18px;
     }
 
-    .encabezado-inicio h2 {
-        font-size: 17px;
+    body.pagina-inicio .encabezado-inicio h2 {
+
+        font-size: 16px;
+
+        line-height: 1.35;
     }
 
-    .acciones-encabezado {
+    body.pagina-inicio .acciones-encabezado {
+
         gap: 7px;
     }
 
-    .acciones-encabezado a {
+    body.pagina-inicio .acciones-encabezado a {
+
         width: 37px;
         height: 37px;
-        font-size: 20px;
+
+        font-size: 19px;
     }
 
-    /* Bienvenida */
+    /* BIENVENIDA */
 
-    .bienvenida-inicio {
-        min-height: 185px;
-        padding: 12px;
-        gap: 10px;
-        border-radius: 23px;
+    body.pagina-inicio .bienvenida-inicio {
+
+        gap: 11px;
+
+        min-height: 160px;
+
+        padding: 13px 11px;
+
+        border-radius: 21px;
     }
 
-    .mascota-inicio {
+    body.pagina-inicio .mascota-inicio {
+
         width: 43%;
-        height: 165px;
+
+        max-width: 155px;
+
+        height: 145px;
     }
 
-    .texto-bienvenida h1 {
-        font-size: clamp(23px, 6.5vw, 30px);
-        line-height: 1.3;
-        margin: 0;
+    body.pagina-inicio .texto-bienvenida h1 {
+
+        font-size: clamp(
+            19px,
+            5.5vw,
+            26px
+        );
+
+        letter-spacing: 0;
     }
 
-    /* Emociones */
+    body.pagina-inicio .texto-bienvenida h2 {
 
-    .seccion-emociones {
-        padding: 23px 13px;
-        border-radius: 23px;
-    }
-
-    .pregunta-emocional {
-        font-size: 25px;
-        margin-bottom: 23px;
-    }
-
-    .titulo-estado {
-        font-size: 18px;
-        margin-bottom: 17px;
-    }
-
-    .lista-emociones {
-        gap: 9px;
-    }
-
-    .lista-emociones button {
-        font-size: 15px;
-        font-weight: 700;
-        padding: 11px 13px;
-    }
-
-    .ayuda-emociones {
-        font-size: 14px;
-        margin-top: 18px;
-    }
-
-    /* Tarjetas */
-
-    .tarjeta-inicio {
-        gap: 12px;
-        padding: 13px;
-        min-height: 155px;
-        border-radius: 23px;
-    }
-
-    .imagen-tarjeta {
-        width: 35%;
-        height: 130px;
-        border-radius: 15px;
-    }
-
-    .contenido-tarjeta h2 {
-        font-size: 18px;
-        margin-bottom: 8px;
-    }
-
-    .contenido-tarjeta p {
-        font-size: 15px;
-        line-height: 1.45;
-        margin-bottom: 12px;
-    }
-
-    .boton-tarjeta {
-        padding: 10px 13px;
-        font-size: 12px;
-    }
-
-    /* Menú inferior */
-
-    .navegacion-inferior {
-        padding: 11px 5px;
-        gap: 3px;
-        border-radius: 23px;
-    }
-
-    .navegacion-inferior a {
-        font-size: 12px;
-        padding: 9px 3px;
-    }
-
-    .icono-menu {
-        font-size: 23px;
-    }
-}
-
-/* =====================================
-   CELULARES PEQUEÑOS
-===================================== */
-
-@media (max-width: 360px) {
-
-    .texto-bienvenida h1 {
-        font-size: 22px;
-    }
-
-    .imagen-tarjeta {
-        width: 32%;
-        height: 115px;
-    }
-
-    .contenido-tarjeta h2 {
         font-size: 16px;
     }
 
-    .contenido-tarjeta p {
+    body.pagina-inicio .texto-bienvenida p {
+
         font-size: 14px;
     }
 
-    .lista-emociones button {
-        font-size: 14px;
-        padding: 10px 11px;
+    /* EMOCIONES */
+
+    body.pagina-inicio .seccion-emociones {
+
+        padding: 22px 13px;
+
+        border-radius: 21px;
+    }
+
+    body.pagina-inicio .pregunta-emocional {
+
+        font-size: 25px;
+
+        margin-bottom: 22px;
+    }
+
+    body.pagina-inicio .titulo-estado {
+
+        font-size: 17px;
+
+        margin-bottom: 17px;
+    }
+
+    body.pagina-inicio .lista-emociones {
+
+        gap: 8px;
+    }
+
+    body.pagina-inicio .lista-emociones button {
+
+        min-height: 39px;
+
+        padding: 9px 12px;
+
+        font-size: 13px;
+
+        font-weight: 750;
+    }
+
+    body.pagina-inicio .ayuda-emociones {
+
+        margin-top: 18px;
+
+        font-size: 13px;
+    }
+
+    /* TARJETAS IAN Y CONSTELACIÓN */
+
+    body.pagina-inicio .tarjeta-inicio {
+
+        gap: 13px;
+
+        min-height: 155px;
+
+        padding: 14px;
+
+        border-radius: 21px;
+    }
+
+    body.pagina-inicio .imagen-tarjeta {
+
+        width: 34%;
+
+        max-width: 130px;
+
+        height: 125px;
+
+        border-radius: 14px;
+    }
+
+    body.pagina-inicio .contenido-tarjeta h2 {
+
+        font-size: 17px;
+
+        margin-bottom: 7px;
+    }
+
+    body.pagina-inicio .contenido-tarjeta p {
+
+        font-size: 13px;
+
+        line-height: 1.5;
+
+        margin-bottom: 11px;
+    }
+
+    body.pagina-inicio .boton-tarjeta {
+
+        min-height: 38px;
+
+        padding: 9px 12px;
+
+        font-size: 12px;
+    }
+
+    /* NAVEGACIÓN INFERIOR */
+
+    body.pagina-inicio .navegacion-inferior {
+
+        bottom: max(
+            8px,
+            env(safe-area-inset-bottom)
+        );
+
+        width: calc(100% - 16px);
+
+        padding: 7px;
+    }
+
+    body.pagina-inicio .navegacion-inferior a {
+
+        min-height: 55px;
+
+        padding: 7px 3px;
+
+        font-size: 11px;
+    }
+
+    body.pagina-inicio .icono-menu {
+
+        font-size: 20px;
     }
 }
 
-/* ========================= */
-/* MODALES EMOCIONES CONTIGO */
-/* ========================= */
 
-.oculto {
-  display: none !important;
+/* ==========================================================
+   27. CELULARES PEQUEÑOS
+========================================================== */
+
+@media (max-width: 360px) {
+
+    body.pagina-inicio .encabezado-inicio h2 {
+
+        font-size: 14px;
+    }
+
+    body.pagina-inicio .mascota-inicio {
+
+        width: 39%;
+
+        height: 115px;
+    }
+
+    body.pagina-inicio .texto-bienvenida h1 {
+
+        font-size: 19px;
+    }
+
+    body.pagina-inicio .pregunta-emocional {
+
+        font-size: 22px;
+    }
+
+    body.pagina-inicio .lista-emociones button {
+
+        font-size: 12px;
+
+        padding: 8px 10px;
+    }
+
+    body.pagina-inicio .imagen-tarjeta {
+
+        width: 31%;
+
+        height: 110px;
+    }
+
+    body.pagina-inicio .contenido-tarjeta h2 {
+
+        font-size: 15px;
+    }
+
+    body.pagina-inicio .contenido-tarjeta p {
+
+        font-size: 12px;
+    }
+
+    body.pagina-inicio .boton-tarjeta {
+
+        font-size: 11px;
+
+        padding: 8px 10px;
+    }
 }
 
-.modal-emocion {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
 
-.modal-emocion__fondo {
-  position: absolute;
-  inset: 0;
-  background: rgba(69, 52, 119, 0.35);
-  backdrop-filter: blur(3px);
-}
+/* ==========================================================
+   28. PREFERENCIAS DE ACCESIBILIDAD
+========================================================== */
 
-.modal-emocion__contenido {
-  position: relative;
-  width: min(92%, 430px);
-  margin: 8vh auto 0;
-  background: linear-gradient(180deg, #fffefe 0%, #f9f3ff 100%);
-  border: 2px solid #e8d5ff;
-  border-radius: 28px;
-  padding: 26px 22px 24px;
-  box-shadow: 0 20px 45px rgba(92, 61, 138, 0.18);
-  text-align: center;
-  animation: aparecerModal 0.25s ease;
-}
+@media (prefers-reduced-motion: reduce) {
 
-@keyframes aparecerModal {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+    body.pagina-inicio
+    .lista-emociones button,
 
-.modal-emocion__cerrar {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 50%;
-  background: #f3eaff;
-  color: #7a4fd1;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
+    body.pagina-inicio
+    .boton-tarjeta,
 
-.modal-emocion__logo img {
-  width: 74px;
-  height: 74px;
-  object-fit: cover;
-  border-radius: 20px;
-  margin-bottom: 12px;
-}
+    body.pagina-inicio
+    .acciones-encabezado a {
 
-.modal-emocion__titulo {
-  margin: 0 0 10px;
-  color: #5a38a5;
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.modal-emocion__texto {
-  margin: 10px 0;
-  color: #6d5b92;
-  font-size: 17px;
-  line-height: 1.6;
-}
-
-.modal-emocion__emocion {
-  display: inline-block;
-  margin: 10px 0 16px;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #f3d7ff, #ffd9ea);
-  color: #563894;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.modal-emocion__acciones {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.boton-principal,
-.boton-secundario {
-  min-width: 140px;
-  border: none;
-  border-radius: 16px;
-  padding: 13px 18px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.boton-principal {
-  background: linear-gradient(90deg, #9b6ff3, #ec77ad);
-  color: white;
-}
-
-.boton-secundario {
-  background: #efe6ff;
-  color: #6e4aba;
-}
-
-.boton-principal:hover,
-.boton-secundario:hover {
-  transform: translateY(-1px);
-}
-
-.intensidad-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.intensidad-opcion {
-  width: 100%;
-  border: 2px solid #eadbfd;
-  border-radius: 18px;
-  background: #fff;
-  padding: 14px 16px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s ease;
-}
-
-.intensidad-opcion:hover {
-  border-color: #bb95f6;
-  background: #faf5ff;
-}
-
-.intensidad-opcion.activa {
-  border-color: #a56df0;
-  background: linear-gradient(90deg, #f3e4ff, #fde9f3);
-  box-shadow: 0 8px 18px rgba(158, 108, 238, 0.14);
-}
-
-.intensidad-numero {
-  display: inline-block;
-  min-width: 36px;
-  margin-right: 8px;
-  color: #5b3ea5;
-  font-size: 24px;
-  font-weight: 800;
-}
-
-.intensidad-label {
-  color: #5e5374;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.toast-emocion {
-  position: fixed;
-  left: 50%;
-  bottom: 28px;
-  transform: translateX(-50%);
-  z-index: 10000;
-  background: linear-gradient(90deg, #9b6ff3, #ec77ad);
-  color: white;
-  padding: 14px 22px;
-  border-radius: 16px;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 12px 24px rgba(112, 77, 171, 0.25);
-  text-align: center;
-  max-width: 90%;
-}
-
-@media (max-width: 480px) {
-  .modal-emocion__contenido {
-    padding: 22px 16px 20px;
-    margin-top: 6vh;
-  }
-
-  .modal-emocion__titulo {
-    font-size: 24px;
-  }
-
-  .modal-emocion__texto {
-    font-size: 15px;
-  }
-
-  .boton-principal,
-  .boton-secundario {
-    width: 100%;
-  }
+        transition: none !important;
+        animation: none !important;
+    }
 }

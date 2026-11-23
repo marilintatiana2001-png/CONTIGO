@@ -1,0 +1,463 @@
+ 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacidad de Mi Diario | CONTIGO</title>
+
+    <style>
+/* ==========================================
+   CONTIGO - PRIVACIDAD DE MI DIARIO
+   ESTILO VISUAL DEL DIARIO PRINCIPAL
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #35234f;
+    background: linear-gradient(
+        120deg,
+        #f5efff 0%,
+        #f6f1fc 45%,
+        #ebf4ff 100%
+    );
+}
+
+/* ENCABEZADO DE CONTIGO */
+
+header {
+    padding: 22px 5%;
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid #e9dff3;
+    color: #40265f;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+main {
+    width: 100%;
+    max-width: 1050px;
+    margin: 45px auto;
+    padding: 0 24px;
+}
+
+/* TARJETA BLANCA COMO MIS ESCRITOS */
+
+.panel {
+    background: rgba(255, 253, 255, 0.97);
+    padding: 40px 45px;
+    border-radius: 30px;
+    border: 1px solid #e8ddf0;
+    box-shadow: 0 8px 24px rgba(79, 51, 119, 0.08);
+}
+
+/* TITULO */
+
+h1 {
+    margin: 0 0 18px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #342052;
+}
+
+/* TEXTOS */
+
+p {
+    color: #625774;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* ESTADO DE PROTECCION DEL PIN */
+
+.estado {
+    margin: 26px 0;
+    padding: 20px 24px;
+    border-radius: 19px;
+    background: #f3edfd;
+    border: 1px solid #e5d9f3;
+    color: #685780;
+    font-size: 16px;
+}
+
+.estado strong {
+    color: #503377;
+    font-weight: 800;
+}
+
+/* FORMULARIO */
+
+form {
+    margin-top: 18px;
+}
+
+label {
+    display: block;
+    margin: 19px 0 9px;
+    color: #42305f;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* CAMPOS DE TEXTO */
+
+input {
+    width: 100%;
+    padding: 15px 17px;
+    border-radius: 15px;
+    border: 1px solid #e0d6ed;
+    background: #faf7ff;
+    color: #392755;
+    font-family: inherit;
+    font-size: 16px;
+    transition: border-color 0.2s,
+                box-shadow 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #bb9ce4;
+    box-shadow: 0 0 0 3px rgba(186, 151, 230, 0.15);
+}
+
+/* BOTONES PRINCIPALES
+   MISMO DEGRADADO DE NUEVO ESCRITO */
+
+.boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    margin: 16px 10px 6px 0;
+    padding: 13px 25px;
+
+    border: 1px solid transparent;
+    border-radius: 15px;
+
+    background: linear-gradient(
+        105deg,
+        #a065da 0%,
+        #c979c5 55%,
+        #dd82b9 100%
+    );
+
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+
+    box-shadow: 0 4px 12px rgba(148, 96, 187, 0.10);
+    transition: transform 0.2s,
+                box-shadow 0.2s,
+                filter 0.2s;
+}
+
+.boton:hover {
+    color: #ffffff;
+    filter: brightness(1.04);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 17px rgba(148, 96, 187, 0.18);
+}
+
+/* BOTON VOLVER
+   MISMO ESTILO DE PRIVACIDAD Y PIN */
+
+.boton.secundario {
+    background: #f2eef9;
+    border: 1px solid #e0d7eb;
+    color: #685281;
+    box-shadow: none;
+}
+
+.boton.secundario:hover {
+    background: #eae2f7;
+    color: #51346e;
+    box-shadow: none;
+}
+
+/* BOTONES DESHABILITADOS */
+
+.boton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.boton:focus-visible {
+    outline: 3px solid #cdb4eb;
+    outline-offset: 3px;
+}
+
+/* RECUPERACION DE PIN */
+
+.ayuda {
+    margin-top: 20px;
+    color: #78698b;
+    font-size: 14px;
+}
+
+.ayuda a {
+    color: #8256b0;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ayuda a:hover {
+    text-decoration: underline;
+}
+
+/* MENSAJES DEL SISTEMA */
+
+#respuesta {
+    min-height: 24px;
+    margin-top: 17px;
+    color: #754f9e;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* RESPONSIVE PARA CELULARES */
+
+@media (max-width: 600px) {
+
+    header {
+        padding: 18px 20px;
+        font-size: 19px;
+    }
+
+    main {
+        margin: 24px auto;
+        padding: 0 14px;
+    }
+
+    .panel {
+        padding: 27px 22px;
+        border-radius: 23px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    p {
+        font-size: 14px;
+    }
+
+    .estado {
+        padding: 17px;
+        font-size: 14px;
+    }
+
+    .boton {
+        padding: 12px 18px;
+        font-size: 14px;
+        min-height: 47px;
+    }
+}
+</style>
+
+
+    </style>
+</head>
+
+<body>
+
+    <header>CONTIGO</header>
+
+    <main>
+        <section class="panel">
+
+            <h1>Privacidad de Mi Diario</h1>
+
+            <p>
+                Tu diario es personal. Puedes usarlo sin PIN
+                o activar una protección adicional de seis
+                números cuando quieras.
+            </p>
+
+            {% if tiene_pin %}
+
+                <div class="estado">
+                    Protección con PIN:
+                    <strong>Activada</strong>
+                </div>
+
+                <p>
+                    Para desactivar el PIN, verifica tu identidad.
+                    Tus escritos seguirán guardados.
+                </p>
+
+                <form
+                    id="form-desactivar"
+                    data-url="{{ url_for('desactivar_pin_diario') }}"
+                    data-csrf="{{ csrf_contigo }}"
+                >
+
+                    <label for="pin">PIN actual</label>
+
+                    <input
+                        id="pin"
+                        name="pin"
+                        type="password"
+                        inputmode="numeric"
+                        pattern="[0-9]{6}"
+                        minlength="6"
+                        maxlength="6"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <label for="contrasena">
+                        Contraseña de CONTIGO
+                    </label>
+
+                    <input
+                        id="contrasena"
+                        name="contrasena"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button type="submit" class="boton">
+                        Desactivar PIN
+                    </button>
+
+                </form>
+
+                <p class="ayuda">
+                    <a href="{{ url_for('pantalla_recuperar_pin') }}">
+                        ¿Olvidaste tu PIN?
+                    </a>
+                </p>
+
+            {% else %}
+
+                <div class="estado">
+                    Protección con PIN:
+                    <strong>Desactivada</strong>
+                </div>
+
+                <p>
+                    Puedes entrar a Mi Diario sin un PIN
+                    adicional. Si quieres protegerlo,
+                    activa uno desde aquí.
+                </p>
+
+                <a
+                    class="boton"
+                    href="{{ url_for('pantalla_pin_diario') }}"
+                >
+                    Activar PIN
+                </a>
+
+            {% endif %}
+
+            <a
+                class="boton secundario"
+                href="{{ url_for('diario') }}"
+            >
+                Volver a Mi Diario
+            </a>
+
+            <p
+                id="respuesta"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+        </section>
+    </main>
+
+    <script>
+        const formulario = document.getElementById("form-desactivar");
+        const salida = document.getElementById("respuesta");
+
+        if (formulario) {
+
+            formulario.addEventListener(
+                "submit",
+                async function (evento) {
+
+                    evento.preventDefault();
+
+                    if (!formulario.reportValidity()) {
+                        return;
+                    }
+
+                    const boton = formulario.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                    const pin = document.getElementById("pin").value;
+                    const contrasena = document.getElementById("contrasena").value;
+
+                    const url = formulario.dataset.url;
+                    const csrf = formulario.dataset.csrf;
+
+                    boton.disabled = true;
+                    salida.textContent = "Verificando tus datos...";
+
+                    try {
+
+                        const respuesta = await fetch(url, {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-Token": csrf
+                            },
+
+                            credentials: "same-origin",
+
+                            body: JSON.stringify({
+                                pin: pin,
+                                contrasena: contrasena
+                            })
+                        });
+
+                        const datos = await respuesta.json();
+
+                        salida.textContent =
+                            datos.mensaje ||
+                            "No se pudo completar la operación.";
+
+                        if (respuesta.ok && datos.redirigir) {
+                            window.location.assign(datos.redirigir);
+                        }
+
+                    } catch (error) {
+
+                        console.error(
+                            "Error al modificar el PIN:",
+                            error
+                        );
+
+                        salida.textContent =
+                            "No pudimos conectar con el servidor.";
+
+                    } finally {
+
+                        boton.disabled = false;
+                        formulario.reset();
+
+                    }
+
+                }
+            );
+        }
+    </script>
+
+</body>
+</html>

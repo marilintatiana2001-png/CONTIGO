@@ -1,16 +1,20 @@
 
-/* ==========================================
-   CONTIGO - CIELO DE BIENESTAR
-   ANIMALITOS FORMADOS POR ESTRELLAS
-========================================== */
+/* =====================================================
+   CONTIGO - MI CIELO DE BIENESTAR
+   Archivo: static/js/constelacion.js
+
+   14 constelaciones interactivas
+   8 estrellas por constelación
+   Animación final con relleno y destellos
+   Conexión con Flask y MariaDB
+===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
-
     "use strict";
 
-    // ======================================
-    // ELEMENTOS DEL HTML
-    // ======================================
+    // ================================================
+    // 1. ELEMENTOS DEL HTML
+    // ================================================
 
     const datos = document.getElementById("datos-cielo");
     const mapa = document.getElementById("mapa-estrellas");
@@ -19,9 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mensaje = document.getElementById("mensaje-cielo");
 
     if (!datos || !mapa || !galeria || !elegir) {
-        console.error(
-            "CONTIGO: faltan elementos de constelacion.html"
-        );
+        console.error("CONTIGO: faltan elementos del HTML.");
         return;
     }
 
@@ -29,11 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
         cielo = JSON.parse(datos.textContent);
+        if (!cielo || typeof cielo !== "object") {
+            throw new Error("Datos inválidos");
+        }
     } catch (error) {
-        console.error(
-            "CONTIGO: no se pudieron leer los datos del cielo",
-            error
-        );
+        console.error("Error al leer el cielo:", error);
         return;
     }
 
@@ -43,18 +45,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const csrf = document.body.dataset.csrf || "";
     const NS = "http://www.w3.org/2000/svg";
+    const META = 8;
 
+    // ================================================
+    // 2. COLORES FINALES DE LAS CONSTELACIONES
+    // ================================================
 
-    // ======================================
-    // FIGURAS DEL CIELO
-    // ======================================
-    // trazo = contorno del dibujo
-    // detalles = ojos, sonrisa, aletas, etc.
-    // Cada figura necesita 8 estrellas.
+    const colores = {
+        corazon: "#f43f67",
+        mariposa: "#a495f2",
+        flor: "#f6a2c6",
+        luna: "#ffe0a0",
+        leo: "#f4bf79",
+        aries: "#e9a5c5",
+        tauro: "#b0dec6",
+        cancer: "#96d8ec",
+        escorpio: "#bc9ce6",
+        piscis: "#8fdde4",
+        capricornio: "#c4b1ee",
+        sagitario: "#f4c6a4",
+        conejo: "#f4b9d9",
+        dragon: "#91dec0"
+    };
+
+    // ================================================
+    // 3. LAS 14 CONSTELACIONES
+    // ================================================
 
     const figuras = [
 
-        // CORAZÓN
+        // 01. CORAZÓN
         {
             id: "corazon",
             emoji: "💗",
@@ -72,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M119 83 Q102 75 90 91"
         },
 
-        // MARIPOSA
+        // 02. MARIPOSA
         {
             id: "mariposa",
             emoji: "🦋",
@@ -96,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M163 119 Q194 67 206 43"
         },
 
-        // FLOR
+        // 03. FLOR
         {
             id: "flor",
             emoji: "🌸",
@@ -119,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "C127 150 135 121 160 111 Z"
         },
 
-        // LUNA
+        // 04. LUNA
         {
             id: "luna",
             emoji: "🌙",
@@ -139,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "L212 95 L222 89 Z"
         },
 
-        // LEO - LEONCITO CON MELENA
+        // 05. LEO
         {
             id: "leo",
             emoji: "🦁",
@@ -172,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M207 91 L220 75"
         },
 
-        // ARIES - CARNERITO
+        // 06. ARIES
         {
             id: "aries",
             emoji: "🐏",
@@ -200,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M151 189 Q160 195 169 189"
         },
 
-        // TAURO - TORITO
+        // 07. TAURO
         {
             id: "tauro",
             emoji: "🐂",
@@ -231,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M171 191 L171 195"
         },
 
-        // CÁNCER - CANGREJITO
+        // 08. CÁNCER
         {
             id: "cancer",
             emoji: "🦀",
@@ -267,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M201 185 L233 218"
         },
 
-        // ESCORPIO
+        // 09. ESCORPIO
         {
             id: "escorpio",
             emoji: "🦂",
@@ -297,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M183 155 L202 171"
         },
 
-        // PISCIS - DOS PECES
+        // 10. PISCIS
         {
             id: "piscis",
             emoji: "🐟",
@@ -323,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Q202 161 156 178"
         },
 
-        // CAPRICORNIO - CABRITA
+        // 11. CAPRICORNIO
         {
             id: "capricornio",
             emoji: "🐐",
@@ -351,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M160 190 L160 218"
         },
 
-        // SAGITARIO - CABALLITO
+        // 12. SAGITARIO
         {
             id: "sagitario",
             emoji: "🐴",
@@ -377,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M103 94 L80 70"
         },
 
-        // CONEJITO LUNAR
+        // 13. CONEJITO LUNAR
         {
             id: "conejo",
             emoji: "🐇",
@@ -405,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M200 168 L235 164"
         },
 
-        // DRAGÓN
+        // 14. DRAGÓN DE LUZ
         {
             id: "dragon",
             emoji: "🐉",
@@ -434,269 +454,282 @@ document.addEventListener("DOMContentLoaded", () => {
                 "M174 180 L150 164 L161 193 " +
                 "M203 187 L223 163 L222 207"
         }
-
     ];
 
-
-    // ======================================
-    // CONFIGURACIÓN DE LAS FIGURAS
-    // ======================================
+    // ================================================
+    // 4. CATÁLOGO Y FIGURA ACTIVA
+    // ================================================
 
     const catalogo = Object.fromEntries(
-        figuras.map(figura => [
-            figura.id,
-            figura
-        ])
+        figuras.map(figura => [figura.id, figura])
     );
 
     let visible = catalogo[cielo.figura_activa]
         ? cielo.figura_activa
         : "corazon";
 
-
-    // ======================================
-    // CREAR ELEMENTOS SVG
-    // ======================================
+    // ================================================
+    // 5. CREAR ELEMENTOS SVG
+    // ================================================
 
     function svg(tipo, atributos = {}) {
-
-        const elemento = document.createElementNS(
-            NS,
-            tipo
-        );
+        const elemento = document.createElementNS(NS, tipo);
 
         for (const [nombre, valor] of Object.entries(atributos)) {
-
-            elemento.setAttribute(
-                nombre,
-                String(valor)
-            );
+            elemento.setAttribute(nombre, String(valor));
         }
 
         return elemento;
     }
 
+    // ================================================
+    // 6. CREAR ESTRELLAS
+    // ================================================
 
-    // ======================================
-    // DIBUJAR ESTRELLA DE CINCO PUNTAS
-    // ======================================
-
-    function estrella(x, y, radio, encendida) {
-
+    function crearEstrella(x, y, radio, encendida) {
         const puntos = [];
 
         for (let n = 0; n < 10; n++) {
+            const angulo = -Math.PI / 2 + Math.PI / 5 * n;
+            const r = n % 2 === 0 ? radio : radio * 0.45;
 
-            const angulo =
-                -Math.PI / 2 +
-                (Math.PI / 5) * n;
-
-            const r = n % 2 === 0
-                ? radio
-                : radio * 0.45;
-
-            const px =
-                x + Math.cos(angulo) * r;
-
-            const py =
-                y + Math.sin(angulo) * r;
+            const px = x + Math.cos(angulo) * r;
+            const py = y + Math.sin(angulo) * r;
 
             puntos.push(`${px},${py}`);
         }
 
         return svg("polygon", {
-
             points: puntos.join(" "),
-
             class: encendida
                 ? "estrella-encendida"
                 : "estrella-apagada"
         });
     }
 
+    // ================================================
+    // 7. CREAR DESTELLOS DE CELEBRACIÓN
+    // ================================================
 
-    // ======================================
-    // DIBUJAR EL ANIMALITO
-    // ======================================
+    function agregarDestellos(figura, ruta, longitud) {
+        const color = colores[figura.id] || "#d7b8ef";
+
+        for (let i = 0; i < 20; i++) {
+            const punto = ruta.getPointAtLength(
+                longitud * (i + 0.3) / 20
+            );
+
+            const angulo = i * Math.PI * 2 / 20;
+
+            const chispa = svg("circle", {
+                cx: punto.x,
+                cy: punto.y,
+                r: 2 + i % 3,
+                fill: i % 3 === 0 ? color : "#fff1c3",
+                class: "chispa-final"
+            });
+
+            chispa.style.setProperty(
+                "--dx",
+                `${Math.cos(angulo) * 29}px`
+            );
+
+            chispa.style.setProperty(
+                "--dy",
+                `${Math.sin(angulo) * 29}px`
+            );
+
+            chispa.style.setProperty(
+                "--retardo",
+                `${(i % 8) * 0.08}s`
+            );
+
+            mapa.appendChild(chispa);
+        }
+    }
+
+    // ================================================
+    // 8. DIBUJAR UNA CONSTELACIÓN
+    // ================================================
 
     function dibujar(figura, cantidad, esPrevia) {
-
         mapa.replaceChildren();
 
-        mapa.setAttribute(
-            "viewBox",
-            "0 0 320 270"
-        );
+        mapa.setAttribute("viewBox", "0 0 320 270");
 
         mapa.setAttribute(
             "aria-label",
             `${figura.nombre}: ${cantidad} de 8 estrellas encendidas`
         );
 
-
-        // ==================================
         // ESTRELLAS DECORATIVAS DEL FONDO
-        // ==================================
-
-        // Estas no cuentan como actividades.
 
         for (let i = 0; i < 34; i++) {
-
             const x = 12 + (i * 83) % 294;
             const y = 10 + (i * 113) % 245;
 
             mapa.appendChild(
                 svg("circle", {
-
                     cx: x,
                     cy: y,
-
                     r: i % 4 === 0 ? 1.5 : 0.8,
-
                     fill: "#ffffff",
-
                     opacity: 0.48
                 })
             );
         }
 
-
-        // ==================================
-        // SILUETA TENUE DEL ANIMAL
-        // ==================================
+        // SILUETA TENUE DE LA FIGURA
 
         const guia = svg("path", {
-
             d: figura.trazo,
-
             fill: "none",
-
             stroke: "#f1dcff",
-
             "stroke-width": 3,
-
             "stroke-linecap": "round",
-
             "stroke-linejoin": "round",
-
             "stroke-dasharray": "4 8",
-
-            opacity: 0.6
+            opacity: 0.6,
+            class: "linea-guia"
         });
 
         mapa.appendChild(guia);
 
+        // RELLENO FINAL CON ANIMACIÓN
+        // Solo se agrega si la figura ya tiene 8 estrellas.
 
-        // ==================================
+        if (cantidad === META) {
+            const relleno = svg("path", {
+                d: figura.trazo,
+                fill: colores[figura.id] || "#d7b8ef",
+                stroke: "none",
+                class: "relleno-final"
+            });
+
+            mapa.appendChild(relleno);
+        }
+
         // OJOS Y DETALLES
-        // ==================================
 
         const detalles = svg("path", {
-
             d: figura.detalles,
-
             fill: "none",
-
             stroke: "#f5dbf4",
-
             "stroke-width": 2.7,
-
             "stroke-linecap": "round",
-
             "stroke-linejoin": "round",
-
-            opacity: cantidad === 8
+            opacity: cantidad === META
                 ? 0.95
                 : esPrevia
                     ? 0.55
-                    : 0.32
+                    : 0.32,
+            class: "detalles-figura"
         });
 
         mapa.appendChild(detalles);
 
-
-        // ==================================
-        // CONTORNO QUE SE ILUMINA
-        // ==================================
+        // CONTORNO ILUMINADO
 
         const avance = svg("path", {
-
             d: figura.trazo,
-
             fill: "none",
-
             stroke: "#ffe5a3",
-
             "stroke-width": 4.5,
-
             "stroke-linecap": "round",
-
             "stroke-linejoin": "round",
-
-            style:
-                "filter: drop-shadow(0 0 5px #ffe6a0)"
+            class: cantidad === META
+                ? "linea-encendida trazo-final"
+                : "linea-encendida"
         });
 
         mapa.appendChild(avance);
 
-
-        // Cada estrella ilumina 1/8 del dibujo.
-
         const longitud = avance.getTotalLength();
+        const iluminado = longitud * cantidad / META;
 
-        const iluminado =
-            longitud * cantidad / 8;
+        // MOSTRAR PROGRESO DEL TRAZO
 
         if (cantidad === 0) {
-
             avance.style.display = "none";
-
         } else {
-
             avance.setAttribute(
                 "stroke-dasharray",
                 `${iluminado} ${longitud + 1}`
             );
         }
 
+        // UBICAR LAS 8 ESTRELLAS
 
-        // ==================================
-        // COLOCAR LAS 8 ESTRELLAS
-        // ==================================
-
-        for (let i = 0; i < 8; i++) {
-
-            const distancia =
-                longitud * (i + 1) / 8;
-
-            const punto =
-                avance.getPointAtLength(distancia);
-
-            const encendida =
-                i < cantidad;
+        for (let i = 0; i < META; i++) {
+            const punto = avance.getPointAtLength(
+                longitud * (i + 1) / META
+            );
 
             mapa.appendChild(
-                estrella(
+                crearEstrella(
                     punto.x,
                     punto.y,
-                    encendida ? 9 : 6.5,
-                    encendida
+                    i < cantidad ? 9 : 6.5,
+                    i < cantidad
                 )
             );
         }
+
+        // CELEBRACIÓN FINAL
+
+        if (cantidad === META) {
+            agregarDestellos(figura, avance, longitud);
+        }
+
+        // BOTÓN PARA REPETIR ANIMACIÓN
+
+        let repetir = document.getElementById(
+            "repetir-animacion"
+        );
+
+        if (!repetir) {
+            repetir = document.createElement("button");
+            repetir.id = "repetir-animacion";
+            repetir.type = "button";
+            repetir.className = "boton-elegir boton-repetir";
+            repetir.textContent = "✨ Volver a ver la animación";
+
+            repetir.addEventListener("click", () => {
+                const figuraActual = catalogo[visible];
+
+                if (!figuraActual) return;
+
+                const descubierta =
+                    cielo.descubiertas.includes(visible);
+
+                const activa =
+                    cielo.figura_activa === visible;
+
+                if (descubierta || (
+                    activa && Number(cielo.progreso) >= META
+                )) {
+                    dibujar(figuraActual, META, false);
+                }
+            });
+
+            const tarjeta = mapa.closest(".tarjeta-cielo");
+
+            if (tarjeta) {
+                tarjeta.appendChild(repetir);
+            }
+        }
+
+        repetir.hidden = cantidad !== META;
     }
 
-
-    // ======================================
-    // GALERÍA DE ANIMALITOS
-    // ======================================
+    // ================================================
+    // 9. GALERÍA DE LAS 14 FIGURAS
+    // ================================================
 
     function dibujarGaleria() {
-
         galeria.replaceChildren();
 
         for (const figura of figuras) {
-
             const descubierta =
                 cielo.descubiertas.includes(figura.id);
 
@@ -704,109 +737,62 @@ document.addEventListener("DOMContentLoaded", () => {
                 cielo.figura_activa === figura.id &&
                 !descubierta;
 
-            const tarjeta =
-                document.createElement("button");
-
+            const tarjeta = document.createElement("button");
             tarjeta.type = "button";
 
             tarjeta.className =
                 "tarjeta-figura" +
-                (
-                    visible === figura.id
-                        ? " seleccionada"
-                        : ""
-                );
+                (visible === figura.id ? " seleccionada" : "");
 
             tarjeta.setAttribute(
                 "aria-pressed",
                 String(visible === figura.id)
             );
 
-
-            // EMOJI
-            const icono =
-                document.createElement("span");
-
+            const icono = document.createElement("span");
             icono.className = "figura-emoji";
+            icono.textContent = figura.emoji;
 
-            icono.textContent =
-                figura.emoji;
+            const contenido = document.createElement("span");
 
+            const nombre = document.createElement("strong");
+            nombre.textContent = figura.nombre;
 
-            // NOMBRE
-            const contenido =
-                document.createElement("span");
-
-            const nombre =
-                document.createElement("strong");
-
-            nombre.textContent =
-                figura.nombre;
-
-
-            // ESTADO
-            const estado =
-                document.createElement("small");
+            const estado = document.createElement("small");
 
             if (descubierta) {
-
-                estado.textContent =
-                    "✨ Descubierta";
-
+                estado.textContent = "✨ Descubierta";
             } else if (activa) {
-
-                estado.textContent =
-                    "⭐ En construcción";
-
+                estado.textContent = "⭐ En construcción";
             } else {
-
-                estado.textContent =
-                    "🌙 Por descubrir";
+                estado.textContent = "🌙 Por descubrir";
             }
 
-            contenido.append(
-                nombre,
-                estado
-            );
+            contenido.append(nombre, estado);
+            tarjeta.append(icono, contenido);
 
-            tarjeta.append(
-                icono,
-                contenido
-            );
+            tarjeta.addEventListener("click", () => {
+                visible = figura.id;
 
-
-            // VER FIGURA
-            tarjeta.addEventListener(
-                "click",
-                () => {
-
-                    visible = figura.id;
-
-                    if (mensaje) {
-                        mensaje.textContent = "";
-                    }
-
-                    actualizar();
+                if (mensaje) {
+                    mensaje.textContent = "";
                 }
-            );
+
+                actualizar();
+            });
 
             galeria.appendChild(tarjeta);
         }
     }
 
-
-    // ======================================
-    // ACTUALIZAR LA PANTALLA
-    // ======================================
+    // ================================================
+    // 10. ACTUALIZAR PANTALLA Y PROGRESO
+    // ================================================
 
     function actualizar() {
+        const figura = catalogo[visible];
 
-        const figura =
-            catalogo[visible];
-
-        if (!figura) {
-            return;
-        }
+        if (!figura) return;
 
         const descubierta =
             cielo.descubiertas.includes(figura.id);
@@ -816,251 +802,194 @@ document.addEventListener("DOMContentLoaded", () => {
             !descubierta;
 
         const cantidad = descubierta
-            ? 8
+            ? META
             : activa
                 ? Math.min(
-                    8,
-                    Math.max(
-                        0,
-                        Number(cielo.progreso) || 0
-                    )
+                    META,
+                    Math.max(0, Number(cielo.progreso) || 0)
                 )
                 : 0;
 
-        const previa =
-            !descubierta && !activa;
+        const previa = !descubierta && !activa;
 
+        const nombreFigura =
+            document.getElementById("nombre-figura");
 
-        // NOMBRE DE LA FIGURA
+        if (nombreFigura) {
+            nombreFigura.textContent =
+                `${figura.emoji} ${figura.nombre}`;
+        }
 
-        document.getElementById(
-            "nombre-figura"
-        ).textContent =
-            `${figura.emoji} ${figura.nombre}`;
+        const significado =
+            document.getElementById("significado-figura");
 
+        if (significado) {
+            significado.textContent = figura.significado;
+        }
 
-        // SIGNIFICADO
+        const totalEstrellas =
+            document.getElementById("total-estrellas");
 
-        document.getElementById(
-            "significado-figura"
-        ).textContent =
-            figura.significado;
+        if (totalEstrellas) {
+            totalEstrellas.textContent =
+                cielo.estrellas_total ?? 0;
+        }
 
+        const totalFiguras =
+            document.getElementById("total-figuras");
 
-        // CONTADORES DE MARIADB
-
-        document.getElementById(
-            "total-estrellas"
-        ).textContent =
-            cielo.estrellas_total;
-
-        document.getElementById(
-            "total-figuras"
-        ).textContent =
-            cielo.constelaciones;
-
+        if (totalFiguras) {
+            totalFiguras.textContent =
+                cielo.constelaciones ?? 0;
+        }
 
         // PROGRESO
 
         const textoProgreso =
-            document.getElementById(
-                "texto-progreso"
-            );
+            document.getElementById("texto-progreso");
 
-        if (descubierta) {
-
-            textoProgreso.textContent =
-                "🌟 Animalito completado";
-
-        } else if (previa) {
-
-            textoProgreso.textContent =
-                "✨ Vista previa del animalito";
-
-        } else {
-
-            textoProgreso.textContent =
-                `${cantidad} de 8 estrellas`;
+        if (textoProgreso) {
+            if (descubierta) {
+                textoProgreso.textContent =
+                    "🌟 Constelación completada";
+            } else if (previa) {
+                textoProgreso.textContent =
+                    "✨ Vista previa de la constelación";
+            } else {
+                textoProgreso.textContent =
+                    `${cantidad} de 8 estrellas`;
+            }
         }
 
+        const relleno =
+            document.getElementById("relleno-estrellas");
 
-        // BARRA DE PROGRESO
+        if (relleno) {
+            relleno.style.width =
+                `${cantidad / META * 100}%`;
+        }
 
-        document.getElementById(
-            "relleno-estrellas"
-        ).style.width =
-            `${cantidad / 8 * 100}%`;
+        const estado =
+            document.getElementById("estado-figura");
 
-
-        // MENSAJE
-
-        document.getElementById(
-            "estado-figura"
-        ).textContent = descubierta
-            ? (
-                "¡Completaste esta figura! " +
-                "Sus estrellas siempre serán tuyas."
-            )
-            : previa
-                ? (
-                    "Esta es la silueta del animalito. " +
-                    "Elígelo para ir dibujándolo " +
-                    "con tus estrellas."
-                )
-                : (
-                    "Cada nueva estrella ilumina " +
-                    "otra parte del animalito."
-                );
-
-
-        // ACCESIBILIDAD
+        if (estado) {
+            estado.textContent = descubierta
+                ? "¡Completaste esta constelación! " +
+                  "Sus estrellas siempre serán tuyas."
+                : previa
+                    ? "Esta es una vista previa. " +
+                      "Elígela para empezar a iluminarla."
+                    : "Cada nueva estrella ilumina " +
+                      "otra parte de tu constelación.";
+        }
 
         const barra =
-            document.querySelector(
-                ".barra-estrellas"
-            );
+            document.querySelector(".barra-estrellas");
 
         if (barra) {
-
             barra.setAttribute(
                 "aria-valuenow",
                 String(cantidad)
             );
+            barra.setAttribute(
+                "aria-valuemax",
+                String(META)
+            );
         }
 
+        // BOTÓN PARA SELECCIONAR
 
-        // BOTÓN DE ELEGIR
+        elegir.hidden = descubierta || activa;
 
-        elegir.hidden =
-            descubierta ||
-            activa ||
-            !cielo.figura_activa;
+        // DIBUJAR
 
-
-        // DIBUJAR FIGURA
-
-        dibujar(
-            figura,
-            cantidad,
-            previa
-        );
-
-
-        // DIBUJAR GALERÍA
-
+        dibujar(figura, cantidad, previa);
         dibujarGaleria();
     }
 
+    // ================================================
+    // 11. GUARDAR ELECCIÓN EN FLASK
+    // ================================================
 
-    // ======================================
-    // GUARDAR ANIMALITO ELEGIDO
-    // ======================================
+    elegir.addEventListener("click", async () => {
+        elegir.disabled = true;
 
-    elegir.addEventListener(
-        "click",
-        async () => {
+        if (mensaje) {
+            mensaje.textContent = "Guardando tu elección... ✨";
+        }
 
-            elegir.disabled = true;
+        try {
+            const respuesta = await fetch(
+                "/api/constelacion/seleccionar",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": csrf
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        codigo: visible
+                    })
+                }
+            );
+
+            if (respuesta.status === 401) {
+                window.location.href = "/";
+                return;
+            }
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado.mensaje ||
+                    "No se pudo guardar tu elección."
+                );
+            }
+
+            if (!resultado.cielo) {
+                throw new Error(
+                    "El servidor no devolvió los datos del cielo."
+                );
+            }
+
+            cielo = resultado.cielo;
+
+            cielo.descubiertas =
+                Array.isArray(cielo.descubiertas)
+                    ? cielo.descubiertas
+                    : [];
 
             if (mensaje) {
-
                 mensaje.textContent =
-                    "Guardando tu elección... ✨";
+                    "¡Elegiste tu constelación! 💜";
             }
 
-            try {
+            actualizar();
 
-                const respuesta = await fetch(
-                    "/api/constelacion/seleccionar",
-                    {
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "X-CSRF-Token":
-                                csrf
-                        },
-
-                        credentials:
-                            "same-origin",
-
-                        body: JSON.stringify({
-                            codigo: visible
-                        })
-                    }
-                );
-
-
-                if (respuesta.status === 401) {
-
-                    window.location.href = "/";
-
-                    return;
-                }
-
-
-                const datos =
-                    await respuesta.json();
-
-
-                if (!respuesta.ok) {
-
-                    throw new Error(
-                        datos.mensaje ||
-                        "No se pudo guardar tu elección."
-                    );
-                }
-
-
-                // ACTUALIZAR PROGRESO
-
-                cielo = datos.cielo;
-
-                cielo.descubiertas =
-                    Array.isArray(cielo.descubiertas)
-                        ? cielo.descubiertas
-                        : [];
-
-
-                if (mensaje) {
-
-                    mensaje.textContent =
-                        "¡Elegiste tu animalito! 💜";
-                }
-
-
-                actualizar();
-
-            } catch (error) {
-
-                if (mensaje) {
-
-                    mensaje.textContent =
-                        error.message;
-                }
-
-                console.error(
-                    "CONTIGO: error al elegir figura",
-                    error
-                );
-
-            } finally {
-
-                elegir.disabled = false;
+        } catch (error) {
+            if (mensaje) {
+                mensaje.textContent = error.message;
             }
+
+            console.error(
+                "CONTIGO: error al elegir constelación",
+                error
+            );
+
+        } finally {
+            elegir.disabled = false;
         }
-    );
+    });
 
-
-  
+    // ================================================
+    // 12. INICIAR
+    // ================================================
 
     actualizar();
 
     console.log(
-        "CONTIGO: animalitos luminosos cargados."
+        "CONTIGO: 14 constelaciones cargadas correctamente."
     );
-
 });

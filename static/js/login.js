@@ -1,63 +1,125 @@
 
-const formularioLogin = document.getElementById("form-login");
+/* ================================================
+   CONTIGO - INICIO DE SESIÓN
 
-if (formularioLogin) {
+   - Iniciar sesión con Flask
+   - Mostrar mensajes dentro de CONTIGO
+   - Evitar envíos duplicados
+   - Conservar redirección al inicio
+================================================ */
 
-    formularioLogin.addEventListener("submit", async function (evento) {
+(() => {
+    "use strict";
 
-        evento.preventDefault();
+    const formulario =
+        document.getElementById("form-login");
 
-        const correo = document.getElementById("correo").value.trim();
+    const mensaje =
+        document.getElementById("mensaje-login");
 
-        const contrasena = document.getElementById("contrasena").value;
+    if (!formulario) {
+        return;
+    }
 
-        const boton = formularioLogin.querySelector(
-            'button[type="submit"]'
-        );
+    const boton = formulario.querySelector(
+        'button[type="submit"]'
+    );
 
-        boton.disabled = true;
+    function mostrarError(texto) {
+        if (mensaje) {
+            mensaje.textContent = texto;
+            mensaje.hidden = false;
+        }
+    }
 
-        try {
+    formulario.addEventListener(
+        "submit",
+        async (evento) => {
 
-            const respuesta = await fetch("/api/login", {
+            evento.preventDefault();
 
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                credentials: "same-origin",
-
-                body: JSON.stringify({
-                    correo: correo,
-                    contrasena: contrasena
-                })
-
-            });
-
-            const resultado = await respuesta.json();
-
-            if (respuesta.ok) {
-
-                window.location.href = resultado.redirigir;
-
-            } else {
-
-                alert(resultado.mensaje);
-
+            if (boton.disabled) {
+                return;
             }
 
-        } catch (error) {
+            const correo = document
+                .getElementById("correo")
+                .value.trim();
 
-            alert("No pudimos conectar con el servidor.");
+            const contrasena = document
+                .getElementById("contrasena")
+                .value;
 
-        } finally {
+            if (mensaje) {
+                mensaje.hidden = true;
+                mensaje.textContent = "";
+            }
 
-            boton.disabled = false;
+            boton.disabled = true;
 
+            const textoOriginal =
+                boton.textContent;
+
+            boton.textContent =
+                "Iniciando sesión...";
+
+            try {
+                const respuesta = await fetch(
+                    "/api/login",
+                    {
+                        method: "POST",
+                        credentials: "same-origin",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            correo,
+                            contrasena
+                        })
+                    }
+                );
+
+                let resultado;
+
+                try {
+                    resultado =
+                        await respuesta.json();
+                } catch {
+                    throw new Error(
+                        "El servidor no respondió correctamente."
+                    );
+                }
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        resultado.mensaje ||
+                        "No pudimos iniciar sesión."
+                    );
+                }
+
+                window.location.assign(
+                    resultado.redirigir || "/inicio"
+                );
+
+            } catch (error) {
+                mostrarError(
+                    error.message ||
+                    "No pudimos conectar con el servidor."
+                );
+
+            } finally {
+                boton.disabled = false;
+
+                boton.textContent =
+                    textoOriginal;
+            }
         }
+    );
 
-    });
-
-}
+})();

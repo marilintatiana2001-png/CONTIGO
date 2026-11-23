@@ -329,6 +329,46 @@
                 flex-wrap: wrap;
             }
         }
+    
+/* ==========================================
+   CONTIGO - PREFERENCIAS DE IAN
+========================================== */
+
+#ian-preferencias-form {
+    margin: 18px 0 24px;
+}
+
+#ian-preferencias-form .config-campo {
+    display: block;
+    margin-bottom: 10px;
+    color: #47247e;
+    font-size: 15px;
+}
+
+#ian-tratamiento {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    background: #f9f4ff;
+    border: 1px solid #e4d5f5;
+    border-radius: 13px;
+    color: #43276f;
+    font: inherit;
+}
+
+#ian-tratamiento:focus {
+    outline: 2px solid #b995e1;
+}
+
+#ian-autorizar {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+}
+
+#ian-guardar {
+    margin-top: 16px;
+}
     </style>
 
     <!-- PREFERENCIAS COMPARTIDAS -->
@@ -619,6 +659,74 @@
             Elige cómo te gustaría recibir
             el acompañamiento de IAN.
         </p>
+       
+
+<!-- PERSONALIZACIÓN DE IAN DESDE MARIADB -->
+
+<form
+    id="ian-preferencias-form"
+    data-csrf="{{ csrf_contigo }}"
+>
+
+    <label class="config-campo" for="ian-tratamiento">
+        <strong>
+            ¿Cómo prefieres que IAN se dirija a ti?
+        </strong>
+    </label>
+
+    <select id="ian-tratamiento" disabled>
+        <option value="">Sin preferencia</option>
+        <option value="femenino">
+            En femenino (acompañada)
+        </option>
+        <option value="masculino">
+            En masculino (acompañado)
+        </option>
+        <option value="neutro">
+            Evitar expresiones con género
+        </option>
+    </select>
+
+    <label class="config-opcion">
+        <span>
+            <strong>
+                Personalizar las respuestas de IAN
+            </strong>
+            <small>
+                Autorizar el uso de mi primer nombre,
+                edad, país y preferencias declaradas.
+                Estos datos podrán enviarse a GroqCloud.
+                Aunque desactives esta opción,
+                los mensajes del chat seguirán
+                procesándose mediante GroqCloud.
+            </small>
+        </span>
+
+        <input
+            type="checkbox"
+            id="ian-autorizar"
+            disabled
+        >
+    </label>
+
+    <button
+        type="submit"
+        id="ian-guardar"
+        class="config-boton"
+        disabled
+    >
+        Guardar preferencias de IAN
+    </button>
+
+    <p
+        id="ian-resultado"
+        class="config-mensaje"
+        role="status"
+        aria-live="polite"
+        hidden
+    ></p>
+
+</form>
 
         <label
             class="config-campo"
@@ -1014,6 +1122,126 @@
 
     cargarPreferencias();
 
+})();
+</script>
+
+
+<script>
+(() => {
+    "use strict";
+
+    const formulario = document.getElementById(
+        "ian-preferencias-form"
+    );
+
+    const tratamiento = document.getElementById(
+        "ian-tratamiento"
+    );
+
+    const autorizacion = document.getElementById(
+        "ian-autorizar"
+    );
+
+    const boton = document.getElementById(
+        "ian-guardar"
+    );
+
+    const mensaje = document.getElementById(
+        "ian-resultado"
+    );
+
+    function mostrarMensaje(texto, error = false) {
+        mensaje.textContent = texto;
+
+        mensaje.className = "config-mensaje " +
+            (error ? "error" : "exito");
+
+        mensaje.hidden = false;
+    }
+
+    // CARGAR PREFERENCIAS ACTUALES
+    async function cargarPreferencias() {
+
+        try {
+            const respuesta = await fetch(
+                "/api/ian/preferencias",
+                {
+                    credentials: "same-origin"
+                }
+            );
+
+            const datos = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    datos.mensaje || "No se pudieron cargar."
+                );
+            }
+
+            tratamiento.value = datos.tratamiento_ian || "";
+
+            autorizacion.checked = Boolean(
+                datos.personalizacion_ian
+            );
+
+            tratamiento.disabled = false;
+            autorizacion.disabled = false;
+            boton.disabled = false;
+
+        } catch (error) {
+            mostrarMensaje(error.message, true);
+        }
+    }
+
+    // GUARDAR PREFERENCIAS
+    formulario.addEventListener(
+        "submit",
+        async function(evento) {
+
+            evento.preventDefault();
+            boton.disabled = true;
+            mensaje.hidden = true;
+
+            try {
+                const respuesta = await fetch(
+                    "/api/ian/preferencias",
+                    {
+                        method: "PUT",
+
+                        credentials: "same-origin",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": formulario.dataset.csrf
+                        },
+
+                        body: JSON.stringify({
+                            tratamiento_ian: tratamiento.value,
+                            personalizacion_ian: autorizacion.checked
+                        })
+                    }
+                );
+
+                const datos = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    throw new Error(
+                        datos.mensaje || "Error al guardar."
+                    );
+                }
+
+                mostrarMensaje(datos.mensaje);
+
+            } catch (error) {
+                mostrarMensaje(error.message, true);
+
+            } finally {
+                boton.disabled = false;
+            }
+        }
+    );
+
+    cargarPreferencias();
 })();
 </script>
 
