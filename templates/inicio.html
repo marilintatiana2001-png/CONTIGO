@@ -3,6 +3,21 @@
 <html lang="es">
 
 <head>
+
+<!-- ======================================
+     CONTIGO - INSTALACIÓN COMO PWA
+====================================== -->
+
+<link
+    rel="manifest"
+    href="{{ url_for('static', filename='manifest.webmanifest') }}"
+>
+
+<meta
+    name="theme-color"
+    content="#9666DC"
+>
+
     <meta charset="UTF-8">
 
     <meta
@@ -1270,6 +1285,36 @@
             }
         );
     </script>
+
+<!-- ======================================
+     CONTIGO - ACTIVAR SERVICE WORKER
+====================================== -->
+
+<script>
+    if ("serviceWorker" in navigator) {
+
+        window.addEventListener("load", () => {
+
+            navigator.serviceWorker.register(
+                "/sw.js",
+                { scope: "/" }
+            )
+            .then(() => {
+                console.log(
+                    "CONTIGO: Service Worker registrado."
+                );
+            })
+            .catch((error) => {
+                console.error(
+                    "CONTIGO: error al registrar Service Worker.",
+                    error
+                );
+            });
+
+        });
+
+    }
+</script>
 
 </body>
 </html>

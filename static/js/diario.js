@@ -178,8 +178,10 @@ if (formEdicion) {
                 method: "PUT",
 
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": document.body.dataset.csrf || ""
                 },
+
 
                 body: JSON.stringify({
                     titulo: titulo,
@@ -227,83 +229,6 @@ if (formEdicion) {
     });
 
 }
-
-
-// ==========================================
-// 6. ELIMINAR UN ESCRITO
-// ==========================================
-
-document.querySelectorAll(".boton-eliminar").forEach(boton => {
-
-    boton.addEventListener("click", async function () {
-
-        const tarjeta = boton.closest(".tarjeta-escrito");
-
-        if (!tarjeta) return;
-
-        const id = tarjeta.dataset.id;
-
-        const titulo = tarjeta.querySelector(
-            ".titulo-escrito"
-        )?.textContent.trim() || "este escrito";
-
-        // Confirmar antes de eliminar
-        const confirmado = confirm(
-            `¿Estás seguro de que deseas eliminar "${titulo}"?\n\n` +
-            "Esta acción no se puede deshacer."
-        );
-
-        if (!confirmado) return;
-
-        boton.disabled = true;
-
-        try {
-
-            const respuesta = await fetch(`/api/diario/${id}`, {
-
-                method: "DELETE"
-
-            });
-
-            if (respuesta.status === 401) {
-                window.location.href = "/";
-                return;
-            }
-
-            const resultado = await respuesta.json();
-
-            if (respuesta.ok) {
-
-                // Actualizar el listado
-                window.location.reload();
-
-            } else {
-
-                alert(
-                    resultado.mensaje ||
-                    "No pudimos eliminar el escrito."
-                );
-
-            }
-
-        } catch (error) {
-
-            console.error("Error al eliminar escrito:", error);
-
-            alert(
-                "No pudimos conectar con el servidor."
-            );
-
-        } finally {
-
-            boton.disabled = false;
-
-        }
-
-    });
-
-});
-
 
 // ==========================================
 // 7. CERRAR EDICIÓN AL HACER CLIC AFUERA

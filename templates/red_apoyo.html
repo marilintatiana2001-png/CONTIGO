@@ -1,72 +1,99 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Mi Red de Apoyo | CONTIGO</title>
 
     <!-- IDENTIDAD VISUAL DE CONTIGO -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/tema-contigo.css', v='2') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/tema-contigo.css', v='2') }}"
+    >
 
     <!-- DISEÑO DE RED DE APOYO -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/red_apoyo.css', v='diseno-final-3') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/red_apoyo.css', v='diseno-final-3') }}"
+    >
 
     <!-- PREFERENCIAS DE ACCESIBILIDAD -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/preferencias-ui.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/preferencias-ui.css') }}"
+    >
+
+    <!-- DISEÑO RESPONSIVE -->
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/responsive.css') }}"
-    >    
-    
+    >
+
+    <!-- JAVASCRIPT DE ACCESIBILIDAD -->
+
     <script
         src="{{ url_for('static', filename='js/preferencias-ui.js') }}"
-        defer>
-    </script>
+        defer
+    ></script>
+
+    <!-- JAVASCRIPT DE RED DE APOYO -->
 
     <script
         src="{{ url_for('static', filename='js/red_apoyo.js', v='diseno-final-3') }}"
-        defer>
-    </script>
+        defer
+    ></script>
+
 </head>
 
 <body class="contigo-tema red-pagina">
 
 <div class="red-app" data-diseno="aprobado-v3">
 
-    <!-- =========================================
+    <!-- =====================================
          ENCABEZADO SUPERIOR
-    ========================================== -->
+    ====================================== -->
 
     <header class="red-encabezado">
 
-        <a class="red-logo"
-           href="{{ url_for('pantalla_inicio') }}">
+        <a
+            class="red-logo"
+            href="{{ url_for('pantalla_inicio') }}"
+        >
 
             <img
                 src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
-                alt="Zorrito oficial de CONTIGO">
+                alt="Zorrito oficial de CONTIGO"
+            >
 
             <span>CONTIGO 💜</span>
+
         </a>
 
-        <a class="red-volver"
-           href="{{ url_for('pantalla_inicio') }}">
+        <a
+            class="red-volver"
+            href="{{ url_for('pantalla_inicio') }}"
+        >
             ← Inicio
         </a>
 
     </header>
 
+
     <main class="red-contenido">
 
         <!-- =====================================
-             TARJETA PRINCIPAL CON IAN
+             PRESENTACIÓN DE RED DE APOYO
         ====================================== -->
 
         <section class="red-presentacion">
@@ -76,7 +103,8 @@
                 <img
                     class="red-imagen-ian"
                     src="{{ url_for('static', filename='img/ian.png') }}"
-                    alt="IAN, el compañero emocional de CONTIGO">
+                    alt="IAN, compañero emocional de CONTIGO"
+                >
 
             </div>
 
@@ -86,9 +114,8 @@
 
                 <p class="red-descripcion">
                     Aquí puedes organizar a tus
-                    personas de confianza y
-                    encontrar recursos de ayuda
-                    cuando los necesites.
+                    personas de confianza y encontrar
+                    recursos de ayuda cuando los necesites.
                 </p>
 
                 <p class="red-frase">
@@ -100,37 +127,43 @@
 
         </section>
 
+
         <!-- =====================================
-             DOS COLUMNAS
+             CONTENEDOR DE DOS COLUMNAS
         ====================================== -->
 
         <div class="red-columnas">
 
-            <!-- ================================
-                 COLUMNA: MIS CONTACTOS
-            ================================= -->
+            <!-- =================================
+                 MIS CONTACTOS
+            ================================== -->
 
-            <section class="red-panel red-panel-contactos"
-                     aria-labelledby="titulo-contactos">
+            <section
+                class="red-panel red-panel-contactos"
+                aria-labelledby="titulo-contactos"
+            >
 
                 <header class="red-panel-cabecera">
 
                     <div class="red-panel-identidad">
 
-                        <span class="red-icono-seccion"
-                              aria-hidden="true">
+                        <span
+                            class="red-icono-seccion"
+                            aria-hidden="true"
+                        >
                             💞
                         </span>
 
                         <div class="red-panel-textos">
+
                             <h2 id="titulo-contactos">
                                 Mis contactos
                             </h2>
 
                             <p>
-                                Personas con las que
-                                puedo contar.
+                                Personas con las que puedo contar.
                             </p>
+
                         </div>
 
                     </div>
@@ -138,19 +171,24 @@
                     <button
                         id="btn-agregar-contacto"
                         class="red-boton-agregar"
-                        type="button">
+                        type="button"
+                    >
                         + Agregar
                     </button>
 
                 </header>
 
-                <!-- FORMULARIO PARA AGREGAR O EDITAR -->
+
+                <!-- =================================
+                     AGREGAR O EDITAR CONTACTO
+                ================================== -->
 
                 <section
                     id="caja-formulario-contacto"
                     class="red-formulario-caja"
                     aria-labelledby="titulo-formulario-contacto"
-                    hidden>
+                    hidden
+                >
 
                     <div class="red-formulario-encabezado">
 
@@ -162,13 +200,17 @@
                             id="btn-cerrar-formulario"
                             class="red-boton-cerrar"
                             type="button"
-                            aria-label="Cerrar formulario">
+                            aria-label="Cerrar formulario"
+                        >
                             ×
                         </button>
 
                     </div>
 
+
                     <form id="formulario-contacto">
+
+                        <!-- NOMBRE -->
 
                         <label for="contacto-nombre">
                             Nombre
@@ -176,10 +218,15 @@
 
                         <input
                             id="contacto-nombre"
+                            name="nombre"
                             type="text"
                             maxlength="100"
                             placeholder="Nombre del contacto"
-                            required>
+                            required
+                        >
+
+
+                        <!-- RELACIÓN -->
 
                         <label for="contacto-relacion">
                             Relación
@@ -187,9 +234,14 @@
 
                         <input
                             id="contacto-relacion"
+                            name="relacion"
                             type="text"
                             maxlength="50"
-                            placeholder="Familiar, pareja, amistad...">
+                            placeholder="Familiar, pareja, amistad..."
+                        >
+
+
+                        <!-- TELÉFONO -->
 
                         <label for="contacto-telefono">
                             Teléfono
@@ -197,28 +249,66 @@
 
                         <input
                             id="contacto-telefono"
+                            name="telefono"
                             type="tel"
                             maxlength="30"
-                            placeholder="Número de teléfono">
+                            autocomplete="off"
+                            placeholder="Número de teléfono"
+                        >
+
+
+                        <!-- =================================
+                             CORREO ELECTRÓNICO
+                        ================================== -->
+
+                        <label for="contacto-correo">
+                            Correo electrónico
+                        </label>
+
+                        <input
+                            id="contacto-correo"
+                            name="correo"
+                            type="email"
+                            maxlength="150"
+                            autocomplete="off"
+                            inputmode="email"
+                            placeholder="ejemplo@correo.com"
+                        >
+
+                        <p class="red-formulario-ayuda">
+                            💜 Este correo podrá utilizarse
+                            para enviar una solicitud de apoyo
+                            cuando tú lo autorices y el contacto
+                            haya aceptado recibir estos avisos.
+                        </p>
+
+
+                        <!-- AYUDA DEL FORMULARIO -->
 
                         <p class="red-formulario-ayuda">
                             El nombre es obligatorio.
-                            El teléfono es opcional.
+                            El teléfono y el correo electrónico
+                            son opcionales.
                         </p>
+
+
+                        <!-- BOTONES DEL FORMULARIO -->
 
                         <div class="red-formulario-botones">
 
                             <button
                                 id="btn-guardar-contacto"
                                 class="red-boton-principal"
-                                type="submit">
+                                type="submit"
+                            >
                                 💜 Guardar contacto
                             </button>
 
                             <button
                                 id="btn-cancelar-contacto"
                                 class="red-boton-secundario"
-                                type="button">
+                                type="button"
+                            >
                                 Cancelar
                             </button>
 
@@ -228,14 +318,17 @@
 
                 </section>
 
-                <!-- CONFIRMAR ELIMINACIÓN
-                     DENTRO DE CONTIGO -->
+
+                <!-- =================================
+                     CONFIRMAR ELIMINACIÓN
+                ================================== -->
 
                 <section
                     id="caja-eliminar-contacto"
                     class="red-confirmar-caja"
                     aria-labelledby="titulo-eliminar-contacto"
-                    hidden>
+                    hidden
+                >
 
                     <h3 id="titulo-eliminar-contacto">
                         ¿Eliminar contacto?
@@ -250,14 +343,16 @@
                         <button
                             id="btn-confirmar-eliminar"
                             class="red-boton-peligro"
-                            type="button">
+                            type="button"
+                        >
                             Eliminar contacto
                         </button>
 
                         <button
                             id="btn-cancelar-eliminar"
                             class="red-boton-secundario"
-                            type="button">
+                            type="button"
+                        >
                             Conservar contacto
                         </button>
 
@@ -265,13 +360,17 @@
 
                 </section>
 
-                <!-- CONTACTOS REALES DE MARIADB -->
+
+                <!-- =================================
+                     LISTA DE CONTACTOS DE MARIADB
+                ================================== -->
 
                 <div
                     id="lista-contactos"
                     class="red-lista"
                     aria-live="polite"
-                    aria-busy="true">
+                    aria-busy="true"
+                >
 
                     <p class="red-cargando">
                         Cargando tus contactos...
@@ -281,19 +380,24 @@
 
             </section>
 
-            <!-- ================================
-                 COLUMNA: RECURSOS DE AYUDA
-            ================================= -->
 
-            <section class="red-panel red-panel-recursos"
-                     aria-labelledby="titulo-recursos">
+            <!-- =================================
+                 RECURSOS DE AYUDA
+            ================================== -->
+
+            <section
+                class="red-panel red-panel-recursos"
+                aria-labelledby="titulo-recursos"
+            >
 
                 <header class="red-panel-cabecera">
 
                     <div class="red-panel-identidad">
 
-                        <span class="red-icono-seccion"
-                              aria-hidden="true">
+                        <span
+                            class="red-icono-seccion"
+                            aria-hidden="true"
+                        >
                             🌷
                         </span>
 
@@ -314,13 +418,15 @@
 
                 </header>
 
-                <!-- RECURSOS REALES DE MARIADB -->
+
+                <!-- RECURSOS DESDE MARIADB -->
 
                 <div
                     id="lista-recursos"
                     class="red-lista"
                     aria-live="polite"
-                    aria-busy="true">
+                    aria-busy="true"
+                >
 
                     <p class="red-cargando">
                         Cargando recursos de ayuda...
@@ -332,15 +438,20 @@
 
         </div>
 
+
         <!-- =====================================
-             FRANJA DE AYUDA INMEDIATA
+             AYUDA INMEDIATA
         ====================================== -->
 
-        <aside class="red-emergencia"
-               aria-labelledby="titulo-emergencia">
+        <aside
+            class="red-emergencia"
+            aria-labelledby="titulo-emergencia"
+        >
 
-            <span class="red-emergencia-icono"
-                  aria-hidden="true">
+            <span
+                class="red-emergencia-icono"
+                aria-hidden="true"
+            >
                 🛟
             </span>
 
@@ -351,60 +462,129 @@
                 </h2>
 
                 <p>
-                    Si estás en peligro, busca
-                    un lugar seguro y comunícate
-                    con los servicios de emergencia.
-                    En Colombia puedes llamar al 123.
+                    Si estás en peligro, busca un lugar
+                    seguro y comunícate con los servicios
+                    de emergencia. En Colombia puedes
+                    llamar al 123.
                 </p>
 
             </div>
 
-            <a class="red-emergencia-boton"
-               href="tel:123">
+            <a
+                class="red-emergencia-boton"
+                href="tel:123"
+            >
                 📞 Llamar al 123
             </a>
 
         </aside>
 
-        <!-- MENSAJES DE LA APLICACIÓN -->
+
+        <!-- =====================================
+             VENTANA DE LLAMADAS
+        ====================================== -->
+
+        <dialog
+            id="red-modal-llamada"
+            class="red-modal-llamada"
+            aria-labelledby="red-llamada-titulo"
+        >
+
+            <h2 id="red-llamada-titulo">
+                📞 Contactar a mi persona de apoyo
+            </h2>
+
+            <p>
+                Elige cómo quieres comunicarte.
+            </p>
+
+            <strong id="red-llamada-numero"></strong>
+
+            <div class="red-llamada-acciones">
+
+                <!-- ABRIR TELÉFONO -->
+
+                <a
+                    id="red-llamada-abrir"
+                    href="#"
+                >
+                    📞 Abrir teléfono
+                </a>
+
+                <!-- CANCELAR -->
+
+                <button
+                    type="button"
+                    id="red-llamada-cerrar"
+                >
+                    Cancelar
+                </button>
+
+            </div>
+
+            <p
+                id="red-llamada-aviso"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+        </dialog>
+
+
+        <!-- =====================================
+             MENSAJES DE LA APLICACIÓN
+        ====================================== -->
 
         <p
             id="red-mensaje"
             class="red-mensaje"
             role="status"
             aria-live="polite"
-            hidden>
-        </p>
+            hidden
+        ></p>
 
     </main>
+
 
     <!-- =====================================
          NAVEGACIÓN INFERIOR
     ====================================== -->
 
-    <nav class="red-navegacion"
-         aria-label="Navegación principal">
+    <nav
+        class="red-navegacion"
+        aria-label="Navegación principal"
+    >
 
         <a href="{{ url_for('pantalla_inicio') }}">
+
             <span>🏠</span>
             <small>Inicio</small>
+
         </a>
 
         <a href="{{ url_for('diario') }}">
+
             <span>📖</span>
             <small>Mi Diario</small>
+
         </a>
 
-        <a href="{{ url_for('red_apoyo') }}"
-           class="activo"
-           aria-current="page">
+        <a
+            href="{{ url_for('red_apoyo') }}"
+            class="activo"
+            aria-current="page"
+        >
+
             <span>🫂</span>
             <small>Red de Apoyo</small>
+
         </a>
 
         <a href="{{ url_for('perfil') }}">
+
             <span>👤</span>
             <small>Perfil</small>
+
         </a>
 
     </nav>

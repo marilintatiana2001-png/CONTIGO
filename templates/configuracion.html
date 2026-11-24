@@ -422,130 +422,493 @@
         tu experiencia en CONTIGO 💜
     </p>
 
+
+<!-- ======================================
+     ALERTAS Y PERMISOS
+======================================= -->
+
+<section
+    class="config-tarjeta"
+    id="alertas"
+    aria-labelledby="titulo-alertas"
+>
+
+    <h2 id="titulo-alertas">
+        🔔 Alertas y permisos
+    </h2>
+
+    <p class="config-ayuda">
+        Tú decides qué recomendaciones deseas recibir
+        y cuándo solicitar apoyo a una persona
+        de confianza.
+    </p>
+
+    <form id="config-formulario">
+
+        <!-- RECORDATORIOS DE BIENESTAR -->
+
+        <label class="config-opcion">
+
+            <span>
+                <strong>
+                    Recordatorios de bienestar
+                </strong>
+
+                <small>
+                    Recomendaciones de autocuidado.
+                </small>
+            </span>
+
+            <input
+                id="config-recordatorios"
+                type="checkbox"
+            >
+
+        </label>
+
+        <!-- SUGERENCIAS DE APOYO -->
+
+        <label class="config-opcion">
+
+            <span>
+                <strong>
+                    Sugerencias de apoyo
+                </strong>
+
+                <small>
+                    Ideas para buscar compañía
+                    y apoyo.
+                </small>
+            </span>
+
+            <input
+                id="config-sugerencias"
+                type="checkbox"
+            >
+
+        </label>
+
+        <!-- AVISOS MANUALES -->
+
+        <label class="config-opcion">
+
+            <span>
+                <strong>
+                    Avisos manuales por WhatsApp
+                </strong>
+
+                <small>
+                    Selecciona una persona de confianza
+                    para preparar un mensaje de apoyo
+                    cuando tú lo decidas.
+                </small>
+            </span>
+
+            <input
+                id="config-avisos"
+                type="checkbox"
+            >
+
+        </label>
+
+        <!-- CONTACTO SELECCIONADO -->
+
+        <div
+            id="config-contacto-caja"
+            class="config-contacto"
+            hidden
+        >
+
+            <label for="config-contacto">
+                Persona de tu Red de Apoyo
+            </label>
+
+            <select id="config-contacto">
+
+                <option value="">
+                    Cargando contactos...
+                </option>
+
+            </select>
+
+        </div>
+
+        <!-- GUARDAR PREFERENCIAS -->
+
+        <button
+            id="config-guardar"
+            class="config-boton"
+            type="submit"
+            disabled
+        >
+            💜 Guardar mis preferencias
+        </button>
+
+        <!-- MENSAJES DEL GUARDADO -->
+
+        <div
+            id="config-mensaje"
+            class="config-mensaje"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></div>
+
+    </form>
+
     <!-- ======================================
-         ALERTAS Y PERMISOS
+         SOLICITAR APOYO POR WHATSAPP
     ======================================= -->
 
-    <section
-        class="config-tarjeta"
-        id="alertas"
-        aria-labelledby="titulo-alertas"
+    <div
+        class="config-contacto"
+        style="margin-top: 20px;"
     >
 
-        <h2 id="titulo-alertas">
-            🔔 Alertas y permisos
-        </h2>
+        <h3 style="margin: 0; color: #54268f;">
+            💬 Pedir apoyo a mi contacto
+        </h3>
 
-        <p class="config-ayuda">
-            Tú decides qué recomendaciones
-            deseas recibir.
+        <p class="config-ayuda" style="margin: 0;">
+            Si necesitas hablar con alguien, CONTIGO
+            puede preparar un mensaje para tu contacto
+            seleccionado.
         </p>
 
-        <form id="config-formulario">
+        <button
+            type="button"
+            id="config-enviar-whatsapp"
+            class="config-boton"
+        >
+            💬 Preparar aviso en WhatsApp
+        </button>
 
-            <label class="config-opcion">
-
-                <span>
-                    <strong>
-                        Recordatorios de bienestar
-                    </strong>
-                    <small>
-                        Recomendaciones de autocuidado.
-                    </small>
-                </span>
-
-                <input
-                    id="config-recordatorios"
-                    type="checkbox"
-                >
-
-            </label>
-
-            <label class="config-opcion">
-
-                <span>
-                    <strong>
-                        Sugerencias de apoyo
-                    </strong>
-                    <small>
-                        Ideas para buscar compañía
-                        y apoyo.
-                    </small>
-                </span>
-
-                <input
-                    id="config-sugerencias"
-                    type="checkbox"
-                >
-
-            </label>
-
-            <label class="config-opcion">
-
-                <span>
-                    <strong>
-                        Preferencia de aviso
-                        a un contacto
-                    </strong>
-                    <small>
-                        Selecciona a alguien para
-                        una futura función de avisos.
-                    </small>
-                </span>
-
-                <input
-                    id="config-avisos"
-                    type="checkbox"
-                >
-
-            </label>
-
-            <!-- CONTACTO DE CONFIANZA -->
-
-            <div
-                id="config-contacto-caja"
-                class="config-contacto"
-                hidden
-            >
-
-                <label for="config-contacto">
-                    Persona de tu Red de Apoyo
-                </label>
-
-                <select id="config-contacto">
-                    <option value="">
-                        Cargando contactos...
-                    </option>
-                </select>
-
-            </div>
-
-            <button
-                id="config-guardar"
-                class="config-boton"
-                type="submit"
-                disabled
-            >
-                💜 Guardar mis preferencias
-            </button>
-
-            <div
-                id="config-mensaje"
-                class="config-mensaje"
-                role="status"
-                aria-live="polite"
-                hidden
-            ></div>
-
-        </form>
-
-        <p class="config-privacidad">
-            🔒 Estas preferencias no envían mensajes
-            automáticos a otras personas ni comparten
-            tus conversaciones con IAN.
+        <p class="config-ayuda" style="margin: 0;">
+            Se abrirá WhatsApp con un mensaje preparado.
+            Tú decides si quieres enviarlo.
         </p>
 
-    </section>
+        <!-- MENSAJES DE WHATSAPP -->
+
+        <div
+            id="config-whatsapp-mensaje"
+            class="config-mensaje"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></div>
+
+    </div>
+
+    <!-- INFORMACIÓN DE PRIVACIDAD -->
+
+    <p class="config-privacidad">
+        🔒 CONTIGO no envía mensajes automáticamente
+        a tus contactos.
+
+        Los avisos por WhatsApp solamente se preparan
+        cuando tú presionas el botón.
+
+        No se comparten tus escritos de Mi Diario,
+        tus registros emocionales ni tus
+        conversaciones con IAN.
+    </p>
+
+</section>
+
+
+<!-- ======================================
+     JAVASCRIPT - AVISO MANUAL POR WHATSAPP
+======================================= -->
+
+<script>
+(() => {
+
+    "use strict";
+
+    const botonWhatsapp =
+        document.getElementById(
+            "config-enviar-whatsapp"
+        );
+
+    const mensajeWhatsapp =
+        document.getElementById(
+            "config-whatsapp-mensaje"
+        );
+
+    const avisos =
+        document.getElementById(
+            "config-avisos"
+        );
+
+    const contacto =
+        document.getElementById(
+            "config-contacto"
+        );
+
+    if (
+        !botonWhatsapp ||
+        !mensajeWhatsapp ||
+        !avisos ||
+        !contacto
+    ) {
+        console.error(
+            "CONTIGO: faltan elementos " +
+            "para el aviso por WhatsApp."
+        );
+
+        return;
+    }
+
+    // ======================================
+    // MOSTRAR MENSAJES
+    // ======================================
+
+    function mostrarAviso(
+        texto,
+        esError = false
+    ) {
+
+        mensajeWhatsapp.textContent = texto;
+
+        mensajeWhatsapp.className =
+            "config-mensaje " +
+            (esError ? "error" : "exito");
+
+        mensajeWhatsapp.hidden = false;
+    }
+
+    // ======================================
+    // CONSULTAR INFORMACIÓN EN FLASK
+    // ======================================
+
+    async function consultar(ruta) {
+
+        const respuesta = await fetch(
+            ruta,
+            {
+                method: "GET",
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        let datos;
+
+        try {
+            datos = await respuesta.json();
+        } catch {
+            throw new Error(
+                "No se pudo consultar la información."
+            );
+        }
+
+        if (!respuesta.ok) {
+            throw new Error(
+                datos.mensaje ||
+                "No se pudo conectar con CONTIGO."
+            );
+        }
+
+        return datos;
+    }
+
+    // ======================================
+    // PREPARAR NÚMERO PARA WHATSAPP
+    // ======================================
+
+    function prepararNumero(valor) {
+
+        const numero = String(valor || "")
+            .trim()
+            .replace(/[\s().-]/g, "");
+
+        // Número móvil colombiano:
+        // 3001234567 -> 573001234567
+
+        if (/^3\d{9}$/.test(numero)) {
+            return "57" + numero;
+        }
+
+        // Número colombiano con indicativo.
+
+        if (/^573\d{9}$/.test(numero)) {
+            return numero;
+        }
+
+        // Número internacional con +.
+
+        if (/^\+[1-9]\d{7,14}$/.test(numero)) {
+            return numero.substring(1);
+        }
+
+        return null;
+    }
+
+    // ======================================
+    // ABRIR WHATSAPP
+    // ======================================
+
+    botonWhatsapp.addEventListener(
+        "click",
+        async () => {
+
+            if (botonWhatsapp.disabled) {
+                return;
+            }
+
+            mensajeWhatsapp.hidden = true;
+
+            botonWhatsapp.disabled = true;
+
+            botonWhatsapp.textContent =
+                "Preparando mensaje...";
+
+            try {
+
+                // Consultar las preferencias
+                // guardadas realmente en MariaDB.
+
+                const [
+                    respuestaAlertas,
+                    respuestaContactos
+                ] = await Promise.all([
+
+                    consultar(
+                        "/api/perfil/alertas"
+                    ),
+
+                    consultar(
+                        "/api/red-apoyo/contactos"
+                    )
+
+                ]);
+
+                const config =
+                    respuestaAlertas.configuracion || {};
+
+                const idGuardado =
+                    config.id_contacto;
+
+                // Comprobar que la opción
+                // esté activada y guardada.
+
+                if (
+                    !config.avisos_contacto_habilitados ||
+                    !idGuardado
+                ) {
+
+                    throw new Error(
+                        "Primero activa los avisos, " +
+                        "selecciona un contacto y " +
+                        "guarda tus preferencias."
+                    );
+                }
+
+                // Evitar utilizar cambios
+                // sin guardar del formulario.
+
+                if (
+                    !avisos.checked ||
+                    contacto.value !==
+                        String(idGuardado)
+                ) {
+
+                    throw new Error(
+                        "Guarda tus preferencias " +
+                        "antes de preparar el aviso."
+                    );
+                }
+
+                // Buscar el contacto
+                // seleccionado por el usuario.
+
+                const personas =
+                    Array.isArray(
+                        respuestaContactos.contactos
+                    )
+                        ? respuestaContactos.contactos
+                        : [];
+
+                const persona =
+                    personas.find(
+                        item =>
+                            String(item.id_contacto) ===
+                            String(idGuardado)
+                    );
+
+                if (!persona) {
+
+                    throw new Error(
+                        "No encontramos a la persona " +
+                        "seleccionada en tu Red de Apoyo."
+                    );
+                }
+
+                // Validar el número telefónico.
+
+                const numero = prepararNumero(
+                    persona.telefono
+                );
+
+                if (!numero) {
+
+                    throw new Error(
+                        "El contacto necesita un número " +
+                        "móvil válido. Para números de " +
+                        "otros países, incluye el indicativo " +
+                        "internacional, por ejemplo +57."
+                    );
+                }
+
+                // ==================================
+                // MENSAJE PREPARADO
+                // ==================================
+
+                const mensaje = (
+                    "Hola, te escribo desde CONTIGO. " +
+                    "Hoy necesito un poco de apoyo " +
+                    "y me gustaría hablar contigo " +
+                    "cuando tengas un momento."
+                );
+
+                // Construir enlace oficial
+                // de WhatsApp.
+
+                const enlace =
+                    "https://wa.me/" +
+                    numero +
+                    "?text=" +
+                    encodeURIComponent(mensaje);
+
+                // Abrir WhatsApp.
+                // El usuario confirma el envío.
+
+                window.location.assign(enlace);
+
+            } catch (error) {
+
+                mostrarAviso(
+                    error.message,
+                    true
+                );
+
+            } finally {
+
+                botonWhatsapp.disabled = false;
+
+                botonWhatsapp.textContent =
+                    "💬 Preparar aviso en WhatsApp";
+            }
+
+        }
+    );
+
+})();
+</script>
+
 
     <!-- ======================================
          APARIENCIA Y ACCESIBILIDAD

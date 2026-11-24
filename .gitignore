@@ -20,3 +20,13 @@ __pycache__/
 __pycache__/
 .env
 .env.*
+
+# Datos y configuraciones locales de Flask
+instance/
+
+# Bases de datos locales
+*.db
+*.sqlite3
+
+# Archivo de ejemplo permitido
+!.env.example

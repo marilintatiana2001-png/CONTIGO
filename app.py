@@ -530,6 +530,13 @@ def nuevo_escrito():
 @requiere_sesion
 def guardar_escrito():
 
+
+    # Verificar el token de seguridad
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
     datos = request.get_json(silent=True)
 
     titulo, contenido, error = validar_escrito(datos)
@@ -628,6 +635,12 @@ def consultar_escrito(id_entrada):
 @requiere_sesion
 def editar_escrito(id_entrada):
 
+    # Verificar el token de seguridad
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
+
     datos = request.get_json(silent=True)
 
     titulo, contenido, error = validar_escrito(datos)
@@ -695,6 +708,12 @@ def editar_escrito(id_entrada):
 @app.route("/api/diario/<int:id_entrada>", methods=["DELETE"])
 @requiere_sesion
 def eliminar_escrito(id_entrada):
+
+    # Verificar el token de seguridad
+    if not validar_csrf_contigo():
+        return jsonify({
+            "mensaje": "Solicitud no autorizada."
+        }), 403
 
     conexion = None
     cursor = None
@@ -2788,9 +2807,6 @@ def red_apoyo():
     )
 
 
-# ============================================================
-# VALIDAR DATOS DE UN CONTACTO
-# ============================================================
 
 def validar_contacto_confianza(datos):
 
@@ -2800,16 +2816,33 @@ def validar_contacto_confianza(datos):
     nombre = datos.get("nombre", "")
     telefono = datos.get("telefono") or ""
     relacion = datos.get("relacion") or ""
+    correo = datos.get("correo") or ""
+
+    # ======================================
+    # VALIDAR TIPOS DE DATOS
+    # ======================================
 
     if not all(
         isinstance(valor, str)
-        for valor in (nombre, telefono, relacion)
+        for valor in (
+            nombre,
+            telefono,
+            relacion,
+            correo
+        )
     ):
-        return None, "Los campos deben contener texto."
+        return None, (
+            "Los campos deben contener texto."
+        )
 
     nombre = nombre.strip()
     telefono = telefono.strip()
     relacion = relacion.strip()
+    correo = correo.strip().lower()
+
+    # ======================================
+    # VALIDAR NOMBRE
+    # ======================================
 
     if not 1 <= len(nombre) <= 100:
         return None, (
@@ -2817,10 +2850,19 @@ def validar_contacto_confianza(datos):
             "superar 100 caracteres."
         )
 
+    # ======================================
+    # VALIDAR RELACIÓN
+    # ======================================
+
     if len(relacion) > 50:
         return None, (
-            "La relación no puede superar 50 caracteres."
+            "La relación no debe superar "
+            "50 caracteres."
         )
+
+    # ======================================
+    # VALIDAR TELÉFONO
+    # ======================================
 
     if telefono:
 
@@ -2839,10 +2881,32 @@ def validar_contacto_confianza(datos):
                 "de entre 7 y 15 dígitos."
             )
 
+    # ======================================
+    # VALIDAR CORREO ELECTRÓNICO
+    # ======================================
+
+    if correo:
+
+        if (
+            len(correo) > 150
+            or not re.fullmatch(
+                r"[^@\s]+@[^@\s]+\.[^@\s]+",
+                correo
+            )
+        ):
+            return None, (
+                "Ingresa un correo electrónico válido."
+            )
+
+    # ======================================
+    # PREPARAR CONTACTO
+    # ======================================
+
     contacto = {
         "nombre": nombre,
         "telefono": telefono or None,
-        "relacion": relacion or None
+        "relacion": relacion or None,
+        "correo": correo or None
     }
 
     return contacto, None
@@ -2899,7 +2963,8 @@ def api_contactos_confianza():
                     id_contacto,
                     nombre,
                     telefono,
-                    relacion
+                    relacion,
+                    correo
                 FROM contactos_confianza
                 WHERE id_usuario = %s
                 ORDER BY id_contacto DESC
@@ -2921,14 +2986,16 @@ def api_contactos_confianza():
                 id_usuario,
                 nombre,
                 telefono,
-                relacion
+                relacion,
+                correo
             )
             VALUES (%s, %s, %s, %s)
         """, (
             usuario_id,
             datos_contacto["nombre"],
             datos_contacto["telefono"],
-            datos_contacto["relacion"]
+            datos_contacto["relacion"],
+            datos_contacto["correo"]
         ))
 
         id_nuevo = cursor.lastrowid
@@ -3033,13 +3100,15 @@ def api_modificar_contacto_confianza(id_contacto):
                 SET
                     nombre = %s,
                     telefono = %s,
-                    relacion = %s
+                    relacion = %s,
+                    correo = %s
                 WHERE id_contacto = %s
                   AND id_usuario = %s
             """, (
                 datos_contacto["nombre"],
                 datos_contacto["telefono"],
                 datos_contacto["relacion"],
+                datos_contacto["correo"],
                 id_contacto,
                 usuario_id
             ))
@@ -3996,6 +4065,21 @@ registrar_recuperacion_contrasena(
     conectar_db,
     validar_csrf_contigo
 )
+
+# ============================================================
+# CONTIGO - SERVICE WORKER PARA INSTALACIÓN PWA
+# ============================================================
+
+@app.route("/sw.js", methods=["GET"])
+def service_worker_contigo():
+
+    respuesta = app.send_static_file("sw.js")
+
+    respuesta.mimetype = "text/javascript"
+
+    respuesta.headers["Cache-Control"] = "no-cache"
+
+    return respuesta
 
 if __name__ == "__main__":
     app.run(debug=False)

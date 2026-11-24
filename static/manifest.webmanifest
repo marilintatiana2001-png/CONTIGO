@@ -1,0 +1,27 @@
+
+{
+  "id": "/",
+  "name": "CONTIGO - Bienestar emocional",
+  "short_name": "CONTIGO",
+  "description": "Un espacio de acompañamiento emocional, autocuidado y bienestar.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFF9FE",
+  "theme_color": "#9666DC",
+  "icons": [
+    {
+      "src": "/static/img/icono-contigo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icono-contigo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

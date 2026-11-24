@@ -546,6 +546,10 @@
         $("contacto-telefono").value =
             contacto?.telefono || "";
 
+        $("contacto-correo").value =
+         contacto?.correo || "";
+
+
         $("titulo-formulario-contacto").textContent =
             contacto
                 ? "✏️ Editar contacto"
@@ -585,7 +589,8 @@
         const datos = {
             nombre: $("contacto-nombre").value.trim(),
             relacion: $("contacto-relacion").value.trim(),
-            telefono: $("contacto-telefono").value.trim()
+            telefono: $("contacto-telefono").value.trim(),
+            correo: $("contacto-correo").value.trim().toLowerCase()
         };
 
         if (
@@ -805,6 +810,93 @@
                     }
                 }
             );
+
+
+            // ======================================
+            // CONTIGO - VENTANA DE LLAMADAS
+            // ======================================
+
+            const modalLlamada =
+                $("red-modal-llamada");
+
+            const numeroLlamada =
+                $("red-llamada-numero");
+
+            const botonAbrir =
+                $("red-llamada-abrir");
+
+            const botonCerrar =
+                $("red-llamada-cerrar");
+
+            const avisoLlamada =
+                $("red-llamada-aviso");
+
+            // Mostrar la ventana al seleccionar
+            // Llamar en un contacto.
+
+            document.addEventListener(
+                "click",
+                (evento) => {
+
+                    const enlaceTelefono =
+                        evento.target.closest(
+                            'a[href^="tel:"]'
+                        );
+
+                    if (!enlaceTelefono) {
+                        return;
+                    }
+
+                    // No volver a abrir la ventana
+                    // al pulsar "Abrir teléfono".
+                    if (enlaceTelefono === botonAbrir) {
+                        return;
+                    }
+
+                    // Las llamadas de emergencia
+                    // deben continuar directamente.
+                    if (
+                        enlaceTelefono.closest(
+                            ".red-emergencia"
+                        )
+                    ) {
+                        return;
+                    }
+
+                    const enlaceOriginal =
+                        enlaceTelefono.getAttribute("href");
+
+                    const telefono =
+                        telefonoSeguro(
+                            enlaceOriginal.slice(4)
+                        );
+
+                    if (!telefono) {
+                        return;
+                    }
+
+                    evento.preventDefault();
+
+                    numeroLlamada.textContent =
+                        telefono.slice(4);
+
+                    botonAbrir.href = telefono;
+
+                    avisoLlamada.textContent = "";
+
+                    modalLlamada.showModal();
+                }
+            );
+
+            // Cerrar ventana sin llamar.
+
+            botonCerrar.addEventListener(
+                "click",
+                () => {
+                    modalLlamada.close();
+                }
+            );
+
 
             cargarContactos();
             cargarRecursos();

@@ -1225,3 +1225,209 @@ body.red-pagina :is(
         scroll-behavior: auto !important;
     }
 }
+
+
+/* ==========================================
+   CONTIGO - VENTANA DE LLAMADAS
+   PALETA OFICIAL LILA, ROSA Y AZUL
+========================================== */
+
+body.red-pagina .red-modal-llamada {
+    width: min(92%, 440px);
+    max-height: 85vh;
+    margin: auto;
+    padding: 32px 28px;
+
+    border: 1px solid #e5d5f8;
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fffaff 0%,
+            #f5edff 55%,
+            #eaf5ff 100%
+        );
+
+    color: #38235f;
+    font-family: "Segoe UI", Arial, sans-serif;
+    text-align: center;
+
+    box-shadow:
+        0 20px 55px rgba(65, 42, 100, 0.22);
+
+    overflow-y: auto;
+}
+
+/* FONDO OSCURECIDO */
+
+body.red-pagina .red-modal-llamada::backdrop {
+    background: rgba(51, 33, 82, 0.48);
+    backdrop-filter: blur(5px);
+}
+
+/* TÍTULO */
+
+body.red-pagina .red-modal-llamada h2 {
+    margin: 0 0 12px;
+
+    color: #42246f;
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+/* DESCRIPCIÓN */
+
+body.red-pagina .red-modal-llamada > p {
+    margin: 0 0 20px;
+
+    color: #74638b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* NÚMERO TELEFÓNICO */
+
+body.red-pagina #red-llamada-numero {
+    display: block;
+
+    margin: 15px 0 22px;
+    padding: 16px;
+
+    background: #f0e6ff;
+    border: 1px solid #dfcaf8;
+    border-radius: 15px;
+
+    color: #65409f;
+    font-size: 21px;
+    font-weight: 750;
+    letter-spacing: 0.5px;
+    overflow-wrap: anywhere;
+}
+
+/* CONTENEDOR DE BOTONES */
+
+body.red-pagina .red-llamada-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+/* ESTILO GENERAL */
+
+body.red-pagina .red-llamada-acciones button,
+body.red-pagina .red-llamada-acciones a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+
+    border-radius: 13px;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* COPIAR NÚMERO */
+
+body.red-pagina #red-llamada-copiar {
+    background: #eee5ff;
+    border: 1px solid #e0cff9;
+
+    color: #65429e;
+}
+
+body.red-pagina #red-llamada-copiar:hover {
+    background: #e3d4ff;
+}
+
+/* ABRIR TELÉFONO */
+
+body.red-pagina #red-llamada-abrir {
+    background:
+        linear-gradient(
+            90deg,
+            #9666dc,
+            #db7fbb
+        );
+
+    border: 1px solid transparent;
+    color: #ffffff;
+
+    box-shadow:
+        0 5px 14px rgba(150, 102, 220, 0.17);
+}
+
+body.red-pagina #red-llamada-abrir:hover {
+    background:
+        linear-gradient(
+            90deg,
+            #8554cd,
+            #ca70aa
+        );
+}
+
+/* CANCELAR */
+
+body.red-pagina #red-llamada-cerrar {
+    background: #fffaff;
+
+    border: 1px solid #e4d7f2;
+    color: #765e99;
+}
+
+body.red-pagina #red-llamada-cerrar:hover {
+    background: #f6edff;
+}
+
+/* MENSAJE DE CONFIRMACIÓN */
+
+body.red-pagina #red-llamada-aviso {
+    margin: 16px 0 0;
+
+    color: #65429e;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+body.red-pagina #red-llamada-aviso:empty {
+    display: none;
+}
+
+/* ACCESIBILIDAD */
+
+body.red-pagina .red-llamada-acciones
+:is(button, a):focus-visible {
+    outline: 3px solid #b18be5;
+    outline-offset: 3px;
+}
+
+/* CELULARES */
+
+@media (max-width: 480px) {
+
+    body.red-pagina .red-modal-llamada {
+        width: calc(100% - 30px);
+        padding: 26px 20px;
+        border-radius: 21px;
+    }
+
+    body.red-pagina .red-modal-llamada h2 {
+        font-size: 21px;
+    }
+
+    body.red-pagina #red-llamada-numero {
+        font-size: 19px;
+    }
+}
