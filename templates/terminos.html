@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos y Condiciones — CONTIGO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradiente: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 50%, #fdf2f8 100%);
+            --coral-principal: #f47280;
+            --coral-oscuro: #e15666;
+            --rosa-suave: #ffe4e8;
+            --texto-principal: #3f3338;
+            --texto-secundario: #6e5c63;
+            --borde-suave: rgba(244, 114, 128, 0.22);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-gradiente);
+            color: var(--texto-principal);
+            line-height: 1.65;
+            min-height: 100vh;
+            padding: 28px 16px 48px;
+        }
+
+        .contenedor-terminos {
+            max-width: 780px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--borde-suave);
+            border-radius: 26px;
+            padding: 36px 32px;
+            box-shadow: 0 14px 36px rgba(244, 114, 128, 0.12);
+        }
+
+        .barra-superior {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn-volver {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--coral-oscuro);
+            background: var(--rosa-suave);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .btn-volver:hover {
+            background: #ffd3da;
+            transform: translateY(-1px);
+        }
+
+        .fecha-actualizacion {
+            font-size: 0.85rem;
+            color: var(--texto-secundario);
+            font-weight: 600;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.85rem;
+            color: var(--coral-oscuro);
+            margin-bottom: 10px;
+            line-height: 1.25;
+        }
+
+        .intro {
+            color: var(--texto-secundario);
+            font-size: 0.98rem;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--borde-suave);
+        }
+
+        /* Aviso destacado de no sustitución profesional */
+        .aviso-importante {
+            background: #fff1f3;
+            border-left: 5px solid var(--coral-principal);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin: 22px 0;
+        }
+
+        .aviso-importante h3 {
+            color: var(--coral-oscuro);
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .aviso-importante p {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .aviso-importante p:last-child {
+            margin-bottom: 0;
+        }
+
+        section.clausula {
+            margin-bottom: 24px;
+        }
+
+        section.clausula h2 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.2rem;
+            color: var(--texto-principal);
+            margin-bottom: 8px;
+        }
+
+        section.clausula p {
+            font-size: 0.96rem;
+            margin-bottom: 10px;
+        }
+
+        section.clausula ul {
+            padding-left: 20px;
+            margin-top: 6px;
+        }
+
+        section.clausula li {
+            font-size: 0.95rem;
+            margin-bottom: 7px;
+        }
+
+        .pie-terminos {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--borde-suave);
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-aceptar-volver {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--coral-principal), var(--coral-oscuro));
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 12px 28px;
+            border-radius: 999px;
+            box-shadow: 0 6px 18px rgba(244, 114, 128, 0.28);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .btn-aceptar-volver:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(244, 114, 128, 0.36);
+        }
+
+        @media (max-width: 600px) {
+            .contenedor-terminos {
+                padding: 24px 18px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="contenedor-terminos">
+        <div class="barra-superior">
+            <a href="javascript:history.back()" class="btn-volver">‹ Volver</a>
+            <span class="fecha-actualizacion">Última actualización: Noviembre de 2026</span>
+        </div>
+
+        <h1>Términos y Condiciones de Uso de CONTIGO</h1>
+        <p class="intro">
+            Bienvenido(a) a <strong>CONTIGO</strong>. Al crear una cuenta, acceder o utilizar nuestra plataforma web, aceptas cumplir con los presentes Términos y Condiciones. Si no estás de acuerdo con alguna de estas disposiciones, por favor no utilices la aplicación.
+        </p>
+
+        <section class="clausula">
+            <h2>1. Propósito de la Plataforma: Gestión y Control de Emociones Negativas</h2>
+            <p>
+                <strong>CONTIGO</strong> es una aplicación digital creada como una herramienta de apoyo cotidiano para ayudar a jóvenes (de entre <strong>14 y 27 años</strong>) a identificar, comprender, gestionar y controlar sus emociones negativas (como tristeza, estrés, frustración, ansiedad cotidiana o desánimo) mediante recursos prácticos de autocuidado:
+            </p>
+            <ul>
+                <li><strong>Registro Emocional:</strong> seguimiento personal para reconocer cómo te sientes y con qué intensidad.</li>
+                <li><strong>Actividades Guiadas y Cielo de Bienestar:</strong> ejercicios breves de calma, reflexión y hábitos saludables para regular emociones difíciles.</li>
+                <li><strong>Mi Diario:</strong> espacio privado para desahogarte y organizar tus pensamientos por escrito.</li>
+                <li><strong>IAN:</strong> compañero conversacional basado en inteligencia artificial para brindar escucha y orientación emocional básica.</li>
+                <li><strong>Red de Apoyo:</strong> acceso rápido a tus contactos personales de confianza y líneas públicas de orientación.</li>
+            </ul>
+        </section>
+
+        <div class="aviso-importante">
+            <h3>⚠️ 2. Aclaración Fundamental: No Sustituye la Ayuda Profesional</h3>
+            <p>
+                <strong>CONTIGO es exclusivamente una herramienta de acompañamiento y autocuidado emocional; NO sustituye la atención profesional ni se hace pasar por un servicio médico, psicológico o psiquiátrico.</strong>
+            </p>
+            <p>
+                Ni la aplicación, ni sus actividades, ni el asistente virtual <strong>IAN</strong> son psicólogos, terapeutas, médicos o psiquiatras, ni actúan en representación de instituciones clínicas. No realizamos diagnósticos ni prescribimos tratamientos.
+            </p>
+            <p>
+                <strong>Protocolo ante emergencias o crisis:</strong> CONTIGO no realiza llamadas ni envía alertas automáticas a terceros. Si tú o alguien cercano está en peligro físico inmediato o tiene pensamientos de hacerse daño o suicidio, busca ayuda humana urgente llamando a la <strong>Línea 123</strong> o a la <strong>Línea 106 / 192 opción 4</strong> en Colombia, o acude al centro de salud más cercano.
+            </p>
+        </div>
+
+        <section class="clausula">
+            <h2>3. Requisitos de Edad y Autorización de Representantes Legales</h2>
+            <ul>
+                <li><strong>Menores de 14 años:</strong> No está permitido el registro ni el uso de CONTIGO.</li>
+                <li><strong>Adolescentes entre 14 y 17 años:</strong> Solo pueden registrarse y utilizar la plataforma con el <strong>consentimiento expreso y verificable de su madre, padre o representante legal</strong>. La cuenta permanecerá en estado <em>pendiente de autorización</em> hasta que el representante legal complete y apruebe presencialmente la solicitud durante el registro.</li>
+                <li><strong>Mayores de 18 años:</strong> Pueden crear y administrar su cuenta de forma independiente.</li>
+            </ul>
+        </section>
+
+        <section class="clausula">
+            <h2>4. Uso del Asistente Virtual IAN</h2>
+            <ul>
+                <li><strong>IAN</strong> es un modelo de inteligencia artificial diseñado para conversar de forma respetuosa y ofrecer estrategias prácticas para manejar emociones negativas cotidianas.</li>
+                <li>IAN no tiene sentimientos humanos, criterio clínico ni capacidad para intervenir en el mundo físico (no puede llamar, escribir a contactos ni enviar ambulancias).</li>
+                <li>Puedes decidir y modificar en cualquier momento desde la configuración si autorizas o no que IAN utilice datos básicos de tu perfil (nombre de pila, edad, país o preferencia de tratamiento) para personalizar sus respuestas.</li>
+            </ul>
+        </section>
+
+        <section class="clausula">
+            <h2>5. Registro, Seguridad de la Cuenta y Uso Responsable</h2>
+            <ul>
+                <li>Ingresar datos reales y exactos (nombre, correo electrónico y fecha de nacimiento).</li>
+                <li>Proteger la confidencialidad de tu contraseña y no compartir tu acceso con terceros.</li>
+                <li>Utilizar la aplicación únicamente con fines personales de bienestar y autocuidado, sin alterar su código, vulnerar su seguridad ni hacer un uso indebido de sus servicios.</li>
+            </ul>
+        </section>
+
+        <section class="clausula">
+            <h2>6. Privacidad y Protección de Datos Personales</h2>
+            <p>
+                El tratamiento de tus datos cumple con la legislación vigente de protección de datos personales (Ley 1581 de 2012 en Colombia) y nuestra Política de Privacidad:
+            </p>
+            <ul>
+                <li><strong>Privacidad de tu información:</strong> Tus escritos en <em>Mi Diario</em>, tus registros emocionales y tus contactos de la <em>Red de Apoyo</em> son información privada asociada únicamente a tu cuenta.</li>
+                <li><strong>Control sobre tus datos:</strong> Puedes consultar, actualizar o solicitar la eliminación de tu información personal y de tu cuenta en cualquier momento (a través de tu representante legal si eres menor de edad).</li>
+            </ul>
+        </section>
+
+        <section class="clausula">
+            <h2>7. Propiedad Intelectual y Modificaciones</h2>
+            <p>
+                Todo el contenido de <strong>CONTIGO</strong> (diseño visual, logotipo, ilustraciones, textos, actividades, código fuente y estructura) pertenece a los creadores del proyecto y está protegido por las normas de propiedad intelectual.
+            </p>
+            <p>
+                CONTIGO se ofrece como una herramienta tecnológica de apoyo emocional en mejora continua. Nos reservamos el derecho de actualizar sus funciones o modificar estos Términos y Condiciones cuando sea necesario, notificando los cambios relevantes dentro de la plataforma.
+            </p>
+        </section>
+
+        <div class="pie-terminos">
+            <a href="javascript:history.back()" class="btn-aceptar-volver">Entendido, volver atrás</a>
+        </div>
+    </main>
+
+</body>
+</html>

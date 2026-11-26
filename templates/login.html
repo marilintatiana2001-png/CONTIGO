@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -11,6 +10,24 @@
     >
 
     <title>CONTIGO | Iniciar sesión</title>
+
+    <!-- PWA Universal (Celulares Android, Tablets, Windows y Mac) -->
+    <link
+        rel="manifest"
+        href="{{ url_for('static', filename='manifest.webmanifest') }}"
+    >
+    <meta name="theme-color" content="#9867ce">
+
+    <!-- Soporte App Nativa en iPhone y iPad (iOS / iPadOS) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CONTIGO">
+    <link
+        rel="apple-touch-icon"
+        sizes="512x512"
+        href="{{ url_for('static', filename='img/icono-contigo-512.png') }}"
+    >
 
     <!-- Diseño original del inicio de sesión -->
     <link
@@ -43,13 +60,54 @@
             text-align: center;
         }
 
-        #mensaje-login[hidden] {
+        #mensaje-login[hidden],
+        #guia-instalacion-manual[hidden] {
             display: none !important;
         }
 
         #form-login button:disabled {
             opacity: 0.65;
             cursor: wait;
+        }
+
+        /* Estilos del botón inteligente PWA */
+
+        .contenedor-instalar-pwa {
+            margin-top: 18px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #btn-instalar-app {
+            width: 100%;
+            background: linear-gradient(135deg, #9867ce, #7c4dbd);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(152, 103, 206, 0.28);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        #btn-instalar-app:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(152, 103, 206, 0.36);
+        }
+
+        #guia-instalacion-manual {
+            margin-top: 12px;
+            padding: 13px 15px;
+            background: #f8f4ff;
+            border: 1px solid #e5d9f3;
+            border-radius: 12px;
+            font-size: 13.5px;
+            color: #483068;
+            line-height: 1.55;
+            text-align: left;
         }
     </style>
 
@@ -141,7 +199,103 @@
             </a>
         </p>
 
+        <!-- Botón inteligente para instalar app (Celular, Tablet, iPad o PC) -->
+
+        <div class="contenedor-instalar-pwa">
+
+            <button
+                type="button"
+                id="btn-instalar-app"
+            >
+                📲 Descargar / Instalar app CONTIGO
+            </button>
+
+            <div
+                id="guia-instalacion-manual"
+                hidden
+            ></div>
+
+        </div>
+
     </main>
+
+    <!-- Registro del Service Worker y control del botón inteligente PWA -->
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js").catch((err) => {
+                    console.error("Error al registrar Service Worker:", err);
+                });
+            });
+        }
+
+        let eventoInstalacion = null;
+        const btnInstalar = document.getElementById("btn-instalar-app");
+        const guiaManual = document.getElementById("guia-instalacion-manual");
+
+        const yaInstalada =
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.navigator.standalone === true;
+
+        if (yaInstalada && btnInstalar) {
+            btnInstalar.style.display = "none";
+        }
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            eventoInstalacion = e;
+            if (btnInstalar) {
+                btnInstalar.textContent = "📲 Instalar app CONTIGO ahora";
+            }
+        });
+
+        window.addEventListener("appinstalled", () => {
+            if (btnInstalar) btnInstalar.style.display = "none";
+            if (guiaManual) guiaManual.hidden = true;
+            eventoInstalacion = null;
+        });
+
+        if (btnInstalar) {
+            btnInstalar.addEventListener("click", async () => {
+                if (eventoInstalacion) {
+                    eventoInstalacion.prompt();
+                    const eleccion = await eventoInstalacion.userChoice;
+                    if (eleccion.outcome === "accepted") {
+                        btnInstalar.style.display = "none";
+                    }
+                    eventoInstalacion = null;
+                    return;
+                }
+
+                if (!guiaManual) return;
+
+                const ua = window.navigator.userAgent;
+                const esIos =
+                    /iphone|ipad|ipod/i.test(ua) ||
+                    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+                const esAndroid = /android/i.test(ua);
+
+                if (esIos) {
+                    guiaManual.innerHTML =
+                        '📱 <strong>En iPhone o iPad (Safari):</strong><br>' +
+                        '1. Toca el botón <strong>Compartir</strong> (cuadro con flecha hacia arriba).<br>' +
+                        '2. Selecciona <strong>"Agregar a inicio"</strong> y pulsa <strong>Agregar</strong>.';
+                } else if (esAndroid) {
+                    guiaManual.innerHTML =
+                        '📱 <strong>En celular o tablet Android:</strong><br>' +
+                        '1. Toca los <strong>3 puntos (⋮)</strong> arriba a la derecha en Chrome.<br>' +
+                        '2. Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla principal"</strong>.';
+                } else {
+                    guiaManual.innerHTML =
+                        '💻 <strong>En computador (Chrome / Edge):</strong><br>' +
+                        'Haz clic en el ícono de <strong>instalar app (⊕)</strong> en la barra de direcciones arriba a la derecha (si ya la tienes instalada, ábrela desde tu menú de aplicaciones).';
+                }
+
+                guiaManual.hidden = !guiaManual.hidden;
+            });
+        }
+    </script>
 
 </body>
 </html>

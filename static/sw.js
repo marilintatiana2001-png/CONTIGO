@@ -1,15 +1,17 @@
-
 /* ==========================================
    CONTIGO - SERVICE WORKER
-   PWA - RECURSOS PÚBLICOS
+   PWA - RECURSOS PÚBLICOS (PC, MÓVIL, TABLET)
 ========================================== */
 
 "use strict";
 
-const CACHE_NAME = "contigo-pwa-publico-v1";
+const CACHE_NAME = "contigo-pwa-publico-v2";
 
 const ARCHIVOS_PUBLICOS = [
     "/static/manifest.webmanifest",
+    "/static/css/estilos.css",
+    "/static/css/responsive.css",
+    "/static/img/logo-contigo.jpeg",
     "/static/img/icono-contigo-192.png",
     "/static/img/icono-contigo-512.png"
 ];
@@ -59,6 +61,7 @@ self.addEventListener("fetch", (evento) => {
 
     const url = new URL(evento.request.url);
 
+    // Solo intercepta archivos públicos estáticos; las rutas de Flask van directo al servidor
     if (
         url.origin !== self.location.origin ||
         !ARCHIVOS_PUBLICOS.includes(url.pathname)

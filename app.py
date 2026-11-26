@@ -4247,6 +4247,9 @@ def service_worker_contigo():
 
     return respuesta
 
-
+@app.route("/terminos")
+def terminos():
+    return render_template("terminos.html")
+    
 if __name__ == "__main__":
     app.run(debug=False)
