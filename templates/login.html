@@ -65,17 +65,42 @@
             display: none !important;
         }
 
-        #form-login button:disabled {
+        #form-login button:disabled,
+        #btn-acceso-demo:disabled {
             opacity: 0.65;
             cursor: wait;
         }
 
-        /* Estilos del botón inteligente PWA */
+        /* Accesos rápidos para evaluación y PWA */
 
-        .contenedor-instalar-pwa {
+        .contenedor-accesos-rapidos {
             margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #ece3f7;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             text-align: center;
+        }
+
+        #btn-acceso-demo {
+            width: 100%;
+            background: #f5eeff;
+            color: #5e359c;
+            border: 1.5px solid #cbb2ec;
+            border-radius: 12px;
+            padding: 11px 18px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 14.5px;
+            cursor: pointer;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+
+        #btn-acceso-demo:hover {
+            background: #ebe0fc;
+            transform: translateY(-1px);
         }
 
         #btn-instalar-app {
@@ -99,7 +124,7 @@
         }
 
         #guia-instalacion-manual {
-            margin-top: 12px;
+            margin-top: 4px;
             padding: 13px 15px;
             background: #f8f4ff;
             border: 1px solid #e5d9f3;
@@ -112,7 +137,7 @@
     </style>
 
     <script
-        src="{{ url_for('static', filename='js/login.js', v='recuperacion-1') }}"
+        src="{{ url_for('static', filename='js/login.js', v='demo-2') }}"
         defer
     ></script>
 
@@ -199,9 +224,16 @@
             </a>
         </p>
 
-        <!-- Botón inteligente para instalar app (Celular, Tablet, iPad o PC) -->
+        <!-- Accesos rápidos: Cuenta Demo para jurados + Instalador PWA -->
 
-        <div class="contenedor-instalar-pwa">
+        <div class="contenedor-accesos-rapidos">
+
+            <button
+                type="button"
+                id="btn-acceso-demo"
+            >
+                ✨ Entrar con Cuenta Demo (Jurados)
+            </button>
 
             <button
                 type="button"

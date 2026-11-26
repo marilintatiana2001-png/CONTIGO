@@ -569,3 +569,293 @@
     });
 
 })();
+
+/* =====================================================
+   CONTIGO - BOTÓN SOS Y LÍNEAS DE AYUDA (1 TOQUE)
+   Acceso inmediato a líneas oficiales y Red de Apoyo
+===================================================== */
+
+(() => {
+    "use strict";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (document.getElementById("contigo-sos-btn")) return;
+
+        // 1. Estilos encapsulados del botón y modal SOS
+        const estilos = document.createElement("style");
+        estilos.textContent = `
+            #contigo-sos-btn {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                z-index: 9990;
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                padding: 10px 16px;
+                border: none;
+                border-radius: 999px;
+                background: linear-gradient(135deg, #e15666, #c93b4d);
+                color: #ffffff;
+                font-family: "Segoe UI", Arial, sans-serif;
+                font-size: 13.5px;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 6px 18px rgba(201, 59, 77, 0.34);
+                transition: transform 0.18s ease, box-shadow 0.18s ease;
+            }
+            #contigo-sos-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 22px rgba(201, 59, 77, 0.44);
+            }
+            #contigo-sos-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: rgba(34, 22, 53, 0.55);
+                backdrop-filter: blur(4px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
+            #contigo-sos-overlay[hidden] {
+                display: none !important;
+            }
+            .contigo-sos-modal {
+                width: min(100%, 440px);
+                max-height: 90vh;
+                overflow-y: auto;
+                background: #fffaff;
+                border: 1px solid #f4c9d7;
+                border-radius: 22px;
+                padding: 22px 20px;
+                box-shadow: 0 18px 42px rgba(34, 22, 53, 0.25);
+                font-family: "Segoe UI", Arial, sans-serif;
+                color: #3b236e;
+            }
+            .contigo-sos-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .contigo-sos-top h2 {
+                margin: 0;
+                font-size: 18px;
+                color: #b83244;
+            }
+            .contigo-sos-cerrar {
+                border: none;
+                background: #ffe8ec;
+                color: #b83244;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .contigo-sos-aviso {
+                margin: 0 0 14px;
+                padding: 10px 12px;
+                background: #fff1f3;
+                border-left: 4px solid #e15666;
+                border-radius: 10px;
+                font-size: 13px;
+                line-height: 1.45;
+                color: #6b2b37;
+            }
+            .contigo-sos-subtitulo {
+                margin: 14px 0 8px;
+                font-size: 13px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                color: #6532b3;
+            }
+            .contigo-sos-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 11px 13px;
+                margin-bottom: 8px;
+                background: #f9f4ff;
+                border: 1px solid #e4d5f5;
+                border-radius: 13px;
+            }
+            .contigo-sos-item strong {
+                display: block;
+                font-size: 14px;
+                color: #3b236e;
+            }
+            .contigo-sos-item small {
+                display: block;
+                font-size: 12px;
+                color: #6f5f87;
+            }
+            .contigo-sos-llamar {
+                flex-shrink: 0;
+                text-decoration: none;
+                background: #e15666;
+                color: #ffffff;
+                padding: 8px 13px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 700;
+            }
+            .contigo-sos-llamar.contacto {
+                background: #7c4dbd;
+            }
+            .contigo-sos-vacio {
+                font-size: 13px;
+                color: #6f5f87;
+                margin: 6px 0 12px;
+            }
+            .contigo-sos-link-red {
+                display: inline-block;
+                margin-top: 4px;
+                font-size: 13px;
+                font-weight: 700;
+                color: #6532b3;
+                text-decoration: none;
+            }
+        `;
+        document.head.appendChild(estilos);
+
+        // 2. Crear botón flotante
+        const botonSos = document.createElement("button");
+        botonSos.type = "button";
+        botonSos.id = "contigo-sos-btn";
+        botonSos.setAttribute("aria-label", "Abrir líneas de ayuda inmediata y contactos de confianza");
+        botonSos.innerHTML = "🆘 Ayuda";
+        document.body.appendChild(botonSos);
+
+        // 3. Crear ventana modal SOS
+        const overlay = document.createElement("div");
+        overlay.id = "contigo-sos-overlay";
+        overlay.hidden = true;
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-labelledby", "contigo-sos-titulo");
+
+        overlay.innerHTML = `
+            <div class="contigo-sos-modal">
+                <div class="contigo-sos-top">
+                    <h2 id="contigo-sos-titulo">🆘 Apoyo inmediato (1 toque)</h2>
+                    <button type="button" class="contigo-sos-cerrar" aria-label="Cerrar">×</button>
+                </div>
+
+                <p class="contigo-sos-aviso">
+                    No estás solo(a). Si atraviesas una crisis o necesitas hablar con un profesional ahora mismo, comunícate gratis con estas líneas de atención en Colombia:
+                </p>
+
+                <div class="contigo-sos-subtitulo">Líneas oficiales de atención</div>
+
+                <div class="contigo-sos-item">
+                    <div>
+                        <strong>Línea 106 — Orientación Psicológica</strong>
+                        <small>Atención gratuita 24/7 en salud mental</small>
+                    </div>
+                    <a href="tel:106" class="contigo-sos-llamar">📞 Llamar 106</a>
+                </div>
+
+                <div class="contigo-sos-item">
+                    <div>
+                        <strong>Línea 192 (Opción 4) — MinSalud</strong>
+                        <small>Atención nacional en salud mental</small>
+                    </div>
+                    <a href="tel:192" class="contigo-sos-llamar">📞 Llamar 192</a>
+                </div>
+
+                <div class="contigo-sos-item">
+                    <div>
+                        <strong>Línea 123 — Emergencias</strong>
+                        <small>Urgencias médicas o riesgo inmediato</small>
+                    </div>
+                    <a href="tel:123" class="contigo-sos-llamar">📞 Llamar 123</a>
+                </div>
+
+                <div class="contigo-sos-subtitulo">Tu Red de Apoyo personal</div>
+                <div id="contigo-sos-contactos">
+                    <p class="contigo-sos-vacio">Consultando tus contactos de confianza...</p>
+                </div>
+                <a href="/red-apoyo" class="contigo-sos-link-red">Administrar mi Red de Apoyo →</a>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const cajaContactos = overlay.querySelector("#contigo-sos-contactos");
+        const btnCerrar = overlay.querySelector(".contigo-sos-cerrar");
+
+        async function cargarContactosConfianza() {
+            try {
+                const resp = await fetch("/api/red-apoyo/contactos", {
+                    credentials: "same-origin",
+                    headers: { Accept: "application/json" }
+                });
+                if (!resp.ok) throw new Error();
+                const datos = await resp.json();
+                const lista = Array.isArray(datos.contactos) ? datos.contactos : [];
+
+                cajaContactos.replaceChildren();
+
+                if (lista.length === 0) {
+                    const p = document.createElement("p");
+                    p.className = "contigo-sos-vacio";
+                    p.textContent = "Aún no tienes contactos registrados en tu Red de Apoyo.";
+                    cajaContactos.appendChild(p);
+                    return;
+                }
+
+                lista.forEach((c) => {
+                    const telLimpio = String(c.telefono || "").replace(/[^\d+]/g, "");
+                    const item = document.createElement("div");
+                    item.className = "contigo-sos-item";
+
+                    const info = document.createElement("div");
+                    const nombre = document.createElement("strong");
+                    nombre.textContent = c.nombre || "Contacto de confianza";
+                    const rel = document.createElement("small");
+                    rel.textContent = (c.relacion ? c.relacion + " • " : "") + (c.telefono || "");
+                    info.append(nombre, rel);
+
+                    item.appendChild(info);
+
+                    if (telLimpio) {
+                        const enlace = document.createElement("a");
+                        enlace.href = "tel:" + telLimpio;
+                        enlace.className = "contigo-sos-llamar contacto";
+                        enlace.textContent = "📞 Llamar";
+                        item.appendChild(enlace);
+                    }
+
+                    cajaContactos.appendChild(item);
+                });
+            } catch {
+                cajaContactos.innerHTML =
+                    '<p class="contigo-sos-vacio">Ingresa a tu Red de Apoyo para ver tus contactos guardados.</p>';
+            }
+        }
+
+        function abrirSos() {
+            overlay.hidden = false;
+            cargarContactosConfianza();
+        }
+
+        function cerrarSos() {
+            overlay.hidden = true;
+        }
+
+        botonSos.addEventListener("click", abrirSos);
+        btnCerrar.addEventListener("click", cerrarSos);
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) cerrarSos();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !overlay.hidden) cerrarSos();
+        });
+    });
+})();
