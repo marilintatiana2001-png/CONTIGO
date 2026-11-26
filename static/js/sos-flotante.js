@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const STORAGE_KEY = "contigo_sos_posicion_v1";
 
-    // Si ya existe un botón SOS en la página, lo reutilizamos; si no, lo creamos
+    // Reutiliza el botón principal si ya existe o crea uno único
     let btn = document.getElementById("btn-sos-flotante") || document.querySelector("[data-sos-ayuda]");
 
     if (!btn) {
@@ -13,7 +13,28 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(btn);
     } else {
         btn.id = "btn-sos-flotante";
+        if (btn.tagName === "BUTTON" && !btn.getAttribute("type")) {
+            btn.setAttribute("type", "button");
+        }
+        if (!btn.getAttribute("aria-label")) {
+            btn.setAttribute("aria-label", "SOS Ayuda");
+        }
     }
+
+    // Oculta cualquier botón o enlace SOS antiguo duplicado para que solo quede uno arrastrable
+    document.querySelectorAll("button, a").forEach((el) => {
+        if (el === btn) return;
+        const texto = (el.textContent || "").trim().toLowerCase();
+        const idMinuscula = (el.id || "").toLowerCase();
+        const esSosDuplicado =
+            texto === "sos ayuda" ||
+            texto.startsWith("sos ayuda") ||
+            (idMinuscula.includes("sos") && idMinuscula !== "btn-sos-flotante");
+
+        if (esSosDuplicado) {
+            el.style.setProperty("display", "none", "important");
+        }
+    });
 
     let arrastrando = false;
     let seMovio = false;
@@ -46,9 +67,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.style.right = "auto";
                 btn.style.bottom = "auto";
             }
-        } catch (e) {
-            // Si hay error leyendo localStorage, se mantiene la posición CSS por defecto
+        } catch (_) {
+            // Si no hay posición válida guardada, se respeta el CSS por defecto
         }
+    }
+
+    function abrirModalApoyoInmediato() {
+        if (typeof window.abrirModalSos === "function") {
+            window.abrirModalSos();
+            return;
+        }
+        if (typeof window.abrirSos === "function") {
+            window.abrirSos();
+            return;
+        }
+        if (typeof window.mostrarModalSos === "function") {
+            window.mostrarModalSos();
+            return;
+        }
+
+        // Busca un modal SOS existente en el DOM si no hay función global expuesta
+        const modalSos =
+            document.getElementById("modal-sos") ||
+            document.getElementById("sosModal") ||
+            document.getElementById("modalSosAyuda") ||
+            document.querySelector("[data-modal-sos]");
+
+        if (modalSos) {
+            modalSos.classList.remove("hidden", "oculto", "d-none");
+            modalSos.classList.add("activo", "show", "open");
+            modalSos.style.display = "flex";
+            return;
+        }
+
+        window.location.href = "/red-apoyo";
     }
 
     aplicarPosicionGuardada();
@@ -124,12 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Si ya tienes un modal o función propia de SOS, llámala aquí; si no, redirige a red de apoyo
-        if (typeof window.abrirModalSos === "function") {
-            window.abrirModalSos();
-        } else {
-            window.location.href = "/red-apoyo";
-        }
+        abrirModalApoyoInmediato();
     });
 
     window.addEventListener("resize", () => {
