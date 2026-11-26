@@ -4,6 +4,8 @@ import json
 import secrets
 from datetime import date, datetime, timedelta
 from functools import wraps
+from io import BytesIO
+from pathlib import Path
 
 from flask import (
     Flask,
@@ -12,7 +14,8 @@ from flask import (
     jsonify,
     redirect,
     url_for,
-    session
+    session,
+    send_file
 )
 
 from werkzeug.security import (
@@ -21,14 +24,9 @@ from werkzeug.security import (
 )
 
 from mysql.connector import Error, IntegrityError
+from PIL import Image, ImageOps, UnidentifiedImageError
 from conexion import conectar_db
 
-
-from io import BytesIO
-from pathlib import Path
-
-from PIL import Image, ImageOps, UnidentifiedImageError
-from flask import send_file
 
 # ============================================================
 # CONFIGURACION PRINCIPAL DE CONTIGO
@@ -57,6 +55,10 @@ def requiere_sesion(funcion):
     @wraps(funcion)
     def protegida(*args, **kwargs):
 
+        # ==========================================
+        # VERIFICAR SI EXISTE UNA SESION
+        # ==========================================
+
         if "id_usuario" not in session:
 
             if request.path.startswith("/api/"):
@@ -65,6 +67,67 @@ def requiere_sesion(funcion):
                 }), 401
 
             return redirect(url_for("inicio"))
+
+        conexion = None
+        cursor = None
+
+        try:
+
+            # ==========================================
+            # VERIFICAR ESTADO ACTUAL DE LA CUENTA
+            # ==========================================
+
+            conexion = conectar_db()
+            cursor = conexion.cursor()
+
+            cursor.execute("""
+                SELECT estado_cuenta
+                FROM usuarios
+                WHERE id_usuario = %s
+            """, (session["id_usuario"],))
+
+            resultado = cursor.fetchone()
+
+            if not resultado or resultado[0] != "activa":
+
+                session.clear()
+
+                if request.path.startswith("/api/"):
+                    return jsonify({
+                        "mensaje": (
+                            "Tu cuenta no está habilitada "
+                            "para acceder a esta función."
+                        )
+                    }), 403
+
+                return redirect(url_for("inicio"))
+
+        except Error:
+
+            app.logger.exception(
+                "Error al verificar el estado de la cuenta."
+            )
+
+            if request.path.startswith("/api/"):
+                return jsonify({
+                    "mensaje": (
+                        "No pudimos verificar tu cuenta. "
+                        "Inténtalo nuevamente."
+                    )
+                }), 503
+
+            return (
+                "No pudimos verificar tu cuenta. "
+                "Inténtalo nuevamente.",
+                503
+            )
+
+        finally:
+            cerrar_conexion(cursor, conexion)
+
+        # ==========================================
+        # PERMITIR ACCESO A CUENTAS ACTIVAS
+        # ==========================================
 
         return funcion(*args, **kwargs)
 
@@ -152,9 +215,18 @@ def validar_csrf_contigo():
 def inicio():
 
     if "id_usuario" in session:
-        return redirect(url_for("pantalla_inicio"))
+        return redirect(url_for("mostrar_actividades"))
 
     return render_template("login.html")
+
+
+@app.route("/inicio")
+@requiere_sesion
+def pantalla_inicio():
+    return render_template(
+        "inicio.html",
+        nombre=session.get("nombre", "Usuario")
+    )
 
 
 # ============================================================
@@ -185,6 +257,10 @@ def guardar_registro():
 
     fecha_texto = datos.get("fecha_nacimiento") or None
 
+    # ==========================================
+    # VALIDAR DATOS OBLIGATORIOS
+    # ==========================================
+
     if not nombre or not correo:
         return jsonify({
             "mensaje": "Completa los campos obligatorios."
@@ -201,6 +277,10 @@ def guardar_registro():
         return jsonify({
             "mensaje": "Revisa tu nombre y correo."
         }), 400
+
+    # ==========================================
+    # VALIDAR CONTRASEÑA
+    # ==========================================
 
     if not isinstance(contrasena, str):
         return jsonify({
@@ -225,24 +305,62 @@ def guardar_registro():
             "mensaje": "Las contraseñas no coinciden."
         }), 400
 
-    fecha_nacimiento = None
+    # ==========================================
+    # VALIDAR EDAD Y AUTORIZACION
+    # ==========================================
 
-    if fecha_texto:
+    if not fecha_texto:
+        return jsonify({
+            "mensaje": "La fecha de nacimiento es obligatoria."
+        }), 400
 
-        try:
-            fecha_nacimiento = datetime.strptime(
-                fecha_texto, "%Y-%m-%d"
-            ).date()
+    try:
+        fecha_nacimiento = datetime.strptime(
+            fecha_texto, "%Y-%m-%d"
+        ).date()
 
-            if fecha_nacimiento > date.today():
-                return jsonify({
-                    "mensaje": "La fecha no puede ser futura."
-                }), 400
+        hoy = date.today()
 
-        except (ValueError, TypeError):
+        if fecha_nacimiento > hoy:
             return jsonify({
-                "mensaje": "Fecha de nacimiento inválida."
+                "mensaje": "La fecha no puede ser futura."
             }), 400
+
+        edad = (
+            hoy.year - fecha_nacimiento.year
+            - (
+                (hoy.month, hoy.day)
+                < (fecha_nacimiento.month, fecha_nacimiento.day)
+            )
+        )
+
+        if edad < 14:
+            return jsonify({
+                "mensaje": (
+                    "Para registrarte en CONTIGO debes tener "
+                    "al menos 14 años."
+                )
+            }), 403
+
+    except (ValueError, TypeError):
+        return jsonify({
+            "mensaje": "Fecha de nacimiento inválida."
+        }), 400
+
+    es_menor = edad < 18
+
+    # Los datos del representante se solicitarán después,
+    # directamente en la pantalla de autorización presencial.
+    nombre_representante = None
+    correo_representante = None
+
+    estado_cuenta = (
+        "pendiente_autorizacion" if es_menor else "activa"
+    )
+
+    # ==========================================
+    # PROTEGER CONTRASEÑA
+    # ==========================================
 
     contrasena_segura = generate_password_hash(
         contrasena
@@ -252,11 +370,9 @@ def guardar_registro():
     cursor = None
 
     try:
-
         conexion = conectar_db()
         cursor = conexion.cursor()
 
-        
         # ==========================================
         # OBTENER LAS PREFERENCIAS DE IAN
         # ==========================================
@@ -277,7 +393,10 @@ def guardar_registro():
             datos.get("personalizacion_ian") is True
         )
 
-        # Validar los datos recibidos
+        # ==========================================
+        # VALIDAR LOS DATOS RECIBIDOS
+        # ==========================================
+
         if (
             len(pais_ian) > 60
             or genero_ian not in (
@@ -291,12 +410,10 @@ def guardar_registro():
             )
         ):
             return jsonify({
-                "mensaje": "Revisa las preferencias de IAN."
+                "mensaje": "Los datos de personalización de IAN no son válidos."
             }), 400
 
         # Elegir tratamiento por defecto
-        # solamente si el usuario indicó su género
-
         if not tratamiento_ian:
             if genero_ian == "mujer":
                 tratamiento_ian = "femenino"
@@ -304,7 +421,7 @@ def guardar_registro():
                 tratamiento_ian = "masculino"
 
         # ==========================================
-        # REGISTRAR USUARIO CON PREFERENCIAS DE IAN
+        # REGISTRAR USUARIO
         # ==========================================
 
         cursor.execute("""
@@ -316,11 +433,14 @@ def guardar_registro():
                 pais_residencia,
                 genero_ian,
                 tratamiento_ian,
-                personalizacion_ian
+                personalizacion_ian,
+                estado_cuenta,
+                nombre_representante,
+                correo_representante
             )
             VALUES (
-                %s, %s, %s, %s,
-                %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s
             )
         """, (
             nombre,
@@ -330,14 +450,45 @@ def guardar_registro():
             pais_ian or None,
             genero_ian or None,
             tratamiento_ian or None,
-            int(permiso_ian)
+            int(permiso_ian),
+            estado_cuenta,
+            nombre_representante if es_menor else None,
+            correo_representante if es_menor else None
         ))
 
+        id_usuario_nuevo = cursor.lastrowid
         conexion.commit()
 
+        token_autorizacion = None
+
+        if es_menor:
+            token_autorizacion = crear_solicitud_autorizacion(
+                id_usuario=id_usuario_nuevo,
+                nombre_menor=nombre
+            )
+
+        if es_menor:
+            mensaje = (
+                "Tu registro fue recibido. "
+                "Entrega el dispositivo a tu representante legal "
+                "para continuar con la autorización."
+            )
+        else:
+            mensaje = "¡Tu cuenta fue creada correctamente!"
+
         return jsonify({
-            "mensaje": "¡Tu cuenta fue creada correctamente!"
+            "mensaje": mensaje,
+            "requiere_autorizacion": es_menor,
+            "token_autorizacion": token_autorizacion
         }), 201
+
+    except RuntimeError:
+
+        app.logger.exception("Error al procesar la autorización.")
+
+        return jsonify({
+            "mensaje": "No se pudo completar el proceso de autorización."
+        }), 503
 
     except IntegrityError as error:
 
@@ -399,12 +550,21 @@ def iniciar_sesion():
         cursor = conexion.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT id_usuario, nombre, correo, contrasena
+            SELECT
+                id_usuario,
+                nombre,
+                correo,
+                contrasena,
+                estado_cuenta
             FROM usuarios
             WHERE correo = %s
         """, (correo,))
 
         usuario = cursor.fetchone()
+
+        # ==========================================
+        # VALIDAR CREDENCIALES
+        # ==========================================
 
         if not usuario or not check_password_hash(
             usuario["contrasena"], contrasena
@@ -413,6 +573,42 @@ def iniciar_sesion():
                 "mensaje": "Correo o contraseña incorrectos."
             }), 401
 
+        # ==========================================
+        # VALIDAR ESTADO DE LA CUENTA
+        # ==========================================
+
+        estado = usuario.get("estado_cuenta") or "activa"
+
+        if estado != "activa":
+
+            if estado == "pendiente_autorizacion":
+                mensaje = (
+                    "Tu cuenta está pendiente de autorización "
+                    "de tu representante legal. "
+                    "Te avisaremos cuando puedas ingresar."
+                )
+
+            elif estado == "rechazada":
+                mensaje = (
+                    "La autorización de tu cuenta fue rechazada. "
+                    "Comunícate con el equipo de CONTIGO."
+                )
+
+            else:
+                mensaje = (
+                    "Tu cuenta no está habilitada actualmente. "
+                    "Comunícate con el equipo de CONTIGO."
+                )
+
+            return jsonify({
+                "mensaje": mensaje,
+                "estado": estado
+            }), 403
+
+        # ==========================================
+        # INICIAR SESION
+        # ==========================================
+
         session.clear()
 
         session["id_usuario"] = usuario["id_usuario"]
@@ -420,7 +616,7 @@ def iniciar_sesion():
 
         return jsonify({
             "mensaje": "¡Bienvenido a CONTIGO!",
-            "redirigir": url_for("pantalla_inicio")
+            "redirigir": url_for("mostrar_actividades")
         }), 200
 
     except Error:
@@ -439,28 +635,13 @@ def iniciar_sesion():
 # CERRAR SESION
 # ============================================================
 
-@app.route("/logout")
-@requiere_sesion
+@app.route("/cerrar-sesion", methods=["GET", "POST"])
 def cerrar_sesion():
-
     session.clear()
-
-    return redirect(url_for("inicio"))
-
-
-# ============================================================
-# PANTALLA PRINCIPAL
-# ============================================================
-
-@app.route("/inicio")
-@requiere_sesion
-def pantalla_inicio():
-
-    return render_template(
-        "inicio.html",
-        nombre=session.get("nombre", "Usuario")
-    )
-
+    respuesta = redirect(url_for("inicio"))
+    respuesta.delete_cookie(app.config.get("SESSION_COOKIE_NAME", "session"))
+    respuesta.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    return respuesta
 
 # ============================================================
 # MI DIARIO
@@ -521,7 +702,6 @@ def nuevo_escrito():
     )
 
 
-
 # ============================================================
 # GUARDAR NUEVO ESCRITO
 # ============================================================
@@ -529,7 +709,6 @@ def nuevo_escrito():
 @app.route("/api/diario", methods=["POST"])
 @requiere_sesion
 def guardar_escrito():
-
 
     # Verificar el token de seguridad
     if not validar_csrf_contigo():
@@ -2161,8 +2340,6 @@ def chat_con_ian():
                 "no inventes números locales."
             )
 
-        # Tratamiento gramatical
-        
         # ==========================================
         # IAN - TRATAMIENTO NATURAL DEL USUARIO
         # ==========================================
@@ -2212,7 +2389,6 @@ def chat_con_ian():
                 "No deduzcas su género ni su tratamiento "
                 "a partir del nombre."
             )
-
 
         # ==========================================
         # IAN - RESPUESTAS DIRECTAS Y NATURALES
@@ -2602,7 +2778,6 @@ def chat_con_ian():
                         "la respuesta"
                     )
 
-
         # ========================================
         # VERIFICAR RESPUESTAS SOBRE EL HISTORIAL
         # ========================================
@@ -2614,10 +2789,6 @@ def chat_con_ian():
             r"nunca\s+(?:dije|mencion[eé]))",
             mensaje.casefold()
         ))
-
-        # Solo verificar recuerdos cuando el usuario
-        # pregunta por la conversación anterior.
-        # No retrasar las respuestas de crisis.
 
         if pregunta_memoria and historial and riesgo == "normal":
 
@@ -2711,7 +2882,6 @@ def chat_con_ian():
                     "palabras o negar algo que dije."
                 )
 
-
         # ========================================
         # LIMPIAR FORMATO
         # ========================================
@@ -2773,7 +2943,6 @@ def chat_con_ian():
             str(error)[:700]
         )
 
-
         return jsonify({
             "mensaje": (
                 "IAN no pudo conectar con GroqCloud."
@@ -2794,7 +2963,7 @@ def chat_con_ian():
 
 
 # ============================================================
-# PANTALLA RED DE APOYO 
+# PANTALLA RED DE APOYO
 # ============================================================
 
 @app.route("/red-apoyo")
@@ -2805,7 +2974,6 @@ def red_apoyo():
         "red_apoyo.html",
         nombre=session.get("nombre", "Usuario")
     )
-
 
 
 def validar_contacto_confianza(datos):
@@ -2913,8 +3081,7 @@ def validar_contacto_confianza(datos):
 
 
 # ============================================================
-#  CONSULTAR MIS CONTACTOS
-# AGREGAR CONTACTO
+# CONSULTAR MIS CONTACTOS / AGREGAR CONTACTO
 # ============================================================
 
 @app.route(
@@ -2989,7 +3156,7 @@ def api_contactos_confianza():
                 relacion,
                 correo
             )
-            VALUES (%s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s)
         """, (
             usuario_id,
             datos_contacto["nombre"],
@@ -3031,8 +3198,7 @@ def api_contactos_confianza():
 
 
 # ============================================================
-# EDITAR CONTACTO
-# DELETE CONTACTO
+# EDITAR CONTACTO / DELETE CONTACTO
 # ============================================================
 
 @app.route(
@@ -3217,7 +3383,6 @@ def api_recursos_ayuda():
         cerrar_conexion(cursor, conexion)
 
 
-
 # ==========================================
 # MI PERFIL
 # ==========================================
@@ -3245,6 +3410,7 @@ def pantalla_editar_perfil():
         nombre=session.get("nombre", "Usuario")
     )
 
+
 # ============================================================
 # NOTIFICACIONES
 # ============================================================
@@ -3257,7 +3423,6 @@ def notificaciones():
         "Notificaciones: "
         "pantalla pendiente de implementar."
     )
-
 
 
 # ==========================================
@@ -3306,7 +3471,6 @@ def resumen_del_perfil():
         if not usuario:
             return jsonify({"mensaje": "Usuario no encontrado."}), 404
 
-        # Todos los totales del resumen corresponden a 30 dias.
         cursor.execute("""
             SELECT COUNT(*) AS total
             FROM actividades_realizadas
@@ -3338,8 +3502,6 @@ def resumen_del_perfil():
             for fila in cursor.fetchall()
         ]
 
-        # Registros diarios de la ultima semana (incluido hoy).
-        # Un dia sin registros aparece vacio, no como otra emocion.
         hoy = date.today()
         inicio_semana = hoy - timedelta(days=6)
         fin_exclusivo = hoy + timedelta(days=1)
@@ -3379,8 +3541,6 @@ def resumen_del_perfil():
             for fecha, emociones in semana_por_fecha.items()
         ]
 
-        # Distribucion REAL por categoria de las actividades completadas.
-        # No contamos actividades solamente sugeridas o abiertas.
         cursor.execute("""
             SELECT COALESCE(c.nombre, 'Sin categoría') AS categoria,
                    COUNT(*) AS cantidad
@@ -3519,10 +3679,6 @@ def generar_notificaciones_del_perfil():
     if not validar_csrf_contigo():
         return jsonify({"mensaje": "Solicitud no autorizada."}), 403
 
-    # Aún no se activa detección automática de crisis
-    # ni avisos externos a contactos de confianza.
-    # Las recomendaciones por emociones se implementarán
-    # y probarán por separado.
     return jsonify({
         "mensaje": "Revisión pendiente de implementar.",
         "notificaciones_nuevas": 0
@@ -3627,7 +3783,6 @@ def leer_todas_las_notificaciones_del_perfil():
         return jsonify({"mensaje": "No se pudieron actualizar las notificaciones."}), 500
     finally:
         cerrar_conexion(cursor, conexion)
-
 
 
 # ============================================================
@@ -3811,8 +3966,6 @@ def actualizar_nombre_perfil():
 
         conexion.commit()
 
-        # Actualizar también la sesión de Flask
-
         session["nombre"] = nombre
 
         return jsonify({
@@ -3867,9 +4020,6 @@ def foto_perfil_usuario():
             ruta,
             mimetype="image/jpeg"
         )
-
-        # Evitar guardar fotos personales
-        # en cachés compartidas.
 
         respuesta.headers["Cache-Control"] = (
             "private, no-store"
@@ -3948,9 +4098,6 @@ def foto_perfil_usuario():
             BytesIO(contenido)
         ) as original:
 
-            # Validar el formato real,
-            # no solamente la extensión.
-
             if original.format not in (
                 "JPEG",
                 "PNG",
@@ -3976,21 +4123,15 @@ def foto_perfil_usuario():
 
             original.load()
 
-            # Corregir orientación de fotografías.
-
             imagen = ImageOps.exif_transpose(
                 original
             )
-
-            # Recortar y redimensionar a 400 x 400.
 
             imagen = ImageOps.fit(
                 imagen.convert("RGB"),
                 (400, 400),
                 method=Image.Resampling.LANCZOS
             )
-
-        # Crear carpeta privada del servidor.
 
         FOTOS_PERFIL_DIR.mkdir(
             parents=True,
@@ -4001,8 +4142,6 @@ def foto_perfil_usuario():
             f".{int(session['id_usuario'])}-"
             f"{secrets.token_hex(8)}.tmp"
         )
-
-        # Generar un JPG sin metadatos EXIF.
 
         imagen.save(
             temporal,
@@ -4054,6 +4193,7 @@ registrar_seguridad_diario(
     requiere_sesion
 )
 
+
 # ============================================================
 # RECUPERACIÓN DE CONTRASEÑA DE CONTIGO
 # ============================================================
@@ -4065,6 +4205,32 @@ registrar_recuperacion_contrasena(
     conectar_db,
     validar_csrf_contigo
 )
+
+from autorizacion_representantes import (
+    registrar_autorizacion_representantes
+)
+
+crear_solicitud_autorizacion = (
+    registrar_autorizacion_representantes(
+        app,
+        conectar_db
+    )
+)
+
+
+# ============================================================
+# GESTION ADMINISTRATIVA DE AUTORIZACIONES
+# ============================================================
+
+from gestion_autorizaciones import (
+    registrar_gestion_autorizaciones
+)
+
+registrar_gestion_autorizaciones(
+    app,
+    conectar_db
+)
+
 
 # ============================================================
 # CONTIGO - SERVICE WORKER PARA INSTALACIÓN PWA
@@ -4080,6 +4246,7 @@ def service_worker_contigo():
     respuesta.headers["Cache-Control"] = "no-cache"
 
     return respuesta
+
 
 if __name__ == "__main__":
     app.run(debug=False)

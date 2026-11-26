@@ -1607,6 +1607,35 @@
     cargarPreferencias();
 })();
 </script>
+<script>
+(() => {
+    "use strict";
 
+    const btnCerrarSesion = document.getElementById("config-cerrar-sesion");
+    if (!btnCerrarSesion) return;
+
+    btnCerrarSesion.addEventListener("click", async () => {
+        btnCerrarSesion.disabled = true;
+
+        try {
+            const respCsrf = await fetch("/api/csrf", { credentials: "same-origin" });
+            const datosCsrf = respCsrf.ok ? await respCsrf.json() : {};
+
+            await fetch("/api/logout", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(datosCsrf.csrf_token ? { "X-CSRF-Token": datosCsrf.csrf_token } : {})
+                }
+            });
+        } catch (error) {
+            // Si la ruta en app.py tiene otro nombre, redirige al inicio de todas formas
+        } finally {
+            window.location.href = "{{ url_for('inicio') }}";
+        }
+    });
+})();
+</script>
 </body>
 </html>

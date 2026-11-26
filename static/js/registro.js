@@ -1,181 +1,224 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const formRegistro = document.getElementById("form-registro");
+    const mensajeRegistro = document.getElementById("mensaje-registro");
+    const btnRegistrar = document.getElementById("btn-registrar");
+    const tituloPaso = document.getElementById("titulo-paso-registro");
 
-/* ==========================================
-   CONTIGO - REGISTRO DE USUARIOS
-   INTEGRACIÓN CON PREFERENCIAS DE IAN
-========================================== */
+    const seccionTutor = document.getElementById("seccion-autorizacion-tutor");
+    const formTutor = document.getElementById("form-autorizacion-tutor");
+    const inputToken = document.getElementById("token_autorizacion");
+    const mensajeAutorizacion = document.getElementById("mensaje-autorizacion");
+    const btnFirmar = document.getElementById("btn-firmar-autorizacion");
 
-const formularioRegistro = document.getElementById(
-    "form-registro"
-);
-
-const mensajeRegistro = document.getElementById(
-    "mensaje-registro"
-);
-
-formularioRegistro.addEventListener(
-    "submit",
-    async function (evento) {
-
-        evento.preventDefault();
-
-        // ======================================
-        // DATOS PERSONALES DEL REGISTRO
-        // ======================================
-
-        const nombre = document.getElementById(
-            "nombre"
-        ).value.trim();
-
-        const correo = document.getElementById(
-            "correo"
-        ).value.trim();
-
-        const fechaNacimiento = document.getElementById(
-            "fecha_nacimiento"
-        ).value;
-
-        const contrasena = document.getElementById(
-            "contrasena"
-        ).value;
-
-        const confirmar = document.getElementById(
-            "confirmar_contrasena"
-        ).value;
-
-        // ======================================
-        // PREFERENCIAS PARA IAN
-        // ======================================
-
-        const paisResidencia = document.getElementById(
-            "pais_residencia"
-        ).value.trim();
-
-        const generoIan = document.getElementById(
-            "genero_ian"
-        ).value;
-
-        const tratamientoIan = document.getElementById(
-            "tratamiento_ian"
-        ).value;
-
-        const personalizacionIan = document.getElementById(
-            "personalizacion_ian"
-        ).checked;
-
-        // ======================================
-        // BOTÓN DE REGISTRO
-        // ======================================
-
-        const botonRegistro = formularioRegistro.querySelector(
-            'button[type="submit"]'
-        );
-
-        // ======================================
-        // VALIDAR CONTRASEÑAS
-        // ======================================
-
-        if (contrasena !== confirmar) {
-
-            mensajeRegistro.textContent =
-                "Las contraseñas no coinciden. Inténtalo nuevamente.";
-
-            mensajeRegistro.style.color = "#B34260";
-
-            return;
+    function mostrarMensaje(elemento, texto, tipo) {
+        if (!elemento) return;
+        elemento.textContent = texto;
+        elemento.classList.remove("error", "exito");
+        if (tipo) {
+            elemento.classList.add(tipo);
         }
+    }
 
-        // ======================================
-        // PREPARAR LOS DATOS PARA FLASK
-        // ======================================
+    // ======================================================
+    // PASO 1: ENVIAR DATOS DEL USUARIO A /api/registro
+    // ======================================================
 
-        const datosUsuario = {
+    if (formRegistro) {
+        formRegistro.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            mostrarMensaje(mensajeRegistro, "", "");
 
-            // Datos de la cuenta
-            nombre: nombre,
-            correo: correo,
-            fecha_nacimiento: fechaNacimiento,
-            contrasena: contrasena,
-            confirmar_contrasena: confirmar,
+            const nombre = document.getElementById("nombre").value.trim();
+            const correo = document.getElementById("correo").value.trim();
+            const fechaNacimiento = document.getElementById("fecha_nacimiento").value;
+            const paisResidencia = document.getElementById("pais_residencia").value.trim();
+            const generoIan = document.getElementById("genero_ian").value;
+            const tratamientoIan = document.getElementById("tratamiento_ian").value;
+            const personalizacionIan = document.getElementById("personalizacion_ian").checked;
+            const contrasena = document.getElementById("contrasena").value;
+            const confirmarContrasena = document.getElementById("confirmar_contrasena").value;
 
-            // Preferencias de IAN
-            pais_residencia: paisResidencia,
-            genero_ian: generoIan,
-            tratamiento_ian: tratamientoIan,
-            personalizacion_ian: personalizacionIan
+            if (contrasena !== confirmarContrasena) {
+                mostrarMensaje(
+                    mensajeRegistro,
+                    "Las contraseñas no coinciden.",
+                    "error"
+                );
+                return;
+            }
 
-        };
+            btnRegistrar.disabled = true;
+            btnRegistrar.textContent = "Procesando...";
 
-        // ======================================
-        // MOSTRAR ESTADO DEL REGISTRO
-        // ======================================
-
-        mensajeRegistro.textContent =
-            "Estamos creando tu cuenta...";
-
-        mensajeRegistro.style.color = "#51406F";
-
-        botonRegistro.disabled = true;
-
-        // ======================================
-        // ENVIAR DATOS A FLASK
-        // ======================================
-
-        try {
-
-            const respuesta = await fetch(
-                "/api/registro",
-                {
+            try {
+                const respuesta = await fetch("/api/registro", {
                     method: "POST",
-
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        correo: correo,
+                        fecha_nacimiento: fechaNacimiento,
+                        pais_residencia: paisResidencia,
+                        genero_ian: generoIan,
+                        tratamiento_ian: tratamientoIan,
+                        personalizacion_ian: personalizacionIan,
+                        contrasena: contrasena,
+                        confirmar_contrasena: confirmarContrasena
+                    })
+                });
 
-                    credentials: "same-origin",
+                const datos = await respuesta.json();
 
-                    body: JSON.stringify(datosUsuario)
+                if (!respuesta.ok) {
+                    mostrarMensaje(
+                        mensajeRegistro,
+                        datos.mensaje || "No se pudo completar el registro.",
+                        "error"
+                    );
+                    btnRegistrar.disabled = false;
+                    btnRegistrar.textContent = "Crear cuenta";
+                    return;
                 }
-            );
 
-            const resultado = await respuesta.json();
+                // Si es menor de edad, mostrar el formulario presencial del tutor
+                if (datos.requiere_autorizacion && datos.token_autorizacion) {
+                    formRegistro.hidden = true;
+                    if (tituloPaso) {
+                        tituloPaso.textContent = "Paso 2: Autorización del adulto";
+                    }
 
-            mensajeRegistro.textContent =
-                resultado.mensaje ||
-                "No pudimos completar el registro.";
+                    inputToken.value = datos.token_autorizacion;
+                    seccionTutor.hidden = false;
+                    seccionTutor.scrollIntoView({ behavior: "smooth" });
+                    return;
+                }
 
-            // ==================================
-            // REGISTRO EXITOSO
-            // ==================================
+                // Si es mayor de edad, cuenta activa de inmediato
+                mostrarMensaje(
+                    mensajeRegistro,
+                    datos.mensaje || "¡Tu cuenta fue creada correctamente!",
+                    "exito"
+                );
 
-            if (respuesta.ok) {
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 1500);
 
-                mensajeRegistro.style.color = "#397D68";
+            } catch (error) {
+                mostrarMensaje(
+                    mensajeRegistro,
+                    "Error de conexión con el servidor. Inténtalo nuevamente.",
+                    "error"
+                );
+                btnRegistrar.disabled = false;
+                btnRegistrar.textContent = "Crear cuenta";
+            }
+        });
+    }
 
-                formularioRegistro.reset();
+    // ======================================================
+    // PASO 2: FIRMA PRESENCIAL DEL TUTOR EN EL DISPOSITIVO
+    // ======================================================
 
-            } else {
+    if (formTutor) {
+        formTutor.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            mostrarMensaje(mensajeAutorizacion, "", "");
 
-                mensajeRegistro.style.color = "#B34260";
+            const token = inputToken.value.trim();
+            const nombreRepresentante = document
+                .getElementById("nombre_representante")
+                .value.trim();
+            const parentesco = document
+                .getElementById("parentesco")
+                .value.trim();
+            const firmaElectronica = document
+                .getElementById("firma_electronica")
+                .value.trim();
+            const declaracion = document
+                .getElementById("declaracion_representacion")
+                .checked;
+            const aceptacion = document
+                .getElementById("aceptacion_explicita")
+                .checked;
 
+            if (
+                nombreRepresentante.toLocaleLowerCase() !==
+                firmaElectronica.toLocaleLowerCase()
+            ) {
+                mostrarMensaje(
+                    mensajeAutorizacion,
+                    "La firma electrónica debe coincidir exactamente con el nombre completo del representante.",
+                    "error"
+                );
+                return;
             }
 
-        } catch (error) {
+            if (!declaracion || !aceptacion) {
+                mostrarMensaje(
+                    mensajeAutorizacion,
+                    "Debes marcar ambas casillas de declaración y autorización.",
+                    "error"
+                );
+                return;
+            }
 
-            console.error(
-                "Error al registrar usuario:",
-                error
-            );
+            btnFirmar.disabled = true;
+            btnFirmar.textContent = "Guardando autorización...";
 
-            mensajeRegistro.textContent =
-                "No pudimos conectar con el servidor. Inténtalo nuevamente.";
+            try {
+                const respuesta = await fetch(
+                    "/api/autorizacion-representante/aceptar",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            token: token,
+                            nombre_representante: nombreRepresentante,
+                            parentesco: parentesco,
+                            firma_electronica: firmaElectronica,
+                            declaracion_representacion: declaracion,
+                            aceptacion_explicita: aceptacion
+                        })
+                    }
+                );
 
-            mensajeRegistro.style.color = "#B34260";
+                const datos = await respuesta.json();
 
-        } finally {
+                if (!respuesta.ok) {
+                    mostrarMensaje(
+                        mensajeAutorizacion,
+                        datos.mensaje || "No se pudo guardar la autorización.",
+                        "error"
+                    );
+                    btnFirmar.disabled = false;
+                    btnFirmar.textContent = "Firmar y activar cuenta";
+                    return;
+                }
 
-            botonRegistro.disabled = false;
+                mostrarMensaje(
+                    mensajeAutorizacion,
+                    datos.mensaje || "¡Cuenta activada! Redirigiendo al inicio de sesión...",
+                    "exito"
+                );
 
-        }
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 1800);
 
+            } catch (error) {
+                mostrarMensaje(
+                    mensajeAutorizacion,
+                    "Error de conexión al enviar la autorización.",
+                    "error"
+                );
+                btnFirmar.disabled = false;
+                btnFirmar.textContent = "Firmar y activar cuenta";
+            }
+        });
     }
-);
+});

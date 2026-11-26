@@ -672,3 +672,172 @@ body.pagina-cielo #mapa-estrellas {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* ==========================================
+   CONTIGO - AUTORIZACIÓN REPRESENTANTE LEGAL
+   Diseño organizado y adaptable
+========================================== */
+
+#seccion-autorizacion-representante {
+    width: min(92%, 620px);
+    margin: 24px auto;
+    padding: 28px 32px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #eadfec;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(65, 43, 75, 0.07);
+    color: #39323d;
+    font-family: inherit;
+}
+
+#seccion-autorizacion-representante h2 {
+    margin: 0 0 16px;
+    color: #51406f;
+    font-size: 23px;
+    line-height: 1.3;
+    font-weight: 700;
+    text-align: center;
+}
+
+#seccion-autorizacion-representante h3 {
+    margin: 24px 0 12px;
+    color: #51406f;
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+#seccion-autorizacion-representante p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #5f5864;
+}
+
+#seccion-autorizacion-representante p strong {
+    color: #51406f;
+    font-weight: 600;
+}
+
+#form-autorizacion-representante {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+#form-autorizacion-representante > label {
+    display: block;
+    margin-top: 8px;
+    color: #48404d;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+#form-autorizacion-representante input[type="text"],
+#form-autorizacion-representante select {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 13px;
+    box-sizing: border-box;
+    border: 1px solid #dcd2e0;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #39323d;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#form-autorizacion-representante input[type="text"]:focus,
+#form-autorizacion-representante select:focus {
+    border-color: #9474a9;
+    box-shadow: 0 0 0 3px rgba(148, 116, 169, 0.12);
+}
+
+#form-autorizacion-representante > label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #eee5f0;
+    border-radius: 9px;
+    background: #fbf9fc;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+#form-autorizacion-representante input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+    margin: 2px 0 0;
+    accent-color: #80619a;
+    cursor: pointer;
+}
+
+#form-autorizacion-representante button {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 14px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+    background: #80619a;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+#form-autorizacion-representante button:hover {
+    background: #6c4f85;
+}
+
+#form-autorizacion-representante button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#mensaje-autorizacion {
+    margin: 8px 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Adaptación para celulares */
+
+@media (max-width: 600px) {
+
+    #seccion-autorizacion-representante {
+        width: 94%;
+        margin: 16px auto;
+        padding: 21px 18px;
+        border-radius: 13px;
+    }
+
+    #seccion-autorizacion-representante h2 {
+        font-size: 20px;
+    }
+
+    #seccion-autorizacion-representante h3 {
+        font-size: 16px;
+    }
+
+    #seccion-autorizacion-representante p {
+        font-size: 13px;
+    }
+
+    #form-autorizacion-representante > label {
+        font-size: 13px;
+    }
+
+}

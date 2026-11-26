@@ -103,9 +103,7 @@
                     );
                 }
 
-                window.location.assign(
-                    resultado.redirigir || "/inicio"
-                );
+                window.location.assign("/inicio");
 
             } catch (error) {
                 mostrarError(

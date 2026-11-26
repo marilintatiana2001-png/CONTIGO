@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-admin" content="{{ csrf_admin }}">
+    <title>Autorizaciones | CONTIGO</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 18px;
+            background: #f5f7fb;
+            color: #263247;
+            font-family: Arial, sans-serif;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .encabezado {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .encabezado img {
+            width: 66px;
+            height: 66px;
+            object-fit: contain;
+            border-radius: 14px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 25px;
+        }
+
+        .subtitulo {
+            margin: 0;
+            color: #68758a;
+            font-size: 14px;
+        }
+
+        .resumen {
+            background: white;
+            border: 1px solid #e5eaf2;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+
+        .resumen strong {
+            display: block;
+            font-size: 30px;
+            color: #5267a5;
+        }
+
+        .resumen span {
+            color: #68758a;
+            font-size: 14px;
+        }
+
+        #mensaje {
+            display: none;
+            padding: 13px 16px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        #mensaje.error {
+            display: block;
+            background: #fff0f0;
+            color: #a12b35;
+        }
+
+        #mensaje.exito {
+            display: block;
+            background: #eaf8f0;
+            color: #216b43;
+        }
+
+        .solicitud {
+            background: white;
+            border: 1px solid #e5eaf2;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 12px rgba(35, 50, 75, 0.04);
+        }
+
+        .solicitud h2 {
+            margin: 0 0 15px;
+            font-size: 19px;
+        }
+
+        .datos {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .dato {
+            padding: 12px;
+            background: #f7f9fc;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .dato small {
+            display: block;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .dato strong {
+            font-size: 14px;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #fff4df;
+            color: #8a5b13;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .formulario-verificacion {
+            border-top: 1px solid #e8edf4;
+            padding-top: 18px;
+        }
+
+        .formulario-verificacion h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+        }
+
+        .aviso {
+            color: #68758a;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin: 13px 0 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d8dfeb;
+            border-radius: 8px;
+            background: white;
+            color: #263247;
+            font: inherit;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 85px;
+            resize: vertical;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .aprobar {
+            background: #426b9e;
+            color: white;
+        }
+
+        .rechazar {
+            background: #fff0f0;
+            color: #a12b35;
+        }
+
+        .recargar {
+            background: #e9eef7;
+            color: #354d73;
+        }
+
+        .vacio {
+            padding: 35px 20px;
+            text-align: center;
+            color: #68758a;
+            background: white;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .datos {
+                grid-template-columns: 1fr;
+            }
+
+            .encabezado img {
+                width: 52px;
+                height: 52px;
+            }
+
+            h1 {
+                font-size: 21px;
+            }
+
+            .acciones button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="contenedor">
+
+        <header class="encabezado">
+            <img
+                src="{{ url_for('static', filename='img/logo-contigo.jpeg') }}"
+                alt="Logo CONTIGO"
+            >
+
+            <div>
+                <h1>Gestión de autorizaciones</h1>
+                <p class="subtitulo">
+                    Administración y verificación de representantes legales
+                </p>
+            </div>
+        </header>
+
+        <section class="resumen">
+            <strong id="total-pendientes">0</strong>
+            <span>Solicitudes pendientes de revisión</span>
+        </section>
+
+        <div id="mensaje" role="status" aria-live="polite"></div>
+
+        <button type="button" class="recargar" id="btn-recargar">
+            Actualizar solicitudes
+        </button>
+
+        <section id="lista-autorizaciones" aria-live="polite">
+            <div class="vacio">Cargando solicitudes...</div>
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/admin_autorizaciones.js') }}"></script>
+</body>
+</html>
