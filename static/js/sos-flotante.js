@@ -1,40 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     const STORAGE_KEY = "contigo_sos_posicion_v1";
 
-    // Reutiliza el botón principal si ya existe o crea uno único
-    let btn = document.getElementById("btn-sos-flotante") || document.querySelector("[data-sos-ayuda]");
-
-    if (!btn) {
-        btn = document.createElement("button");
-        btn.type = "button";
-        btn.id = "btn-sos-flotante";
-        btn.setAttribute("aria-label", "SOS Ayuda");
-        btn.innerHTML = `<span class="sos-badge">SOS</span><span>Ayuda</span>`;
-        document.body.appendChild(btn);
-    } else {
-        btn.id = "btn-sos-flotante";
-        if (btn.tagName === "BUTTON" && !btn.getAttribute("type")) {
-            btn.setAttribute("type", "button");
-        }
-        if (!btn.getAttribute("aria-label")) {
-            btn.setAttribute("aria-label", "SOS Ayuda");
-        }
+    // Elimina cualquier #btn-sos-flotante viejo si existiera de versiones anteriores
+    const btnViejo = document.getElementById("btn-sos-flotante");
+    if (btnViejo) {
+        btnViejo.remove();
     }
-
-    // Oculta cualquier botón o enlace SOS antiguo duplicado para que solo quede uno arrastrable
-    document.querySelectorAll("button, a").forEach((el) => {
-        if (el === btn) return;
-        const texto = (el.textContent || "").trim().toLowerCase();
-        const idMinuscula = (el.id || "").toLowerCase();
-        const esSosDuplicado =
-            texto === "sos ayuda" ||
-            texto.startsWith("sos ayuda") ||
-            (idMinuscula.includes("sos") && idMinuscula !== "btn-sos-flotante");
-
-        if (esSosDuplicado) {
-            el.style.setProperty("display", "none", "important");
-        }
-    });
 
     let arrastrando = false;
     let seMovio = false;
@@ -42,8 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let inicioY = 0;
     let offsetX = 0;
     let offsetY = 0;
+    let btnActual = null;
 
-    function limitarDentroDePantalla(left, top) {
+    function limitarDentroDePantalla(btn, left, top) {
         const rect = btn.getBoundingClientRect();
         const margen = 10;
         const maxLeft = Math.max(margen, window.innerWidth - rect.width - margen);
@@ -55,135 +27,135 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    function aplicarPosicionGuardada() {
+    function aplicarPosicionGuardada(btn) {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return;
             const pos = JSON.parse(raw);
             if (typeof pos.left === "number" && typeof pos.top === "number") {
-                const ajustada = limitarDentroDePantalla(pos.left, pos.top);
+                const ajustada = limitarDentroDePantalla(btn, pos.left, pos.top);
                 btn.style.left = `${ajustada.left}px`;
                 btn.style.top = `${ajustada.top}px`;
                 btn.style.right = "auto";
                 btn.style.bottom = "auto";
             }
-        } catch (_) {
-            // Si no hay posición válida guardada, se respeta el CSS por defecto
-        }
+        } catch (_) {}
     }
 
-    function abrirModalApoyoInmediato() {
-        if (typeof window.abrirModalSos === "function") {
-            window.abrirModalSos();
-            return;
-        }
-        if (typeof window.abrirSos === "function") {
-            window.abrirSos();
-            return;
-        }
-        if (typeof window.mostrarModalSos === "function") {
-            window.mostrarModalSos();
-            return;
-        }
+    function inicializarBotonSos(btn) {
+        if (!btn || btn.dataset.sosArrastrableListo === "1") return;
+        btn.dataset.sosArrastrableListo = "1";
+        btnActual = btn;
 
-        // Busca un modal SOS existente en el DOM si no hay función global expuesta
-        const modalSos =
-            document.getElementById("modal-sos") ||
-            document.getElementById("sosModal") ||
-            document.getElementById("modalSosAyuda") ||
-            document.querySelector("[data-modal-sos]");
+        btn.style.position = "fixed";
+        btn.style.zIndex = "9999";
+        btn.style.touchAction = "none";
+        btn.style.userSelect = "none";
+        btn.style.webkitUserSelect = "none";
+        btn.style.cursor = "grab";
 
-        if (modalSos) {
-            modalSos.classList.remove("hidden", "oculto", "d-none");
-            modalSos.classList.add("activo", "show", "open");
-            modalSos.style.display = "flex";
-            return;
-        }
+        aplicarPosicionGuardada(btn);
 
-        window.location.href = "/red-apoyo";
-    }
+        btn.addEventListener("pointerdown", (e) => {
+            if (e.button !== undefined && e.button !== 0 && e.pointerType === "mouse") return;
 
-    aplicarPosicionGuardada();
-
-    btn.addEventListener("pointerdown", (e) => {
-        if (e.button !== undefined && e.button !== 0 && e.pointerType === "mouse") return;
-
-        const rect = btn.getBoundingClientRect();
-        arrastrando = true;
-        seMovio = false;
-        inicioX = e.clientX;
-        inicioY = e.clientY;
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-
-        btn.style.left = `${rect.left}px`;
-        btn.style.top = `${rect.top}px`;
-        btn.style.right = "auto";
-        btn.style.bottom = "auto";
-        btn.classList.add("arrastrando");
-
-        if (btn.setPointerCapture) {
-            try {
-                btn.setPointerCapture(e.pointerId);
-            } catch (_) {}
-        }
-    });
-
-    btn.addEventListener("pointermove", (e) => {
-        if (!arrastrando) return;
-
-        const dx = e.clientX - inicioX;
-        const dy = e.clientY - inicioY;
-
-        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
-            seMovio = true;
-        }
-
-        if (!seMovio) return;
-
-        const ajustada = limitarDentroDePantalla(e.clientX - offsetX, e.clientY - offsetY);
-        btn.style.left = `${ajustada.left}px`;
-        btn.style.top = `${ajustada.top}px`;
-    });
-
-    function finalizarArrastre(e) {
-        if (!arrastrando) return;
-        arrastrando = false;
-        btn.classList.remove("arrastrando");
-
-        if (btn.releasePointerCapture && e && e.pointerId !== undefined) {
-            try {
-                btn.releasePointerCapture(e.pointerId);
-            } catch (_) {}
-        }
-
-        if (seMovio) {
             const rect = btn.getBoundingClientRect();
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ left: rect.left, top: rect.top }));
-            } catch (_) {}
+            arrastrando = true;
+            seMovio = false;
+            inicioX = e.clientX;
+            inicioY = e.clientY;
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            btn.style.left = `${rect.left}px`;
+            btn.style.top = `${rect.top}px`;
+            btn.style.right = "auto";
+            btn.style.bottom = "auto";
+            btn.style.cursor = "grabbing";
+            btn.classList.add("arrastrando");
+
+            if (btn.setPointerCapture) {
+                try {
+                    btn.setPointerCapture(e.pointerId);
+                } catch (_) {}
+            }
+        });
+
+        btn.addEventListener("pointermove", (e) => {
+            if (!arrastrando) return;
+
+            const dx = e.clientX - inicioX;
+            const dy = e.clientY - inicioY;
+
+            if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+                seMovio = true;
+            }
+
+            if (!seMovio) return;
+
+            const ajustada = limitarDentroDePantalla(btn, e.clientX - offsetX, e.clientY - offsetY);
+            btn.style.left = `${ajustada.left}px`;
+            btn.style.top = `${ajustada.top}px`;
+        });
+
+        function finalizarArrastre(e) {
+            if (!arrastrando) return;
+            arrastrando = false;
+            btn.style.cursor = "grab";
+            btn.classList.remove("arrastrando");
+
+            if (btn.releasePointerCapture && e && e.pointerId !== undefined) {
+                try {
+                    btn.releasePointerCapture(e.pointerId);
+                } catch (_) {}
+            }
+
+            if (seMovio) {
+                const rect = btn.getBoundingClientRect();
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({ left: rect.left, top: rect.top }));
+                } catch (_) {}
+            }
+        }
+
+        btn.addEventListener("pointerup", finalizarArrastre);
+        btn.addEventListener("pointercancel", finalizarArrastre);
+
+        // Fase de captura: si hubo arrastre, bloquea el clic para que no abra el modal sin querer;
+        // si fue solo toque/clic, deja pasar el evento normal que abre el modal de líneas
+        btn.addEventListener(
+            "click",
+            (e) => {
+                if (seMovio) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    seMovio = false;
+                }
+            },
+            true
+        );
+    }
+
+    function buscarYActivar() {
+        const btnReal = document.getElementById("contigo-sos-btn");
+        if (btnReal) {
+            inicializarBotonSos(btnReal);
         }
     }
 
-    btn.addEventListener("pointerup", finalizarArrastre);
-    btn.addEventListener("pointercancel", finalizarArrastre);
+    buscarYActivar();
 
-    btn.addEventListener("click", (e) => {
-        if (seMovio) {
-            e.preventDefault();
-            e.stopPropagation();
-            seMovio = false;
-            return;
-        }
-
-        abrirModalApoyoInmediato();
+    const observador = new MutationObserver(() => {
+        buscarYActivar();
     });
+    observador.observe(document.body, { childList: true, subtree: true });
 
     window.addEventListener("resize", () => {
-        if (!btn.style.left || !btn.style.top) return;
-        const rect = btn.getBoundingClientRect();
-        const ajustada = limitarDentroDePantalla(rect.left, rect.top);
-        btn.style.left = `${ajustada.left}px`;
-        btn.style.top = `${ajustada.top}px`;
+        if (!btnActual || !btnActual.style.left || !btnActual.style.top) return;
+        const rect = btnActual.getBoundingClientRect();
+        const ajustada = limitarDentroDePantalla(btnActual, rect.left, rect.top);
+        btnActual.style.left = `${ajustada.left}px`;
+        btnActual.style.top = `${ajustada.top}px`;
     });
 });
