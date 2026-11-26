@@ -65,13 +65,12 @@
             display: none !important;
         }
 
-        #form-login button:disabled,
-        #btn-acceso-demo:disabled {
+        #form-login button:disabled {
             opacity: 0.65;
             cursor: wait;
         }
 
-        /* Accesos rápidos para evaluación y PWA */
+        /* Acceso rápido para instalación PWA */
 
         .contenedor-accesos-rapidos {
             margin-top: 18px;
@@ -82,25 +81,6 @@
             flex-direction: column;
             gap: 10px;
             text-align: center;
-        }
-
-        #btn-acceso-demo {
-            width: 100%;
-            background: #f5eeff;
-            color: #5e359c;
-            border: 1.5px solid #cbb2ec;
-            border-radius: 12px;
-            padding: 11px 18px;
-            font-family: inherit;
-            font-weight: 700;
-            font-size: 14.5px;
-            cursor: pointer;
-            transition: background 0.18s ease, transform 0.18s ease;
-        }
-
-        #btn-acceso-demo:hover {
-            background: #ebe0fc;
-            transform: translateY(-1px);
         }
 
         #btn-instalar-app {
@@ -224,22 +204,15 @@
             </a>
         </p>
 
-        <!-- Accesos rápidos: Cuenta Demo para jurados + Instalador PWA -->
+        <!-- Acceso rápido: Instalador PWA -->
 
         <div class="contenedor-accesos-rapidos">
 
             <button
                 type="button"
-                id="btn-acceso-demo"
-            >
-                ✨ Entrar con Cuenta Demo (Jurados)
-            </button>
-
-            <button
-                type="button"
                 id="btn-instalar-app"
             >
-                📲 Descargar / Instalar app CONTIGO
+                📲 Instalar app CONTIGO ahora
             </button>
 
             <div
