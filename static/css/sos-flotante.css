@@ -1,0 +1,45 @@
+#btn-sos-flotante {
+    position: fixed;
+    right: 18px;
+    bottom: 92px; /* Por encima de la barra inferior en móvil */
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #e53955, #c62842);
+    color: #ffffff;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14.5px;
+    box-shadow: 0 8px 22px rgba(198, 40, 66, 0.35);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* Clave para arrastrar con el dedo sin que haga scroll */
+    transition: box-shadow 0.18s ease, transform 0.15s ease;
+}
+
+#btn-sos-flotante:active,
+#btn-sos-flotante.arrastrando {
+    cursor: grabbing;
+    box-shadow: 0 12px 28px rgba(198, 40, 66, 0.48);
+    transform: scale(1.03);
+}
+
+#btn-sos-flotante .sos-badge {
+    background: rgba(255, 255, 255, 0.22);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+@media (min-width: 769px) {
+    #btn-sos-flotante {
+        bottom: 24px;
+        right: 24px;
+    }
+}
